@@ -5,3 +5,8 @@ NonHomomorphism Factors are defined first in [the thesis of Kaveh Khoshkhah](htt
 
 In the thesis, a function $d$ is also defined which is improved to be a metric measure as follows:
 - $d(G,H) = max(|G,H|,|H,G|)$
+
+So, $d$ is metric which basically means:
+- $d(G,G) = 0$
+- $d(G,H) = d(H,G)$
+- $d(G,H) + d(H,K) > d(G,K)$
