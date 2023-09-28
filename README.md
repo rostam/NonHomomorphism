@@ -5,10 +5,11 @@ The concept of NonHomomorphism Factors was first introduced in [the thesis of Ka
 
 Clearly, this factor shows us how far two graphs are from being homomorphic.
 
-So, assume G is homomorphic to H, I define a new parameter gamma which defines as follow.
-Let us have maximum number of edges from G which are mapped to the same edge in H for a specific map m as alpha.
-Now we define gamma, as the minimum alpha for all such maps from G to H.
+Suppose $G$ is homomorphic to $H$. I introduce a new parameter, $\gamma$, defined as follows:
 
+Consider a specific map mm from $G$ to $H$. Let $\alpha$ represent the maximum number of edges in $G$ that are mapped to a single edge in $H$ under this map.
+
+Now, we define $\gamma$ to be the smallest value of $\alpha$ taken over all possible maps from $G$ to $H$.
 
 
 In the thesis, a function $d$ is also defined which is improved to be a metric measure as follows:
