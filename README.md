@@ -12,7 +12,7 @@ Once I have defined $\gamma$, we can build upon it to establish various lemmas. 
 - $\gamma(G,G)=0$
 - If $G\rightarrow H$, then $\gamma(G,H) \geq 0$).
 - $\gamma(G, H) + \gamma(H,K) \geq \gamma(G,K)$
-- If $G\rightarrow H$, then $|G,K| \geq \gamma|H,K|$.
+- If $G\rightarrow H$, then $|G,K| \geq \gamma (G,H)\times|H,K|$.
 
 
 # Extras
