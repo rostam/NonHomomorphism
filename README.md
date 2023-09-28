@@ -10,7 +10,7 @@ Suppose $G$ is homomorphic to $H$. I introduce a new parameter, $\gamma$, define
 
 Once I have defined $\gamma$, we can build upon it to establish various lemmas. Let's propose a few hypothetical lemmas based on the given definition of $\gamma(G, H)$:
 - $\gamma(G,G)=0$
-- If $G\rightarrow H$, then $\gamma(G,H) \geq 0$).
+- If $G\rightarrow H$, then $\gamma(G,H) > 0$.
 - $\gamma(G, H) + \gamma(H,K) \geq \gamma(G,K)$
 - If $G\rightarrow H$, then $|G,K| \leq \gamma (G,H)\times|H,K|$.
 - If $G\rightarrow H$ and $K\rightarrow H$, then $|G,K| \leq min(\gamma (G,H)\times|H,K|, \gamma (H,K)\times|G,K|)$
