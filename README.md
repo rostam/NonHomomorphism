@@ -6,8 +6,8 @@ The concept of NonHomomorphism Factors was first introduced in [the thesis of Ka
 In the thesis, a function $d$ is also defined which is improved to be a metric measure as follows:
 - $d(G,H) = max(|G,H|,|H,G|)$
 
-So, this metric $d$ possesses the following properties:
-- $d(G,G)\geq 0$ (Non-negativity)
-- $d(G,G) = 0$  (Identity of indiscernibles)
+So, this metric $d$ possesses the following properties for any two graphs $G$ and $H$:
+- $d(G,H) \geq 0$ (Non-negativity)
+- $d(G,G) = 0$  (Identity of indiscernibles, partially)
 - $d(G,H) = d(H,G)$  (Symmetry)
 - $d(G,H) + d(H,K) > d(G,K)$  (Triangle inequality)
