@@ -14,6 +14,7 @@ Once I have defined $\gamma$, we can build upon it to establish various lemmas. 
 - $\gamma(G, H) + \gamma(H,K) \geq \gamma(G,K)$
 - If $G\rightarrow H$, then $|G,K| \geq \gamma (G,H)\times|H,K|$.
 
+If there is no homomorphism from $G$ to $H$ then we need to define $\gamma$. Maybe, a logical way is to define it as inifinite??
 
 # Extras
 In the thesis, a function $d$ is also defined which is improved to be a metric measure as follows:
