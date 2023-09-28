@@ -9,7 +9,7 @@ Clearly, this factor shows us how far two graphs are from being homomorphic.
 Suppose $G$ is homomorphic to $H$. I introduce a new parameter, $\gamma$, defined as follows. Consider a specific map mm from $G$ to $H$. Let $\alpha$ represent the maximum number of edges in $G$ that are mapped to a single edge in $H$ under this map. Now, we define $\gamma$ to be the smallest value of $\alpha$ taken over all possible maps from $G$ to $H$.
 
 Once I have defined $\gamma$, we can build upon it to establish various lemmas. Let's propose a few hypothetical lemmas based on the given definition of $\gamma(G, H)$:
-- $\gamma(G, H) + \gamma(H,K) > \gamma(G,K)$
+- $\gamma(G, H) + \gamma(H,K) \geq \gamma(G,K)$
 
 
 # Extras
