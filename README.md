@@ -3,6 +3,12 @@ The concept of NonHomomorphism Factors was first introduced in [the thesis of Ka
 - $|K_n,K_{n+1}|=0$
 - $|K_{n+1},K_n|=1$
 
+Clearly, this factor shows us how far two graphs are from being homomorphic.
+
+
+
+
+
 In the thesis, a function $d$ is also defined which is improved to be a metric measure as follows:
 - $d(G,H) = max(|G,H|,|H,G|)$
 
@@ -11,3 +17,7 @@ So, this metric $d$ possesses the following properties for any two graphs $G$ an
 - $d(G,G) = 0$  (Identity of indiscernibles, partially)
 - $d(G,H) = d(H,G)$  (Symmetry)
 - $d(G,H) + d(H,K) > d(G,K)$  (Triangle inequality)
+
+For the property of Identity of indiscernibles, we need to consider classes of graph in which they are homomorphic to each other. 
+
+
