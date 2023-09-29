@@ -5,7 +5,7 @@ Let $G=(V(G),E(G))$ and $H=(V(H),E(H))$ be two graphs. A homomorphism from $G$ t
 
 A vertex coloring of a graph is to color vertices with some colors such that no two connected vertices have same colors. The smallest number of colors needed to color the vertices of a graph $G$ is called its chromatic number, and is often denoted by $\chi (G)$. A known [[3]](#3) connection of graph coloring and homomorphism is as follows,
 $$
-$G\rightarrow H$ \Rightarrow $\chi (G)\leq\chi (H)$
+G\rightarrow H \Rightarrow \chi (G)\leq\chi (H)
 $$
 
 # NonHomomorphism Factors
