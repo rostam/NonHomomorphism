@@ -20,6 +20,7 @@ Clearly, this factor shows us how far two graphs are from being homomorphic.
 
 The followings are some initial propositions, as outlined according to [[1]](#1), 
 - $H_1 \rightarrow H_2, \forall G: |G,H_1| \geq |G,H_2|$
+- $H_1 \leftrightarrow H_2, \forall G: |G,H_1| = |G,H_2|$
 - $G_1 \rightarrow G_2$ is edge injective, $\forall H: |G_1,H| \leq |G_2,H|$
 
 A
