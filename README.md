@@ -1,7 +1,7 @@
 # Introduction
 In this section, I aim to present a series of results that build upon the definitions outlined in [[1]](#1), specifically those pertaining to Homomorphisms and Nonhomomorphisms. Before delving into the main topics, let's first familiarize ourselves with some essential definitions and established theorems.
 
-Let $G=(V(G),E(G))$ and $H=(V(H),E(H))$ be two graphs. A homomorphism from $G$ to $H$ is a function $f:V(G)→V(H)$ such that for every edge $(u,v)$ in $E(G)$, the pair $(f(u),f(v))$ is an edge in $E(H)$. A homomorphism between two graphs doesn't always exist. When a function provides a homomorphism from graph $G$ to $H$, it is denoted as $G\rightarrow H$.
+Let $G=(V(G),E(G))$ and $H=(V(H),E(H))$ be two graphs. A homomorphism from $G$ to $H$ is a function $f:V(G)→V(H)$ such that for every edge $(u,v)$ in $E(G)$, the pair $(f(u),f(v))$ is an edge in $E(H)$. A homomorphism between two graphs doesn't always exist. When a function provides a homomorphism from graph $G$ to $H$, it is denoted as $G\rightarrow H$. It's important to highlight that the function $f$ is not necessarily injective or surjective. However, such specific types of homomorphisms are also worthy of study.
 
 A vertex coloring of a graph is to color vertices with some colors such that no two connected vertices have same colors. The smallest number of colors needed to color the vertices of a graph $G$ is called its chromatic number, and is often denoted by $\chi (G)$. A known [[3]](#3) connection of graph coloring and homomorphism is as follows,
 $$G\rightarrow H \Rightarrow \chi (G)\leq\chi (H)$$
