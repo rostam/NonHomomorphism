@@ -7,7 +7,7 @@ A vertex coloring of a graph is to color vertices with some colors such that no 
 $$G\rightarrow H \Rightarrow \chi (G)\leq\chi (H)$$
 
 A graph $H$ is called vertex transitive if for any two vertex $u$ and $v$, an isomorphism exists that maps $u$ to $v$. Let $n(G,H)$ denote the number of vertices in the largest induced subgraph of $G$ that is homomorphic to $H$. The following theorem is presented in [[3]](#3):
-$$\frac{n(H,K)}{n(H)}\leq \frac{n(G,K)}{n(G)}$$
+$$\frac{n(H,K)}{|V(H)|}\leq \frac{n(G,K)}{|V(G)|}$$
 Also, if the independence number $\alpha(G)$ represents the maximum number of vertices you can select from the graph $G$ such that no two of them are connected by an edge. Then, if there is a homomorphism from $G$ to a vertex-transitive graph $H$,  [[3]](#3).
 $$\frac{\alpha (G)}{|V(G)|}\geq \frac{\alpha (H)}{|V(H)|}$$
 
