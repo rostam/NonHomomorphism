@@ -1,10 +1,12 @@
 # Introduction
 In this section, I aim to present a series of results that build upon the definitions outlined in [[1]](#1), specifically those pertaining to Homomorphisms and Nonhomomorphisms. Before delving into the main topics, let's first familiarize ourselves with some essential definitions and established theorems.
 
-Let $G=(V(G),E(G))$ and $H=(V(H),E(H))$ be two graphs. A homomorphism from $G$ to $H$ is a function $f:V(G)→V(H)$ such that for every edge $(u,v)$ in $E(G)$, the pair $(f(u),f(v))$ is an edge in $E(H)$. A homomorphism between two graphs doesn't always exist. When a function provides a homomorphism from graph $G$ to $H$, it is denoted as $G\rightarrow H$. It's important to highlight that the function $f$ is not necessarily injective or surjective. However, such specific types of homomorphisms are also worthy of study.
+Let $G=(V(G),E(G))$ and $H=(V(H),E(H))$ be two graphs. A homomorphism from $G$ to $H$ is a function $f:V(G)→V(H)$ such that for every edge $(u,v)$ in $E(G)$, the pair $(f(u),f(v))$ is an edge in $E(H)$. A homomorphism between two graphs doesn't always exist. When a function provides a homomorphism from graph $G$ to $H$, it is denoted as $G\rightarrow H$. It's important to highlight that the function $f$ is not necessarily injective or surjective. However, such specific types of homomorphisms are also worthy of study. If the function $f$ is both injective and surjective, the graphs are isomorphic. An isomorphism of a graph to itself is called automorphism. 
 
 A vertex coloring of a graph is to color vertices with some colors such that no two connected vertices have same colors. The smallest number of colors needed to color the vertices of a graph $G$ is called its chromatic number, and is often denoted by $\chi (G)$. A known [[3]](#3) connection of graph coloring and homomorphism is as follows,
 $$G\rightarrow H \Rightarrow \chi (G)\leq\chi (H)$$
+
+A graph $H$ is called vertex transitive if for any two vertex $u$ and $v$, an isomorphism exists that maps $u$ to $v$.
 
 # NonHomomorphism Factors
 The concept of NonHomomorphism Factors was first introduced in [[1]](#1). While the thesis explores various definitions, here we will focus on a particular version to extend upon. Let's define the Non-Homomorphism Factor between two graphs $G$ and $H$,  denoted as $|G,H|$. as the fewest number of edges one must remove from $G$ to establish at lease one homomorphism from $G$ to $H$. So, if there is already a homomorphism from $G$ to $H$, the nonhomomorphism factor is $0$. Here are some more examples:
