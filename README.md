@@ -42,7 +42,9 @@ Once I have defined $\gamma$, we can build upon it to establish various lemmas. 
 If there is no homomorphism from $G$ to $H$ then we need to define $\gamma$. Maybe, a logical way is to define it as inifinite??
 
 Assume the funciton $f$ is the homomorphism from $G$ to $H$, then we have the following results,
-$$d_H(f(u), f(v)) \geq d_G(u,v) + \gamma (G,H)$$.
+$$d_G(u,v)  \geq d_H(f(u), f(v)) + \gamma (G,H)$$.
+This results in,
+$$0 \leq d_G(u,v)  - d_H(f(u), f(v)) \leq \gamma (G,H)$$
 
 
 # Extras
