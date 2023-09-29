@@ -26,7 +26,7 @@ The followings are some initial propositions, as outlined according to [[1]](#1)
 - $H_1 \leftrightarrow H_2, \forall G: |G,H_1| = |G,H_2|$
 - $G_1 \rightarrow G_2$ is edge injective, $\forall H: |G_1,H| \leq |G_2,H|$
 
-A
+
 
 # Concentration Parameter
 Suppose $G$ is homomorphic to $H$. I introduce a new parameter, $\gamma$, defined as follows. Consider a specific map mm from $G$ to $H$. Let $\alpha$ represent the maximum number of edges in $G$ that are mapped to a single edge in $H$ under this map. There is a similar parameter $M^{\sigma}$ defined in [[2]](#2).for each homomorphism $\sigma$. Now, we define $\gamma(G,H)$ to be the smallest value of $\alpha$ taken over all possible maps from $G$ to $H$.
@@ -42,7 +42,7 @@ Once I have defined $\gamma$, we can build upon it to establish various lemmas. 
 If there is no homomorphism from $G$ to $H$ then we need to define $\gamma$. Maybe, a logical way is to define it as inifinite??
 
 Assume the funciton $f$ is the homomorphism from $G$ to $H$, then we have the following results,
-$$d_G(u,v)  \geq d_H(f(u), f(v)) + \gamma (G,H)$$.
+$$d_G(u,v)  \geq d_H(f(u), f(v)) + \gamma (G,H)$$
 This results in,
 $$0 \leq d_G(u,v)  - d_H(f(u), f(v)) \leq \gamma (G,H)$$
 
