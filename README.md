@@ -3,7 +3,7 @@ In this section, I aim to present a series of results that build upon the defini
 
 Let $G=(V(G),E(G))$ and $H=(V(H),E(H))$ be two graphs. A homomorphism from $G$ to $H$ is a function $f:V(G)→V(H)$ such that for every edge $(u,v)$ in $E(G)$, the pair $(f(u),f(v))$ is an edge in $E(H)$. A homomorphism between two graphs doesn't always exist. When a function provides a homomorphism from graph $G$ to $H$, it is denoted as $G\rightarrow H$.
 
-A vertex coloring of a graph is to color vertices with some colors such that no two connected vertices have same colors. The smallest number of colors needed to color the vertices of a graph $G$ is called its chromatic number, and is often denoted by $\Xi (G)$.
+A vertex coloring of a graph is to color vertices with some colors such that no two connected vertices have same colors. The smallest number of colors needed to color the vertices of a graph $G$ is called its chromatic number, and is often denoted by $\chi (G)$.
 
 # NonHomomorphism Factors
 The concept of NonHomomorphism Factors was first introduced in [[1]](#1). While the thesis explores various definitions, here we will focus on a particular version to extend upon. Let's define the Non-Homomorphism Factor between two graphs $G$ and $H$,  denoted as $|G,H|$. as the fewest number of edges one must remove from $G$ to establish at lease one homomorphism from $G$ to $H$. So, if there is already a homomorphism from $G$ to $H$, the nonhomomorphism factor is $0$. Here are some more examples:
