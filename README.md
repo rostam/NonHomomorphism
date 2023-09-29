@@ -16,8 +16,13 @@ The concept of NonHomomorphism Factors was first introduced in [[1]](#1). While 
 - $|K_n,K_{n+1}|=0$
 - $|K_{n+1},K_n|=1$
 
-Clearly, this factor shows us how far two graphs are from being homomorphic. According to [[1]](#1), 
-$$H_1 \rightarrow H_2, \forall G: |G,H_1| \geq |G,H_2|$$
+Clearly, this factor shows us how far two graphs are from being homomorphic. 
+
+The followings are some initial propositions, as outlined according to [[1]](#1), 
+- $H_1 \rightarrow H_2, \forall G: |G,H_1| \geq |G,H_2|$
+- $G_1 \rightarrow G_2$ is edge injective, $\forall H: |G_1,H| \leq |G_2,H|$
+
+A
 
 # Concentration Parameter
 Suppose $G$ is homomorphic to $H$. I introduce a new parameter, $\gamma$, defined as follows. Consider a specific map mm from $G$ to $H$. Let $\alpha$ represent the maximum number of edges in $G$ that are mapped to a single edge in $H$ under this map. There is a similar parameter $M^{\sigma}$ defined in [[2]](#2).for each homomorphism $\sigma$. Now, we define $\gamma(G,H)$ to be the smallest value of $\alpha$ taken over all possible maps from $G$ to $H$.
