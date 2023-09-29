@@ -11,6 +11,9 @@ $$\frac{n(H,K)}{|V(H)|}\leq \frac{n(G,K)}{|V(G)|}$$
 Also, if the independence number $\alpha(G)$ represents the maximum number of vertices you can select from the graph $G$ such that no two of them are connected by an edge. Then, if there is a homomorphism from $G$ to a vertex-transitive graph $H$,  [[3]](#3) shows the followings,
 $$\frac{\alpha (G)}{|V(G)|}\geq \frac{\alpha (H)}{|V(H)|}$$
 
+Let the distance between two vertices $u$ and $v$ in graph $G$, denoted by $d(u,v)$, be the minimum path between them in graph $G$. Assume the function $f$ is the homomorphism from $G$ to $H$, the following result is shown in  [[3]](#3),
+$$d_H(f(u), f(v)) \leq d_G(u,v)$$.
+
 # NonHomomorphism Factors
 The concept of NonHomomorphism Factors was first introduced in [[1]](#1). While the thesis explores various definitions, here we will focus on a particular version to extend upon. Let's define the Non-Homomorphism Factor between two graphs $G$ and $H$,  denoted as $|G,H|$. as the fewest number of edges one must remove from $G$ to establish at lease one homomorphism from $G$ to $H$. So, if there is already a homomorphism from $G$ to $H$, the nonhomomorphism factor is $0$. Here are some more examples:
 - $|K_n,K_{n+1}|=0$
@@ -35,18 +38,21 @@ Once I have defined $\gamma$, we can build upon it to establish various lemmas. 
 - If $G\rightarrow H$, then $|G,K| \leq \gamma (G,H)\times|H,K|$.
 - If $G\rightarrow H$ and $K\rightarrow H$, then $|G,K| \leq min(\gamma (G,H)\times|H,K|, \gamma (K,H)\times|G,K|)$
 - If $G\rightarrow H$ and $H$ is both vertex- and edge-transitive, then $\gamma(G,H) \leq \frac{|E(G)|}{|E(H)|}$
-
+ 
 If there is no homomorphism from $G$ to $H$ then we need to define $\gamma$. Maybe, a logical way is to define it as inifinite??
+
+
+
 
 # Extras
 In the thesis, a function $d$ is also defined which is improved to be a metric measure as follows:
-- $d(G,H) = max(|G,H|,|H,G|)$
+- $m(G,H) = max(|G,H|,|H,G|)$
 
-So, this metric $d$ possesses the following properties for any two graphs $G$ and $H$:
-- $d(G,H) \geq 0$ (Non-negativity)
-- $d(G,G) = 0$  (Identity of indiscernibles, partially)
-- $d(G,H) = d(H,G)$  (Symmetry)
-- $d(G,H) + d(H,K) > d(G,K)$  (Triangle inequality)
+So, this metric $m$ possesses the following properties for any two graphs $G$ and $H$:
+- $m(G,H) \geq 0$ (Non-negativity)
+- $m(G,G) = 0$  (Identity of indiscernibles, partially)
+- $m(G,H) = m(H,G)$  (Symmetry)
+- $m(G,H) + m(H,K) > m(G,K)$  (Triangle inequality)
 
 For the property of Identity of indiscernibles, we need to consider classes of graph in which they are homomorphic to each other. 
 
