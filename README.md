@@ -14,6 +14,12 @@ $$\frac{\alpha (G)}{|V(G)|}\geq \frac{\alpha (H)}{|V(H)|}$$
 Let the distance between two vertices $u$ and $v$ in graph $G$, denoted by $d(u,v)$, be the minimum path between them in graph $G$. Assume the function $f$ is the homomorphism from $G$ to $H$, the following result is shown in  [[3]](#3),
 $$d_H(f(u), f(v)) \leq d_G(u,v)$$.
 
+Another interesting fact mentioned in [[4]](#4) is as follows,
+
+If $H$ is a subgraph of $G$, then a retraction of $G$ to $H$ is a homomorphism $r : G \rightarrow H$ such that $r(x) = x$ for all $x \in V (H)$. A graph is a core if it does not admit a homomorphism to a proper subgraph
+of itself. Every graph $G$ contains a unique (up to isomorphism) subgraph $H$ which is a core and admits a retraction $r : G \rightarrow H$. Then usually this subgraph $H$ is called the core of $G$, and is denoted by $core(G)$. Also note that in this situation for each graph $K$, there exists a homomorphism $f : K \rightarrow G$ if and only if there exists a homomorphism $f : K \rightarrow core(G)$.
+Let G be a vertex–transitive graph. Then, $core(G)$ is a vertex–transitive graph. If $f$ is a homomorphism from G to core(G), then for all vertex $x$, the inverse images $f^{−1}(x)$ have the same cardinality of $\frac{|V(G)|}{|V(core(G)|} .
+
 # NonHomomorphism Factors
 The concept of NonHomomorphism Factors was first introduced in [[1]](#1). While the thesis explores various definitions, here we will focus on a particular version to extend upon. Let's define the Non-Homomorphism Factor between two graphs $G$ and $H$,  denoted as $|G,H|$. as the fewest number of edges one must remove from $G$ to establish at lease one homomorphism from $G$ to $H$. So, if there is already a homomorphism from $G$ to $H$, the nonhomomorphism factor is $0$. Here are some more examples:
 - $|K_n,K_{n+1}|=0$
@@ -81,3 +87,9 @@ Pavol Hell and Jaroslav Nesetril (2004)
 Graphs and homomorphisms
 Oxford lecture series in mathematics and its applications
 Oxford University Press
+
+<a id="4">[4]</a> 
+Graph Homomorphisms Through Random Walks
+Amir Daneshgar, Hossein Hajiabolhassan (2003)
+JGT 44 (2003) 15–38
+[Link][(https://doi.org/10.1016/j.ejc.2006.04.010](https://citeseerx.ist.psu.edu/document?repid=rep1&type=pdf&doi=39f742b250b21aa83fae0e861c25d446829a77ed)https://citeseerx.ist.psu.edu/document?repid=rep1&type=pdf&doi=39f742b250b21aa83fae0e861c25d446829a77ed)
