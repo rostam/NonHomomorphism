@@ -40,8 +40,8 @@ Once I have defined $\gamma$, we can build upon it to establish various lemmas. 
 - $\gamma(G, H) + \gamma(H,K) \geq \gamma(G,K)$
 - If $G\rightarrow H$, then $|G,K| \leq \gamma (G,H)\times|H,K|$.
 - If $G\rightarrow H$ and $K\rightarrow H$, then $|G,K| \leq min(\gamma (G,H)\times|H,K|, \gamma (K,H)\times|G,K|)$
-- If $G\rightarrow H$ and $H$ is both vertex- and edge-transitive, then $\gamma(G,H) \leq \frac{|E(G)|}{|E(H)|}$
- 
+- If $G\rightarrow H$ and $H$ is both vertex- and edge-transitive, then $\gamma(G,H) \leq \frac{|E(G)|}{|E(H)|}$???
+Uniformization?? 
 If there is no homomorphism from $G$ to $H$ then we need to define $\gamma$. Maybe, a logical way is to define it as inifinite??
 
 Assume the funciton $f$ is the homomorphism from $G$ to $H$, then we have the following results,
