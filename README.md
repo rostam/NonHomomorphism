@@ -17,8 +17,9 @@ $$d_H(f(u), f(v)) \leq d_G(u,v)$$.
 If $H$ is a subgraph of $G$, then a retraction of $G$ to $H$ is a homomorphism $r : G \rightarrow H$ such that $r(x) = x$ for all $x \in V (H)$. A graph is a core if it does not admit a homomorphism to a proper subgraph of itself. Every graph $G$ contains a unique (up to isomorphism) subgraph $H$ which is a core and admits a retraction $r : G \rightarrow H$. Then usually this subgraph $H$ is called the core of $G$, and is denoted by $core(G)$. Also note that in this situation for each graph $K$, there exists a homomorphism $f : K \rightarrow G$ if and only if there exists a homomorphism $f : K \rightarrow core(G)$.
 Another interesting fact mentioned in [[4]](#4) is as follows. Let G be a vertex–transitive graph. Then, $core(G)$ is a vertex–transitive graph. If $f$ is a homomorphism from G to core(G), then for all vertex $x$, the inverse images $f^{−1}(x)$ have the same cardinality of $\frac{|V(G)|}{|V(core(G))|}$.
 
-Another interesting recent result is the conterexample to Hedetniemi's conjecture [[5]](#5) in the topic of graph product. A graph product can be defined in different ways as follows,
-- $$G_1\box G_2$$
+Another interesting recent result is the conterexample to Hedetniemi's conjecture [[5]](#5) in the topic of graph product. A graph product can be defined in different ways as follows. Given two graphs $G_1(V_1,E_1)$ and $G_2(V_1,E_1)$, we define a new graph with the vertex set of $V_1\times V_2$. The edge set can be defined differently which produces different product graph:
+- Tensor Product: 
+- Cartesian Product: Two vertices in the product graph are connected only if the corresponding vertices in both given graphs are connected. 
 
 # NonHomomorphism Factors
 The concept of NonHomomorphism Factors was first introduced in [[1]](#1). While the thesis explores various definitions, here we will focus on a particular version to extend upon. Let's define the Non-Homomorphism Factor between two graphs $G$ and $H$,  denoted as $|G,H|$. as the fewest number of edges one must remove from $G$ to establish at lease one homomorphism from $G$ to $H$. So, if there is already a homomorphism from $G$ to $H$, the nonhomomorphism factor is $0$. Here are some more examples:
