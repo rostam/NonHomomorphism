@@ -55,7 +55,7 @@ $$0 \leq d_G(u,v)  - d_H(f(u), f(v)) \leq \gamma (G,H)$$
 
 
 # Extras
-In the thesis, a function $d$ is also defined which is improved to be a metric measure as follows:
+In the thesis, a function $m$ is also defined which is improved to be a metric measure as follows:
 - $m(G,H) = max(|G,H|,|H,G|)$
 
 So, this metric $m$ possesses the following properties for any two graphs $G$ and $H$:
