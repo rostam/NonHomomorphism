@@ -15,11 +15,11 @@ import FindHomomorphisms as fh
 
 gs = []
 for i in range(2, 8):
-    with open("g" + str(i) + ".g6", "r") as f:
+    with open("n" + str(i) + ".g6", "r") as f:
         data = f.read()
         for line in data.split("\n"):
             if line != "":
                 gs.append(line)
 
-# print(",".join(gs))
+print(",".join(gs))
 print(len(gs))
