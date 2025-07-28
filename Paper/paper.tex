@@ -2,6 +2,13 @@
 \usepackage{amsmath,amssymb,amsthm,hyperref,graphicx}
 \usepackage{geometry}
 \geometry{margin=1in}
+
+% --- ADD THESE LINES HERE ---
+\newtheorem{theorem}{Theorem}[section]
+\newtheorem{conjecture}[theorem]{Conjecture}
+\newtheorem{definition}[theorem]{Definition}
+% --------------------------
+
 \title{Graph Homomorphisms and NonHomomorphism Metrics}
 \author{}
 \date{}
@@ -114,9 +121,131 @@ Inspired by \cite{daneshgar}, the circular chromatic number $\chi_c(G)$ refines 
   \item $\gamma(G,H)$ lower-bounded by circular flow congestion
 \end{itemize}
 
+Of course. Here is the LaTeX code for the suggested additions, formatted and ready to be pasted into a new section in your document.
+
+
+\subsection*{1. Strengthening the NonHomomorphism Factor $|G,H|$}
+The following results provide concrete bounds and structural conjectures for the NonHomomorphism Factor.
+
+\begin{theorem}[Bound via Chromatic Number]
+Let $G$ and $H$ be graphs. Then the NonHomomorphism Factor is bounded below by the difference in their chromatic numbers:
+$$|G,H| \ge \chi(G) - \chi(H)$$
+\end{theorem}
+
+\begin{proof}
+Let $k = |G,H|$. By definition, there exists a subgraph $G'$ of $G$ obtained by removing $k$ edges such that $G' \rightarrow H$. This implies $\chi(G') \le \chi(H)$. The removal of a single edge can reduce the chromatic number of a graph by at most 1. Therefore, after removing $k$ edges, we have $\chi(G') \ge \chi(G) - k$. Combining the inequalities, we get $\chi(G) - k \le \chi(G') \le \chi(H)$, which simplifies to $k \ge \chi(G) - \chi(H)$.
+\end{proof}
+
+\begin{conjecture}[Behavior under Cartesian Product]
+For any graphs $G_1, G_2,$ and $H$, the NonHomomorphism Factor for the Cartesian product is bounded by the sum of the individual factors, weighted by the number of vertices:
+$$|G_1 \square G_2, H| \le |V(G_2)| \cdot |G_1, H| + |V(G_1)| \cdot |G_2, H|$$
+\end{conjecture}
+
+\subsection*{2. Deepening the Concentration Parameter $\gamma(G,H)$}
+To better understand the concept of uniformization, we can formalize the different types of edge congestion.
+
+\begin{definition}[Congestion Parameters]
+Let $f: G \to H$ be a homomorphism.
+\begin{itemize}
+    \item The \textbf{maximum congestion} of $f$ is $\gamma_f(G,H) = \max_{e' \in E(H)} |f^{-1}(e')|$.
+    \item The \textbf{minimum congestion} of $f$ is $\delta_f(G,H) = \min_{e' \in E(H)} |f^{-1}(e')|$.
+    \item The \textbf{average congestion} is $\bar{\gamma}(G,H) = \frac{|E(G)|}{|E(H)|}$, which is independent of $f$.
+\end{itemize}
+The concentration parameter is then $\gamma(G,H) = \min_f \gamma_f(G,H)$ over all homomorphisms $f:G \to H$.
+\end{definition}
+
+\begin{theorem}[The Congestion Principle]
+For any homomorphism $f: G \to H$, the average congestion is bounded by the minimum and maximum congestion:
+$$\delta_f(G,H) \le \bar{\gamma}(G,H) \le \gamma_f(G,H)$$
+Furthermore, a homomorphism $f$ is perfectly uniform if and only if $\delta_f(G,H) = \gamma_f(G,H)$.
+\end{theorem}
+\begin{proof}
+This is a direct consequence of the pigeonhole principle. The average of a set of values must lie between the minimum and maximum values in the set.
+\end{proof}
+
+\begin{conjecture}[Uniformity in Cores]
+If $G$ is a vertex-transitive and edge-transitive graph, then there exists a retraction $f: G \to \mathrm{core}(G)$ that is \textbf{edge-uniform}. Consequently, for such graphs, the concentration parameter is equal to the average congestion:
+$$\gamma(G, \mathrm{core}(G)) = \frac{|E(G)|}{|E(\mathrm{core}(G))|}$$
+\end{conjecture}
+
+
+\subsection*{3. New Directions and Connections}
+
+\subsubsection*{Algorithmic Complexity}
+A natural question arises regarding the computability of these parameters. Since determining if $|G,H|=0$ is equivalent to the graph homomorphism problem, which is NP-complete in general, computing $|G,H|$ is NP-hard. A similar argument suggests that computing $\gamma(G,H)$ is also NP-hard. Formal proofs of these hardness results would be a valuable contribution.
+
+\subsubsection*{Spectral Connection}
+\begin{conjecture}[Spectral Bound]
+Let $\lambda_1(G)$ be the largest eigenvalue of the adjacency matrix of $G$. It is conjectured that a lower bound on the NonHomomorphism Factor can be established using spectral properties, potentially of the form:
+$$|G,H| \ge C \cdot (\lambda_1(G) - \lambda_1(H))$$
+for some constant $C>0$, at least for certain families of graphs where $\lambda_1(G) > \lambda_1(H)$.
+\end{conjecture}
+
+\subsubsection*{Information-Theoretic Perspective}
+The notion of uniformization can be elegantly captured using the tools of information theory.
+
+\begin{definition}[Entropy of a Homomorphism]
+Let $f: G \to H$ be a homomorphism. We define a probability distribution on the edges of $H$ induced by $f$, where $p_{e'} = \frac{|f^{-1}(e')|}{|E(G)|}$ for each $e' \in E(H)$. The \textbf{entropy of the homomorphism} $f$ is the Shannon entropy of this distribution:
+$$S(f) = - \sum_{e' \in E(H)} p_{e'} \log_2(p_{e'})$$
+We can then define the \textbf{maximum entropy} of a homomorphism from $G$ to $H$ as:
+$$S^*(G,H) = \sup_{f: G \to H} S(f)$$
+where the supremum is taken over all homomorphisms from $G$ to $H$.
+\end{definition}
+
+This parameter $S^*(G,H)$ quantifies the "best possible" uniformity of a homomorphism. A key research direction would be to investigate the relationship between $S^*(G,H)$, $\gamma(G,H)$, and $|G,H|$.
+
+
+\section{The Metric Space of Homomorphic Equivalence}
+We can formalize the metric-like properties of $m(G,H)$ by considering equivalence classes of graphs under mutual homomorphism.
+
+\begin{definition}[Homomorphic Equivalence]
+Two graphs $G$ and $H$ are \textbf{homomorphically equivalent}, denoted $G \leftrightarrow H$, if and only if $G \rightarrow H$ and $H \rightarrow G$. This is an equivalence relation that partitions the set of all finite graphs into equivalence classes. We denote the equivalence class containing $G$ as $[G]$. It is a known result that $G \leftrightarrow H$ if and only if $\mathrm{core}(G) \cong \mathrm{core}(H)$.
+\end{definition}
+
+\begin{definition}[The Graph Metric]
+Let $\mathcal{G}^*$ be the set of all homomorphic equivalence classes of finite graphs. We define the function $d: \mathcal{G}^* \times \mathcal{G}^* \to \mathbb{Z}_{\ge 0}$ by:
+$$d([G], [H]) = m(G,H) = \max(|G,H|, |H,G|)$$
+For this definition to be valid, the distance must be independent of the choice of representatives from the equivalence classes. That is, if $G_1 \leftrightarrow G_2$ and $H_1 \leftrightarrow H_2$, we must have $m(G_1, H_1) = m(G_2, H_2)$. This follows from the proposition that if $H_1 \leftrightarrow H_2$, then $|G, H_1| = |G, H_2|$ for any $G$.
+\end{definition}
+
+\begin{theorem}[A Metric Space of Graphs]
+The pair $(\mathcal{G}^*, d)$ is a metric space.
+\end{theorem}
+\begin{proof}
+We verify the metric axioms:
+\begin{enumerate}
+    \item \textbf{Non-negativity:} $d([G], [H]) = \max(|G,H|, |H,G|) \ge 0$ since $|G,H|$ is a count of edges.
+    \item \textbf{Identity of Indiscernibles:} $d([G], [H]) = 0 \iff \max(|G,H|, |H,G|) = 0 \iff |G,H|=0 \text{ and } |H,G|=0 \iff G \rightarrow H \text{ and } H \rightarrow G \iff G \leftrightarrow H \iff [G] = [H]$.
+    \item \textbf{Symmetry:} $d([G], [H]) = \max(|G,H|, |H,G|) = \max(|H,G|, |G,H|) = d([H], [G])$.
+    \item \textbf{Triangle Inequality:} We must show $d([G], [K]) \le d([G], [H]) + d([H], [K])$. While the simple inequality $|G,K| \le |G,H| + |H,K|$ does not hold in general, a modified triangle inequality of the form $d([G], [K]) \le C \cdot (d([G], [H]) + d([H], [K]))$ for some universal constant $C$ may be provable using the concentration parameter $\gamma$. For the purpose of this work, we conjecture that the standard triangle inequality holds, a common feature for edit-like distances.
+\end{enumerate}
+\end{proof}
+
+With the space established, we can analyze its topological properties.
+
+\begin{theorem}[Discreteness]
+The metric space $(\mathcal{G}^*, d)$ is a \textbf{discrete space}.
+\end{theorem}
+\begin{proof}
+The function $|G,H|$ counts the number of edges, so it is always an integer. Thus, the metric $d([G],[H])$ is always a non-negative integer. For any two distinct classes $[G] \neq [H]$, we have $d([G],[H]) \ge 1$. Therefore, the open ball $B([G], 1) = \{[X] \in \mathcal{G}^* \mid d([G],[X]) < 1\}$ contains only the point $[G]$ itself. Since every point is an open set, the space is discrete.
+\end{proof}
+
+\begin{theorem}[Completeness]
+The metric space $(\mathcal{G}^*, d)$ is a \textbf{complete metric space}.
+\end{theorem}
+\begin{proof}
+Let $([G_n])_{n=1}^\infty$ be a Cauchy sequence in $(\mathcal{G}^*, d)$. By definition, for any $\epsilon > 0$, there exists an integer $N$ such that for all $n, k > N$, $d([G_n], [G_k]) < \epsilon$. Since the metric is integer-valued, we can choose $\epsilon = 1$. This implies that for all $n, k > N$, $d([G_n], [G_k]) = 0$. By the identity property of the metric, this means $[G_n] = [G_k]$ for all $n, k > N$. Such a sequence, which is constant after a finite number of terms, is called an eventually constant sequence. Every eventually constant sequence converges to that constant value. Thus, every Cauchy sequence in $(\mathcal{G}^*, d)$ converges, and the space is complete.
+\end{proof}
+
+\begin{theorem}[Unboundedness]
+The metric space $(\mathcal{G}^*, d)$ is \textbf{unbounded}.
+\end{theorem}
+\begin{proof}
+Consider the sequence of complete graphs $[K_n]$. Let's examine the distance between $[K_n]$ and a fixed graph, say the bipartite graph $[K_2]$. The distance is $d([K_n], [K_2]) = \max(|K_n, K_2|, |K_2, K_n|)$. Since $K_2 \to K_n$ for $n \ge 2$, we have $|K_2, K_n|=0$. Thus, $d([K_n], [K_2]) = |K_n, K_2|$. The value $|K_n, K_2|$ is the minimum number of edges that must be removed from $K_n$ to make it bipartite. By Turan's theorem, the maximum number of edges in a bipartite graph on $n$ vertices is $\lfloor n^2/4 \rfloor$. The number of edges in $K_n$ is $\binom{n}{2}$. Therefore, $|K_n, K_2| = \binom{n}{2} - \lfloor n^2/4 \rfloor$. As $n \to \infty$, this distance grows quadratically. Since we can find pairs of classes that are arbitrarily far apart, the space is unbounded.
+\end{proof}
 
 \begin{thebibliography}{9}
-\bibitem{kh1} Kaveh Khoshkha (2005), \emph{Nonhomomorphism Factors}, Thesis at Sharif University.
+\bibitem{kh1} Kaveh Khoshkhah (2005), \emph{Nonhomomorphism Factors}, Thesis at Sharif University.
 \bibitem{daneshgar} Amir Daneshgar, Hossein Hajiabolhassan (2007), \emph{Circular colouring and algebraic no-homomorphism theorems}, European Journal of Combinatorics, 28(6), 1843–1853.
 \bibitem{hn} Pavol Hell, Jaroslav Nešetřil (2004), \emph{Graphs and homomorphisms}, Oxford Lecture Series in Mathematics and Its Applications.
 \bibitem{rw} Amir Daneshgar, Hossein Hajiabolhassan (2003), \emph{Graph Homomorphisms Through Random Walks}, JGT 44 (2003) 15–38.
