@@ -1,119 +1,126 @@
-\documentclass{article}
-
-% Language setting
-% Replace `english' with e.g. `spanish' to change the document language
-\usepackage[english]{babel}
-
-% Set page size and margins
-% Replace `letterpaper' with `a4paper' for UK/EU standard size
-\usepackage[letterpaper,top=2cm,bottom=2cm,left=3cm,right=3cm,marginparwidth=1.75cm]{geometry}
-
-% Useful packages
-\usepackage{amsmath}
-\usepackage{graphicx}
-\usepackage[colorlinks=true, allcolors=blue]{hyperref}
-
-\title{Your Paper}
-\author{Mohammad Ali Rostami}
+\documentclass[11pt]{article}
+\usepackage{amsmath,amssymb,amsthm,hyperref,graphicx}
+\usepackage{geometry}
+\geometry{margin=1in}
+\title{Graph Homomorphisms and NonHomomorphism Metrics}
+\author{}
+\date{}
 
 \begin{document}
 \maketitle
 
-\begin{abstract}
-Your abstract.
-\end{abstract}
-
 \section{Introduction}
+In this section, we present a series of results that build upon the definitions outlined in \cite{kh1}, specifically those pertaining to Homomorphisms and Nonhomomorphisms. Before delving into the main topics, we first familiarize ourselves with some essential definitions and established theorems.
 
-Your introduction goes here! Simply start writing your document and use the Recompile button to view the updated PDF preview. Examples of commonly used commands and features are listed below, to help you get started.
+Let $G=(V(G),E(G))$ and $H=(V(H),E(H))$ be two graphs. A homomorphism from $G$ to $H$ is a function $f:V(G) \to V(H)$ such that for every edge $(u,v)$ in $E(G)$, the pair $(f(u),f(v))$ is an edge in $E(H)$. A homomorphism between two graphs doesn't always exist. When a function provides a homomorphism from graph $G$ to $H$, it is denoted as $G\rightarrow H$. The function $f$ is not necessarily injective or surjective. However, such specific types of homomorphisms are also of interest. If the function $f$ is both injective and surjective, the graphs are isomorphic. An isomorphism of a graph to itself is called an automorphism.
 
-Once you're familiar with the editor, you can find various project settings in the Overleaf menu, accessed via the button in the very top left of the editor. To view tutorials, user guides, and further documentation, please visit our \href{https://www.overleaf.com/learn}{help library}, or head to our plans page to \href{https://www.overleaf.com/user/subscription/plans}{choose your plan}.
+A vertex coloring of a graph assigns colors to vertices so that no two adjacent vertices have the same color. The smallest number of colors needed is the chromatic number $\chi(G)$. A known connection between coloring and homomorphism \cite{hn} is:
+$$G\rightarrow H \Rightarrow \chi(G) \leq \chi(H)$$
 
-\section{Some examples to get started}
+A graph $H$ is vertex-transitive if for any two vertices $u,v$, an isomorphism exists that maps $u$ to $v$. Let $n(G,H)$ be the number of vertices in the largest induced subgraph of $G$ that is homomorphic to $H$. The following theorem is from \cite{hn}:
+$$\frac{n(H,K)}{|V(H)|} \leq \frac{n(G,K)}{|V(G)|}$$
 
-\subsection{How to create Sections and Subsections}
+Let $\alpha(G)$ be the independence number of $G$, the maximum number of pairwise non-adjacent vertices. If $G\rightarrow H$ and $H$ is vertex-transitive:
+$$\frac{\alpha(G)}{|V(G)|} \geq \frac{\alpha(H)}{|V(H)|}$$
 
-Simply use the section and subsection commands, as in this example document! With Overleaf, all the formatting and numbering is handled automatically according to the template you've chosen. If you're using the Visual Editor, you can also create new section and subsections via the buttons in the editor toolbar.
+Let $d(u,v)$ denote the distance between $u$ and $v$ in $G$. If $f$ is a homomorphism from $G$ to $H$:
+$$d_H(f(u), f(v)) \leq d_G(u,v)$$
 
-\subsection{How to include Figures}
+If $H$ is a subgraph of $G$, a retraction $r : G \rightarrow H$ satisfies $r(x) = x$ for all $x \in V(H)$. A graph is a \textit{core} if it does not admit a homomorphism to any proper subgraph. Every graph $G$ has a unique (up to isomorphism) subgraph $H$ that is a core and admits a retraction. This is called the core of $G$, denoted $\mathrm{core}(G)$.
 
-First you have to upload the image file from your computer using the upload link in the file-tree menu. Then use the includegraphics command to include it in your document. Use the figure environment and the caption command to add a number and a caption to your figure. See the code for Figure \ref{fig:frog} in this section for an example.
+For any graph $K$, $K \rightarrow G$ iff $K \rightarrow \mathrm{core}(G)$. If $G$ is vertex-transitive, then so is $\mathrm{core}(G)$. Moreover, if $f: G \rightarrow \mathrm{core}(G)$ is a homomorphism, then $f^{-1}(x)$ has size $\frac{|V(G)|}{|V(\mathrm{core}(G))|}$ for all $x$.
 
-Note that your figure will automatically be placed in the most appropriate place for it, given the surrounding text and taking into account other figures or tables that may be close by. You can find out more about adding images to your documents in this help article on \href{https://www.overleaf.com/learn/how-to/Including_images_on_Overleaf}{including images on Overleaf}.
-
-\begin{figure}
-\centering
-\includegraphics[width=0.25\linewidth]{frog.jpg}
-\caption{\label{fig:frog}This frog was uploaded via the file-tree menu.}
-\end{figure}
-
-\subsection{How to add Tables}
-
-Use the table and tabular environments for basic tables --- see Table~\ref{tab:widgets}, for example. For more information, please see this help article on \href{https://www.overleaf.com/learn/latex/tables}{tables}. 
-
-\begin{table}
-\centering
-\begin{tabular}{l|r}
-Item & Quantity \\\hline
-Widgets & 42 \\
-Gadgets & 13
-\end{tabular}
-\caption{\label{tab:widgets}An example table.}
-\end{table}
-
-\subsection{How to add Comments and Track Changes}
-
-Comments can be added to your project by highlighting some text and clicking ``Add comment'' in the top right of the editor pane. To view existing comments, click on the Review menu in the toolbar above. To reply to a comment, click on the Reply button in the lower right corner of the comment. You can close the Review pane by clicking its name on the toolbar when you're done reviewing for the time being.
-
-Track changes are available on all our \href{https://www.overleaf.com/user/subscription/plans}{premium plans}, and can be toggled on or off using the option at the top of the Review pane. Track changes allow you to keep track of every change made to the document, along with the person making the change. 
-
-\subsection{How to add Lists}
-
-You can make lists with automatic numbering \dots
-
-\begin{enumerate}
-\item Like this,
-\item and like this.
-\end{enumerate}
-\dots or bullet points \dots
+A counterexample to Hedetniemi's conjecture \cite{shitov} highlights the subtlety in graph products. Given $G_1 = (V_1,E_1)$ and $G_2 = (V_2,E_2)$, define a product graph with vertex set $V_1 \times V_2$. Edge definitions vary:
 \begin{itemize}
-\item Like this,
-\item and like this.
+  \item \textbf{Tensor Product}
+  \item \textbf{Cartesian Product}: $(u_1,v_1)$ adjacent to $(u_2,v_2)$ iff either $u_1=u_2$ and $v_1\sim v_2$ in $G_2$, or $v_1=v_2$ and $u_1\sim u_2$ in $G_1$.
 \end{itemize}
 
-\subsection{How to write Mathematics}
+\section{NonHomomorphism Factors}
+The NonHomomorphism Factor \cite{kh1}, denoted $|G,H|$, is the fewest number of edges to remove from $G$ to obtain a homomorphism $G\rightarrow H$. If one already exists, $|G,H| = 0$. Examples:
+\begin{itemize}
+  \item $|K_n,K_{n+1}| = 0$
+  \item $|K_{n+1},K_n| = 1$
+\end{itemize}
 
-\LaTeX{} is great at typesetting mathematics. Let $X_1, X_2, \ldots, X_n$ be a sequence of independent and identically distributed random variables with $\text{E}[X_i] = \mu$ and $\text{Var}[X_i] = \sigma^2 < \infty$, and let
-\[S_n = \frac{X_1 + X_2 + \cdots + X_n}{n}
-      = \frac{1}{n}\sum_{i}^{n} X_i\]
-denote their mean. Then as $n$ approaches infinity, the random variables $\sqrt{n}(S_n - \mu)$ converge in distribution to a normal $\mathcal{N}(0, \sigma^2)$.
+Initial propositions \cite{kh1}:
+\begin{itemize}
+  \item $H_1 \rightarrow H_2 \Rightarrow \forall G: |G,H_1| \geq |G,H_2|$
+  \item $H_1 \leftrightarrow H_2 \Rightarrow \forall G: |G,H_1| = |G,H_2|$
+  \item If $G_1 \rightarrow G_2$ is edge-injective, then $\forall H: |G_1,H| \leq |G_2,H|$
+\end{itemize}
+
+\section{Concentration Parameter}
+Let $f: G \rightarrow H$ be a homomorphism. Define $\gamma(G,H)$ to be the minimum over all homomorphisms of the maximum number of edges in $G$ that are mapped to the same edge in $H$.
+
+Related results:
+\begin{itemize}
+  \item $\gamma(G,G) = 0$
+  \item If $G \rightarrow H$, then $\gamma(G,H) > 0$
+  \item $\gamma(G, H) + \gamma(H,K) \geq \gamma(G,K)$
+  \item $|G,K| \leq \gamma(G,H) \cdot |H,K|$
+  \item If $G \rightarrow H$ and $K \rightarrow H$: 
+  $$|G,K| \leq \min(\gamma(G,H)\cdot|H,K|, \gamma(K,H)\cdot|G,K|)$$
+  \item If $H$ is vertex- and edge-transitive: 
+  $$\gamma(G,H) \leq \frac{|E(G)|}{|E(H)|}$$
+\end{itemize}
+
+If no homomorphism exists, define $\gamma(G,H)=\infty$.
+
+Distance result:
+$$0 \leq d_G(u,v) - d_H(f(u), f(v)) \leq \gamma(G,H)$$
 
 
-\subsection{How to change the margins and paper size}
+\subsection*{Uniformization in Graph Homomorphisms}
+Let $f : G \rightarrow H$ be a homomorphism. We say $f$ is \emph{uniform} if every edge in $H$ has the same number of preimage edges under $f$. The \textbf{uniformization ratio} is defined as:
+\[
+u(G,H) = \frac{\min_{e' \in E(H)} |f^{-1}(e')|}{\max_{e' \in E(H)} |f^{-1}(e')|}
+\]
+A perfectly uniform homomorphism has $u(G,H)=1$. We can interpret the concentration parameter $\gamma(G,H)$ in terms of this uniformity:
+\[
+\gamma(G,H) = \max_{e' \in E(H)} |f^{-1}(e')|
+\]
+For vertex-transitive graphs $G$, any homomorphism $f : G \rightarrow core(G)$ satisfies uniform vertex fiber sizes:
+\[
+|f^{-1}(v)| = \frac{|V(G)|}{|V(core(G))|}, \quad \forall v \in V(core(G))
+\]
+This suggests a natural uniform structure in such graphs and motivates the definition of uniform homomorphisms.
 
-Usually the template you're using will have the page margins and paper size set correctly for that use-case. For example, if you're using a journal article template provided by the journal publisher, that template will be formatted according to their requirements. In these cases, it's best not to alter the margins directly.
+\subsection{Uniformization Perspective}
+Uniformization generalizes the behavior of homomorphisms via distributions. Let $\sigma$ be a probabilistic homomorphism. Define $M^\sigma$ as the expected maximum congestion on an edge in $H$. This can help redefine $\gamma(G,H)$ probabilistically:
+$$\gamma(G,H) = \inf_{\sigma \in \text{Hom}(G,H)} M^\sigma$$
 
-If however you're using a more general template, such as this one, and would like to alter the margins, a common way to do so is via the geometry package. You can find the geometry package loaded in the preamble at the top of this example file, and if you'd like to learn more about how to adjust the settings, please visit this help article on \href{https://www.overleaf.com/learn/latex/page_size_and_margins}{page size and margins}.
 
-\subsection{How to change the document language and spell check settings}
 
-Overleaf supports many different languages, including multiple different languages within one document. 
 
-To configure the document language, simply edit the option provided to the babel package in the preamble at the top of this example project. To learn more about the different options, please visit this help article on \href{https://www.overleaf.com/learn/latex/International_language_support}{international language support}.
+\section{Extras}
+The function $m(G,H) = \max(|G,H|,|H,G|)$ is a metric-like function. It satisfies:
+\begin{itemize}
+  \item $m(G,H) \geq 0$ (non-negativity)
+  \item $m(G,G) = 0$ (partial identity)
+  \item $m(G,H) = m(H,G)$ (symmetry)
+  \item $m(G,H) + m(H,K) > m(G,K)$ (triangle inequality)
+\end{itemize}
 
-To change the spell check language, simply open the Overleaf menu at the top left of the editor window, scroll down to the spell check setting, and adjust accordingly.
+To fully satisfy identity, define equivalence classes under mutual homomorphism.
 
-\subsection{How to add Citations and a References List}
 
-You can simply upload a \verb|.bib| file containing your BibTeX entries, created with a tool such as JabRef. You can then cite entries from it, like this: \cite{greenwade93}. Just remember to specify a bibliography style, as well as the filename of the \verb|.bib|. You can find a \href{https://www.overleaf.com/help/97-how-to-include-a-bibliography-using-bibtex}{video tutorial here} to learn more about BibTeX.
 
-If you have an \href{https://www.overleaf.com/user/subscription/plans}{upgraded account}, you can also import your Mendeley or Zotero library directly as a \verb|.bib| file, via the upload menu in the file-tree.
 
-\subsection{Good luck!}
+\subsection{Circular Chromatic Numbers}
+Inspired by \cite{daneshgar}, the circular chromatic number $\chi_c(G)$ refines $\chi(G)$ and leads to more precise non-homomorphism bounds. Define $G \not\rightarrow H$ if $\chi_c(G) > \chi_c(H)$. Then,
+\begin{itemize}
+  \item $|G,H| > 0$ whenever $\chi_c(G) > \chi_c(H)$
+  \item $\gamma(G,H)$ lower-bounded by circular flow congestion
+\end{itemize}
 
-We hope you find Overleaf useful, and do take a look at our \href{https://www.overleaf.com/learn}{help library} for more tutorials and user guides! Please also let us know if you have any feedback using the Contact Us link at the bottom of the Overleaf menu --- or use the contact form at \url{https://www.overleaf.com/contact}.
 
-\bibliographystyle{alpha}
-\bibliography{sample}
+\begin{thebibliography}{9}
+\bibitem{kh1} Kaveh Khoshkha (2005), \emph{Nonhomomorphism Factors}, Thesis at Sharif University.
+\bibitem{daneshgar} Amir Daneshgar, Hossein Hajiabolhassan (2007), \emph{Circular colouring and algebraic no-homomorphism theorems}, European Journal of Combinatorics, 28(6), 1843–1853.
+\bibitem{hn} Pavol Hell, Jaroslav Nešetřil (2004), \emph{Graphs and homomorphisms}, Oxford Lecture Series in Mathematics and Its Applications.
+\bibitem{rw} Amir Daneshgar, Hossein Hajiabolhassan (2003), \emph{Graph Homomorphisms Through Random Walks}, JGT 44 (2003) 15–38.
+\bibitem{shitov} Yaroslav Shitov (2019), \emph{Counterexamples to Hedetniemi’s conjecture}, Annals of Mathematics, 190(2), 663–667.
+\end{thebibliography}
 
 \end{document}
