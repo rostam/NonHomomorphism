@@ -1,106 +1,75 @@
 import more_itertools as miter
 import itertools as iter
 import networkx as nx
-import string
-
-# import matplotlib.pyplot as plt
-
-# G = nx.read_graph6('G.g6')
-# H = nx.read_graph6('H.g6')
-H = nx.petersen_graph()
-G = nx.complete_graph(4)
 
 
-def find_a_homomorphism(G, H, num_of_subsets):
-    G_nodes = G.nodes()
-    H_nodes = H.nodes()
+def find_a_homomorphism(G, H, num_of_subsets=None):
+    """Find a homomorphism from G to H using a set-partition approach.
 
-    size_of_set = 0
-    # num_of_subsets = 0
-    if len(G_nodes) >= len(H_nodes):
-        size_of_set = len(G_nodes)
-        # num_of_subsets = len(H_nodes)
-    else:
-        size_of_set = len(G_nodes)
-        # num_of_subsets = len(G_nodes)
+    Partitions V(G) into groups where vertices in the same group map to the
+    same vertex in H.  Returns the partition (list of lists of vertex labels)
+    on success, or an empty list if no homomorphism exists.
 
-    iterable = string.ascii_lowercase[0:size_of_set]
-    is_homomorphism_found = False
+    If num_of_subsets is given, only partitions of exactly that size are tried.
+    Otherwise all sizes from 1 to |V(H)| are tried.
+    """
+    if num_of_subsets is None:
+        for k in range(1, len(H.nodes()) + 1):
+            result = find_a_homomorphism(G, H, k)
+            if result:
+                return result
+        return []
+
+    G_nodes = list(G.nodes())
+    size_of_set = len(G_nodes)
+
+    # Represent vertices as sequential integers 0, 1, ..., size_of_set-1.
+    # (Handles graphs whose vertex labels are not 0-based.)
+    node_to_idx = {v: i for i, v in enumerate(G_nodes)}
+    iterable = list(range(size_of_set))
 
     for part in miter.set_partitions(iterable, num_of_subsets):
-        is_correct_homomorphism = True
-        if is_homomorphism_found:
-            break
+        # Check: no two vertices in the same partition class are adjacent in G
+        # (they would both map to the same H-vertex, creating a loop).
+        valid = True
         for p in part:
-            if not is_correct_homomorphism:
-                break
-            if len(p) == 1:
+            if len(p) < 2:
                 continue
-            all_combs = iter.combinations(p, 2)
-            for a_comb in all_combs:
-                v1 = ord(a_comb[0]) - 97
-                v2 = ord(a_comb[1]) - 97
-                if G.has_edge(v1, v2):
-                    is_correct_homomorphism = False
+            for v1, v2 in iter.combinations(p, 2):
+                if G.has_edge(G_nodes[v1], G_nodes[v2]):
+                    valid = False
                     break
+            if not valid:
+                break
 
-        if is_correct_homomorphism:
-            all_combs = iter.combinations(range(0, len(part)), 2)
-            for a_comb in all_combs:
-                if is_correct_homomorphism:
-                    v1H = a_comb[0]
-                    v2H = a_comb[1]
-                    if not H.has_edge(v1H, v2H):
-                        for p1 in part[a_comb[0]]:
-                            if is_correct_homomorphism:
-                                for p2 in part[a_comb[1]]:
-                                    v1G = ord(p1) - 97
-                                    v2G = ord(p2) - 97
-                                    if G.has_edge(v1G, v2G):
-                                        is_correct_homomorphism = False
-                                        break
+        if not valid:
+            continue
 
-        if is_correct_homomorphism:
-            is_homomorphism_found = True
+        # Check: for each pair of partition classes (i, j) that are NOT
+        # connected by an edge in H, no G-edge crosses from class i to class j.
+        for (ci, pi), (cj, pj) in iter.combinations(enumerate(part), 2):
+            if not valid:
+                break
+            if not H.has_edge(ci, cj):
+                for v1 in pi:
+                    if not valid:
+                        break
+                    for v2 in pj:
+                        if G.has_edge(G_nodes[v1], G_nodes[v2]):
+                            valid = False
+                            break
+
+        if valid:
             return part
-            # with open("homomorphism_G_H", 'w') as f:
-            #
-            #     for p in part:
-            #         for a in p:
-            #             f.write(a)
-            #         f.write(' ')
-            #     f.flush()
-            #
-            # # print([''.join(p) for p in part])
-            # break
 
-    if not is_homomorphism_found:
-        return []
-        # with open("homomorphism_G_H", 'w') as f:
-        #     f.write("not found")
-        #     f.flush()
-        #     f.close()
-
-    # nx.draw(G, with_labels=True)
-    # plt.draw()
-    # plt.show()
+    return []
 
 
 def handle_one_g6_string(G, g6_string_H):
+    """Find a homomorphism from G to the graph encoded by g6_string_H."""
     H = nx.from_graph6_bytes(bytes(g6_string_H, 'ascii'))
-    part = []
-    for j in range(2, len(H) + 1):
+    for j in range(1, len(H) + 1):
         part = find_a_homomorphism(G, H, j)
-        if len(part) != 0:
-            break
-
-    return part
-    # print(line, len(part))
-    # self.assertTrue(len(part) == 0)
-    # if len(part) == 0:
-        # print(line)
-        # f = plt.figure()
-        # nx.draw(H, ax=f.add_subplot(111))
-        # f.savefig(line + ".png")
-        # i = i + 1
-        # return
+        if part:
+            return part
+    return []

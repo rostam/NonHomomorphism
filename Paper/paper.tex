@@ -1,255 +1,771 @@
-\documentclass[11pt]{article}
-\usepackage{amsmath,amssymb,amsthm,hyperref,graphicx}
-\usepackage{geometry}
-\geometry{margin=1in}
+\documentclass{article}
 
-% --- ADD THESE LINES HERE ---
+\usepackage[english]{babel}
+\usepackage[a4paper,top=2cm,bottom=2cm,left=3cm,right=3cm,marginparwidth=1.75cm]{geometry}
+
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{amsthm}
+\usepackage{booktabs}
+\usepackage{graphicx}
+\usepackage[colorlinks=true, allcolors=blue]{hyperref}
+
 \newtheorem{theorem}{Theorem}[section]
-\newtheorem{conjecture}[theorem]{Conjecture}
-\newtheorem{definition}[theorem]{Definition}
-% --------------------------
+\newtheorem{proposition}{Proposition}[section]
+\newtheorem{definition}{Definition}[section]
+\newtheorem{lemma}{Lemma}[section]
+\newtheorem{corollary}{Corollary}[section]
+\newtheorem{conjecture}{Conjecture}[section]
+\newtheorem{observation}{Observation}[section]
+\newtheorem{remark}{Remark}[section]
 
-\title{Graph Homomorphisms and NonHomomorphism Metrics}
-\author{}
-\date{}
+\title{Non-Homomorphism Factors and the Concentration Parameter\\
+       in Graph Homomorphisms}
+\author{Mohammad Ali Rostami}
 
 \begin{document}
 \maketitle
 
+\begin{abstract}
+We study two measures associated with graph homomorphisms.
+The \emph{non-homomorphism factor} $|G,H|$ is the minimum number of edges
+that must be removed from $G$ to obtain a graph admitting a homomorphism to
+$H$.  We prove $|K_n,K_m| = \binom{n}{2} - t(n,m)$ via Tur\'an's theorem and
+derive a lower bound $|G,H|\ge|E(G)|-t(|V(G)|,\chi(H))$ for arbitrary $G$.
+We introduce the \emph{concentration parameter} $\gamma(G,H)$, the minimum
+over all homomorphisms $f\colon G\to H$ of the maximum number of $G$-edges
+mapped to any single $H$-edge.  We prove a multiplicativity inequality
+$\gamma(G,K)\le\gamma(G,H)\cdot\gamma(H,K)$, a monotonicity property
+$\gamma(G,H_2)\le\gamma(G,H_1)$ when $H_1\subseteq H_2$, and the bound
+$|G,K|\le\gamma(G,H)\cdot|H,K|$.  Computational experiments on cycles,
+complete graphs, complete bipartite graphs, and the Petersen graph yield
+exact values of $\gamma$ and reveal that the symmetric combination
+$m(G,H)=\max(|G,H|,|H,G|)$, previously claimed to be a pseudo-metric, does
+\emph{not} in general satisfy the triangle inequality
+(108 counterexample triples found among complete graphs with at most $10$
+vertices).  We also prove an exact formula for $\gamma(C_n,K_3)$ for all
+$n\ge 3$, verified computationally up to $n=50$, and a general
+$d$-regularity theorem that unifies the cycle formula with the value
+$\gamma(\text{Petersen},K_3)=6$.
+\end{abstract}
+
+% ─────────────────────────────────────────────────────────────────────────────
 \section{Introduction}
-In this section, we present a series of results that build upon the definitions outlined in \cite{kh1}, specifically those pertaining to Homomorphisms and Nonhomomorphisms. Before delving into the main topics, we first familiarize ourselves with some essential definitions and established theorems.
+% ─────────────────────────────────────────────────────────────────────────────
 
-Let $G=(V(G),E(G))$ and $H=(V(H),E(H))$ be two graphs. A homomorphism from $G$ to $H$ is a function $f:V(G) \to V(H)$ such that for every edge $(u,v)$ in $E(G)$, the pair $(f(u),f(v))$ is an edge in $E(H)$. A homomorphism between two graphs doesn't always exist. When a function provides a homomorphism from graph $G$ to $H$, it is denoted as $G\rightarrow H$. The function $f$ is not necessarily injective or surjective. However, such specific types of homomorphisms are also of interest. If the function $f$ is both injective and surjective, the graphs are isomorphic. An isomorphism of a graph to itself is called an automorphism.
+Throughout this paper all graphs are simple and undirected.
 
-A vertex coloring of a graph assigns colors to vertices so that no two adjacent vertices have the same color. The smallest number of colors needed is the chromatic number $\chi(G)$. A known connection between coloring and homomorphism \cite{hn} is:
-$$G\rightarrow H \Rightarrow \chi(G) \leq \chi(H)$$
+\begin{definition}[Graph Homomorphism]
+A \emph{homomorphism} from $G$ to $H$ is a function $f\colon V(G)\to V(H)$
+such that $\{u,v\}\in E(G)$ implies $\{f(u),f(v)\}\in E(H)$.
+We write $G\to H$ when such a function exists.
+\end{definition}
 
-A graph $H$ is vertex-transitive if for any two vertices $u,v$, an isomorphism exists that maps $u$ to $v$. Let $n(G,H)$ be the number of vertices in the largest induced subgraph of $G$ that is homomorphic to $H$. The following theorem is from \cite{hn}:
-$$\frac{n(H,K)}{|V(H)|} \leq \frac{n(G,K)}{|V(G)|}$$
+A homomorphism need not be injective or surjective.
+A bijection whose inverse is also a homomorphism is an \emph{isomorphism};
+an isomorphism from $G$ to itself is an \emph{automorphism}.
 
-Let $\alpha(G)$ be the independence number of $G$, the maximum number of pairwise non-adjacent vertices. If $G\rightarrow H$ and $H$ is vertex-transitive:
-$$\frac{\alpha(G)}{|V(G)|} \geq \frac{\alpha(H)}{|V(H)|}$$
+A proper $k$-colouring of $G$ exists if and only if $G\to K_k$, giving:
 
-Let $d(u,v)$ denote the distance between $u$ and $v$ in $G$. If $f$ is a homomorphism from $G$ to $H$:
-$$d_H(f(u), f(v)) \leq d_G(u,v)$$
+\begin{proposition}[\cite{hell2004}]
+\label{prop:chi_mono}
+$G\to H \Rightarrow \chi(G)\le\chi(H)$.
+\end{proposition}
 
-If $H$ is a subgraph of $G$, a retraction $r : G \rightarrow H$ satisfies $r(x) = x$ for all $x \in V(H)$. A graph is a \textit{core} if it does not admit a homomorphism to any proper subgraph. Every graph $G$ has a unique (up to isomorphism) subgraph $H$ that is a core and admits a retraction. This is called the core of $G$, denoted $\mathrm{core}(G)$.
-
-For any graph $K$, $K \rightarrow G$ iff $K \rightarrow \mathrm{core}(G)$. If $G$ is vertex-transitive, then so is $\mathrm{core}(G)$. Moreover, if $f: G \rightarrow \mathrm{core}(G)$ is a homomorphism, then $f^{-1}(x)$ has size $\frac{|V(G)|}{|V(\mathrm{core}(G))|}$ for all $x$.
-
-A counterexample to Hedetniemi's conjecture \cite{shitov} highlights the subtlety in graph products. Given $G_1 = (V_1,E_1)$ and $G_2 = (V_2,E_2)$, define a product graph with vertex set $V_1 \times V_2$. Edge definitions vary:
-\begin{itemize}
-  \item \textbf{Tensor Product}
-  \item \textbf{Cartesian Product}: $(u_1,v_1)$ adjacent to $(u_2,v_2)$ iff either $u_1=u_2$ and $v_1\sim v_2$ in $G_2$, or $v_1=v_2$ and $u_1\sim u_2$ in $G_1$.
-\end{itemize}
-
-\section{NonHomomorphism Factors}
-The NonHomomorphism Factor \cite{kh1}, denoted $|G,H|$, is the fewest number of edges to remove from $G$ to obtain a homomorphism $G\rightarrow H$. If one already exists, $|G,H| = 0$. Examples:
-\begin{itemize}
-  \item $|K_n,K_{n+1}| = 0$
-  \item $|K_{n+1},K_n| = 1$
-\end{itemize}
-
-Initial propositions \cite{kh1}:
-\begin{itemize}
-  \item $H_1 \rightarrow H_2 \Rightarrow \forall G: |G,H_1| \geq |G,H_2|$
-  \item $H_1 \leftrightarrow H_2 \Rightarrow \forall G: |G,H_1| = |G,H_2|$
-  \item If $G_1 \rightarrow G_2$ is edge-injective, then $\forall H: |G_1,H| \leq |G_2,H|$
-\end{itemize}
-
-\section{Concentration Parameter}
-Let $f: G \rightarrow H$ be a homomorphism. Define $\gamma(G,H)$ to be the minimum over all homomorphisms of the maximum number of edges in $G$ that are mapped to the same edge in $H$.
-
-Related results:
-\begin{itemize}
-  \item $\gamma(G,G) = 0$
-  \item If $G \rightarrow H$, then $\gamma(G,H) > 0$
-  \item $\gamma(G, H) + \gamma(H,K) \geq \gamma(G,K)$
-  \item $|G,K| \leq \gamma(G,H) \cdot |H,K|$
-  \item If $G \rightarrow H$ and $K \rightarrow H$: 
-  $$|G,K| \leq \min(\gamma(G,H)\cdot|H,K|, \gamma(K,H)\cdot|G,K|)$$
-  \item If $H$ is vertex- and edge-transitive: 
-  $$\gamma(G,H) \leq \frac{|E(G)|}{|E(H)|}$$
-\end{itemize}
-
-If no homomorphism exists, define $\gamma(G,H)=\infty$.
-
-Distance result:
-$$0 \leq d_G(u,v) - d_H(f(u), f(v)) \leq \gamma(G,H)$$
-
-
-\subsection*{Uniformization in Graph Homomorphisms}
-Let $f : G \rightarrow H$ be a homomorphism. We say $f$ is \emph{uniform} if every edge in $H$ has the same number of preimage edges under $f$. The \textbf{uniformization ratio} is defined as:
-\[
-u(G,H) = \frac{\min_{e' \in E(H)} |f^{-1}(e')|}{\max_{e' \in E(H)} |f^{-1}(e')|}
-\]
-A perfectly uniform homomorphism has $u(G,H)=1$. We can interpret the concentration parameter $\gamma(G,H)$ in terms of this uniformity:
-\[
-\gamma(G,H) = \max_{e' \in E(H)} |f^{-1}(e')|
-\]
-For vertex-transitive graphs $G$, any homomorphism $f : G \rightarrow core(G)$ satisfies uniform vertex fiber sizes:
-\[
-|f^{-1}(v)| = \frac{|V(G)|}{|V(core(G))|}, \quad \forall v \in V(core(G))
-\]
-This suggests a natural uniform structure in such graphs and motivates the definition of uniform homomorphisms.
-
-\subsection{Uniformization Perspective}
-Uniformization generalizes the behavior of homomorphisms via distributions. Let $\sigma$ be a probabilistic homomorphism. Define $M^\sigma$ as the expected maximum congestion on an edge in $H$. This can help redefine $\gamma(G,H)$ probabilistically:
-$$\gamma(G,H) = \inf_{\sigma \in \text{Hom}(G,H)} M^\sigma$$
-
-
-
-
-\section{Extras}
-The function $m(G,H) = \max(|G,H|,|H,G|)$ is a metric-like function. It satisfies:
-\begin{itemize}
-  \item $m(G,H) \geq 0$ (non-negativity)
-  \item $m(G,G) = 0$ (partial identity)
-  \item $m(G,H) = m(H,G)$ (symmetry)
-  \item $m(G,H) + m(H,K) > m(G,K)$ (triangle inequality)
-\end{itemize}
-
-To fully satisfy identity, define equivalence classes under mutual homomorphism.
-
-
-
-
-\subsection{Circular Chromatic Numbers}
-Inspired by \cite{daneshgar}, the circular chromatic number $\chi_c(G)$ refines $\chi(G)$ and leads to more precise non-homomorphism bounds. Define $G \not\rightarrow H$ if $\chi_c(G) > \chi_c(H)$. Then,
-\begin{itemize}
-  \item $|G,H| > 0$ whenever $\chi_c(G) > \chi_c(H)$
-  \item $\gamma(G,H)$ lower-bounded by circular flow congestion
-\end{itemize}
-
-Of course. Here is the LaTeX code for the suggested additions, formatted and ready to be pasted into a new section in your document.
-
-
-\subsection*{1. Strengthening the NonHomomorphism Factor $|G,H|$}
-The following results provide concrete bounds and structural conjectures for the NonHomomorphism Factor.
-
-\begin{theorem}[Bound via Chromatic Number]
-Let $G$ and $H$ be graphs. Then the NonHomomorphism Factor is bounded below by the difference in their chromatic numbers:
-$$|G,H| \ge \chi(G) - \chi(H)$$
+\begin{theorem}[\cite{hell2004}]
+\label{thm:hom_contracts}
+Any homomorphism $f\colon G\to H$ satisfies
+$d_H(f(u),f(v))\le d_G(u,v)$ for all $u,v\in V(G)$.
 \end{theorem}
 
-\begin{proof}
-Let $k = |G,H|$. By definition, there exists a subgraph $G'$ of $G$ obtained by removing $k$ edges such that $G' \rightarrow H$. This implies $\chi(G') \le \chi(H)$. The removal of a single edge can reduce the chromatic number of a graph by at most 1. Therefore, after removing $k$ edges, we have $\chi(G') \ge \chi(G) - k$. Combining the inequalities, we get $\chi(G) - k \le \chi(G') \le \chi(H)$, which simplifies to $k \ge \chi(G) - \chi(H)$.
-\end{proof}
-
-\begin{conjecture}[Behavior under Cartesian Product]
-For any graphs $G_1, G_2,$ and $H$, the NonHomomorphism Factor for the Cartesian product is bounded by the sum of the individual factors, weighted by the number of vertices:
-$$|G_1 \square G_2, H| \le |V(G_2)| \cdot |G_1, H| + |V(G_1)| \cdot |G_2, H|$$
-\end{conjecture}
-
-\subsection*{2. Deepening the Concentration Parameter $\gamma(G,H)$}
-To better understand the concept of uniformization, we can formalize the different types of edge congestion.
-
-\begin{definition}[Congestion Parameters]
-Let $f: G \to H$ be a homomorphism.
-\begin{itemize}
-    \item The \textbf{maximum congestion} of $f$ is $\gamma_f(G,H) = \max_{e' \in E(H)} |f^{-1}(e')|$.
-    \item The \textbf{minimum congestion} of $f$ is $\delta_f(G,H) = \min_{e' \in E(H)} |f^{-1}(e')|$.
-    \item The \textbf{average congestion} is $\bar{\gamma}(G,H) = \frac{|E(G)|}{|E(H)|}$, which is independent of $f$.
-\end{itemize}
-The concentration parameter is then $\gamma(G,H) = \min_f \gamma_f(G,H)$ over all homomorphisms $f:G \to H$.
-\end{definition}
-
-\begin{theorem}[The Congestion Principle]
-For any homomorphism $f: G \to H$, the average congestion is bounded by the minimum and maximum congestion:
-$$\delta_f(G,H) \le \bar{\gamma}(G,H) \le \gamma_f(G,H)$$
-Furthermore, a homomorphism $f$ is perfectly uniform if and only if $\delta_f(G,H) = \gamma_f(G,H)$.
+\begin{theorem}[\cite{hell2004}]
+\label{thm:vertex_trans}
+If $H$ is vertex-transitive and $G\to H$ then
+$\displaystyle\frac{\alpha(G)}{|V(G)|}\ge\frac{\alpha(H)}{|V(H)|}$,
+where $\alpha$ denotes the independence number.
 \end{theorem}
-\begin{proof}
-This is a direct consequence of the pigeonhole principle. The average of a set of values must lie between the minimum and maximum values in the set.
-\end{proof}
 
-\begin{conjecture}[Uniformity in Cores]
-If $G$ is a vertex-transitive and edge-transitive graph, then there exists a retraction $f: G \to \mathrm{core}(G)$ that is \textbf{edge-uniform}. Consequently, for such graphs, the concentration parameter is equal to the average congestion:
-$$\gamma(G, \mathrm{core}(G)) = \frac{|E(G)|}{|E(\mathrm{core}(G))|}$$
-\end{conjecture}
+\subsection{Cores}
 
-
-\subsection*{3. New Directions and Connections}
-
-\subsubsection*{Algorithmic Complexity}
-A natural question arises regarding the computability of these parameters. Since determining if $|G,H|=0$ is equivalent to the graph homomorphism problem, which is NP-complete in general, computing $|G,H|$ is NP-hard. A similar argument suggests that computing $\gamma(G,H)$ is also NP-hard. Formal proofs of these hardness results would be a valuable contribution.
-
-\subsubsection*{Spectral Connection}
-\begin{conjecture}[Spectral Bound]
-Let $\lambda_1(G)$ be the largest eigenvalue of the adjacency matrix of $G$. It is conjectured that a lower bound on the NonHomomorphism Factor can be established using spectral properties, potentially of the form:
-$$|G,H| \ge C \cdot (\lambda_1(G) - \lambda_1(H))$$
-for some constant $C>0$, at least for certain families of graphs where $\lambda_1(G) > \lambda_1(H)$.
-\end{conjecture}
-
-\subsubsection*{Information-Theoretic Perspective}
-The notion of uniformization can be elegantly captured using the tools of information theory.
-
-\begin{definition}[Entropy of a Homomorphism]
-Let $f: G \to H$ be a homomorphism. We define a probability distribution on the edges of $H$ induced by $f$, where $p_{e'} = \frac{|f^{-1}(e')|}{|E(G)|}$ for each $e' \in E(H)$. The \textbf{entropy of the homomorphism} $f$ is the Shannon entropy of this distribution:
-$$S(f) = - \sum_{e' \in E(H)} p_{e'} \log_2(p_{e'})$$
-We can then define the \textbf{maximum entropy} of a homomorphism from $G$ to $H$ as:
-$$S^*(G,H) = \sup_{f: G \to H} S(f)$$
-where the supremum is taken over all homomorphisms from $G$ to $H$.
+\begin{definition}
+A graph is a \emph{core} if it has no homomorphism to any proper subgraph of
+itself.  Every graph $G$ contains a unique (up to isomorphism) core subgraph,
+denoted $\operatorname{core}(G)$, such that $G\to\operatorname{core}(G)$ and
+$\operatorname{core}(G)\subseteq G$.
 \end{definition}
 
-This parameter $S^*(G,H)$ quantifies the "best possible" uniformity of a homomorphism. A key research direction would be to investigate the relationship between $S^*(G,H)$, $\gamma(G,H)$, and $|G,H|$.
+A key consequence is that $K\to G$ if and only if
+$K\to\operatorname{core}(G)$.  The Petersen graph is its own core, as it
+admits no homomorphism to any proper subgraph~\cite{hell2004}.
 
+% ─────────────────────────────────────────────────────────────────────────────
+\section{Non-Homomorphism Factors}
+% ─────────────────────────────────────────────────────────────────────────────
 
-\section{The Metric Space of Homomorphic Equivalence}
-We can formalize the metric-like properties of $m(G,H)$ by considering equivalence classes of graphs under mutual homomorphism.
-
-\begin{definition}[Homomorphic Equivalence]
-Two graphs $G$ and $H$ are \textbf{homomorphically equivalent}, denoted $G \leftrightarrow H$, if and only if $G \rightarrow H$ and $H \rightarrow G$. This is an equivalence relation that partitions the set of all finite graphs into equivalence classes. We denote the equivalence class containing $G$ as $[G]$. It is a known result that $G \leftrightarrow H$ if and only if $\mathrm{core}(G) \cong \mathrm{core}(H)$.
+\begin{definition}[Non-Homomorphism Factor \cite{khoshkha2005}]
+\label{def:nhf}
+$|G,H|$ is the minimum number of edges that must be removed from $G$ to
+obtain a graph $G'$ with $G'\to H$.  If $G\to H$ then $|G,H|=0$.
 \end{definition}
 
-\begin{definition}[The Graph Metric]
-Let $\mathcal{G}^*$ be the set of all homomorphic equivalence classes of finite graphs. We define the function $d: \mathcal{G}^* \times \mathcal{G}^* \to \mathbb{Z}_{\ge 0}$ by:
-$$d([G], [H]) = m(G,H) = \max(|G,H|, |H,G|)$$
-For this definition to be valid, the distance must be independent of the choice of representatives from the equivalence classes. That is, if $G_1 \leftrightarrow G_2$ and $H_1 \leftrightarrow H_2$, we must have $m(G_1, H_1) = m(G_2, H_2)$. This follows from the proposition that if $H_1 \leftrightarrow H_2$, then $|G, H_1| = |G, H_2|$ for any $G$.
-\end{definition}
-
-\begin{theorem}[A Metric Space of Graphs]
-The pair $(\mathcal{G}^*, d)$ is a metric space.
-\end{theorem}
-\begin{proof}
-We verify the metric axioms:
+\begin{proposition}[\cite{khoshkha2005}]
+\label{prop:monotone}
 \begin{enumerate}
-    \item \textbf{Non-negativity:} $d([G], [H]) = \max(|G,H|, |H,G|) \ge 0$ since $|G,H|$ is a count of edges.
-    \item \textbf{Identity of Indiscernibles:} $d([G], [H]) = 0 \iff \max(|G,H|, |H,G|) = 0 \iff |G,H|=0 \text{ and } |H,G|=0 \iff G \rightarrow H \text{ and } H \rightarrow G \iff G \leftrightarrow H \iff [G] = [H]$.
-    \item \textbf{Symmetry:} $d([G], [H]) = \max(|G,H|, |H,G|) = \max(|H,G|, |G,H|) = d([H], [G])$.
-    \item \textbf{Triangle Inequality:} We must show $d([G], [K]) \le d([G], [H]) + d([H], [K])$. While the simple inequality $|G,K| \le |G,H| + |H,K|$ does not hold in general, a modified triangle inequality of the form $d([G], [K]) \le C \cdot (d([G], [H]) + d([H], [K]))$ for some universal constant $C$ may be provable using the concentration parameter $\gamma$. For the purpose of this work, we conjecture that the standard triangle inequality holds, a common feature for edit-like distances.
+  \item\label{it:mon1} $H_1\to H_2 \Rightarrow |G,H_1|\ge|G,H_2|$ for every
+        graph $G$.
+  \item\label{it:mon2} $H_1\leftrightarrow H_2 \Rightarrow |G,H_1|=|G,H_2|$
+        for every $G$.
+  \item\label{it:mon3} If $f\colon G_1\to G_2$ is edge-injective
+        (distinct edges map to distinct edges) then
+        $|G_1,H|\le|G_2,H|$ for every $H$.
 \end{enumerate}
-\end{proof}
+\end{proposition}
 
-With the space established, we can analyze its topological properties.
-
-\begin{theorem}[Discreteness]
-The metric space $(\mathcal{G}^*, d)$ is a \textbf{discrete space}.
-\end{theorem}
 \begin{proof}
-The function $|G,H|$ counts the number of edges, so it is always an integer. Thus, the metric $d([G],[H])$ is always a non-negative integer. For any two distinct classes $[G] \neq [H]$, we have $d([G],[H]) \ge 1$. Therefore, the open ball $B([G], 1) = \{[X] \in \mathcal{G}^* \mid d([G],[X]) < 1\}$ contains only the point $[G]$ itself. Since every point is an open set, the space is discrete.
+(\ref{it:mon1}) If $G'\to H_1$ then $G'\to H_1\to H_2$, so every graph
+witnessing $|G,H_1|$ also witnesses $|G,H_2|$.
+(\ref{it:mon2}) Apply~(\ref{it:mon1}) in both directions.
+(\ref{it:mon3}) Let $S\subseteq E(G_2)$ with $|S|=|G_2,H|$ such that
+$G_2-S\to H$.  Set $S'=\{e\in E(G_1):f(e)\in S\}$.  Since $f$ is
+edge-injective, $|S'|\le|S|$.  The restricted map $f\colon G_1-S'\to G_2-S$
+is still a homomorphism, so $G_1-S'\to H$, giving $|G_1,H|\le|S'|\le|G_2,H|$.
 \end{proof}
 
-\begin{theorem}[Completeness]
-The metric space $(\mathcal{G}^*, d)$ is a \textbf{complete metric space}.
+\subsection{Complete Graphs and Tur\'an's Theorem}
+
+\begin{theorem}[Tur\'an~\cite{hell2004}]
+\label{thm:turan}
+Among all $K_{m+1}$-free graphs on $n$ vertices the one with the most edges is
+the \emph{Tur\'an graph} $T(n,m)$, obtained by partitioning the $n$ vertices
+into $m$ classes of sizes as equal as possible and taking all edges between
+distinct classes; write $t(n,m)=|E(T(n,m))|$.
 \end{theorem}
+
+\begin{theorem}
+\label{thm:KnKm}
+$\displaystyle|K_n,K_m| = \binom{n}{2} - t(n,m)$.
+If $n=qm+r$ with $0\le r<m$, this equals
+$r\dbinom{q+1}{2}+(m-r)\dbinom{q}{2}$.
+In particular, $|K_{n+1},K_n|=1$ for all $n\ge 1$.
+\end{theorem}
+
 \begin{proof}
-Let $([G_n])_{n=1}^\infty$ be a Cauchy sequence in $(\mathcal{G}^*, d)$. By definition, for any $\epsilon > 0$, there exists an integer $N$ such that for all $n, k > N$, $d([G_n], [G_k]) < \epsilon$. Since the metric is integer-valued, we can choose $\epsilon = 1$. This implies that for all $n, k > N$, $d([G_n], [G_k]) = 0$. By the identity property of the metric, this means $[G_n] = [G_k]$ for all $n, k > N$. Such a sequence, which is constant after a finite number of terms, is called an eventually constant sequence. Every eventually constant sequence converges to that constant value. Thus, every Cauchy sequence in $(\mathcal{G}^*, d)$ converges, and the space is complete.
+A spanning subgraph $G'$ of $K_n$ satisfies $G'\to K_m$ if and only if
+$\chi(G')\le m$.  The maximum number of edges an $m$-colourable graph on $n$
+vertices can have is $t(n,m)$ (Tur\'an's theorem), so removing the minimum
+number of edges to achieve $m$-colourability requires removing exactly
+$\binom{n}{2}-t(n,m)$ edges.  The explicit formula follows from
+$t(n,m)=\binom{n}{2}-r\binom{q+1}{2}-(m-r)\binom{q}{2}$.
+For $|K_{n+1},K_n|$: set $G=K_{n+1}$, $m=n$, so $q=1$, $r=1$, giving
+$1\cdot\binom{2}{2}+(n-1)\cdot\binom{1}{2}=1$.
 \end{proof}
 
-\begin{theorem}[Unboundedness]
-The metric space $(\mathcal{G}^*, d)$ is \textbf{unbounded}.
+\begin{table}[ht]
+\centering
+\caption{$|K_n,K_m|$ for $n=2,\dots,7$ and $m=2,\dots,6$.
+         Values confirmed by exhaustive edge-removal search
+         (Section~\ref{sec:computation}) and by Theorem~\ref{thm:KnKm}.}
+\label{tab:KnKm}
+\begin{tabular}{c|rrrrr}
+\toprule
+       & $K_2$ & $K_3$ & $K_4$ & $K_5$ & $K_6$ \\
+\midrule
+$K_2$  & 0 & 0 & 0 & 0 & 0 \\
+$K_3$  & 1 & 0 & 0 & 0 & 0 \\
+$K_4$  & 2 & 1 & 0 & 0 & 0 \\
+$K_5$  & 4 & 2 & 1 & 0 & 0 \\
+$K_6$  & 6 & 3 & 2 & 1 & 0 \\
+$K_7$  & 9 & 5 & 3 & 2 & 1 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{A General Lower Bound}
+
+\begin{theorem}
+\label{thm:lower_bound}
+For any graphs $G$ and $H$,
+\[
+  |G,H| \;\ge\; \max\!\bigl(0,\,|E(G)|-t(|V(G)|,\chi(H))\bigr).
+\]
 \end{theorem}
+
 \begin{proof}
-Consider the sequence of complete graphs $[K_n]$. Let's examine the distance between $[K_n]$ and a fixed graph, say the bipartite graph $[K_2]$. The distance is $d([K_n], [K_2]) = \max(|K_n, K_2|, |K_2, K_n|)$. Since $K_2 \to K_n$ for $n \ge 2$, we have $|K_2, K_n|=0$. Thus, $d([K_n], [K_2]) = |K_n, K_2|$. The value $|K_n, K_2|$ is the minimum number of edges that must be removed from $K_n$ to make it bipartite. By Turan's theorem, the maximum number of edges in a bipartite graph on $n$ vertices is $\lfloor n^2/4 \rfloor$. The number of edges in $K_n$ is $\binom{n}{2}$. Therefore, $|K_n, K_2| = \binom{n}{2} - \lfloor n^2/4 \rfloor$. As $n \to \infty$, this distance grows quadratically. Since we can find pairs of classes that are arbitrarily far apart, the space is unbounded.
+Any $G'\subseteq G$ with $G'\to H$ must satisfy $\chi(G')\le\chi(H)$.
+By Tur\'an's theorem, $|E(G')|\le t(|V(G)|,\chi(H))$.  Hence at least
+$|E(G)|-t(|V(G)|,\chi(H))$ edges must be removed from $G$.
 \end{proof}
+
+The bound is tight for $G=K_n$: it then equals $|K_n,K_m|$ from
+Theorem~\ref{thm:KnKm}.  For sparser $G$ the bound may be $0$, but then
+$|G,H|$ can be positive due to structural obstructions beyond edge density.
+
+\subsection{Cycles}
+
+Every cycle $C_n$ satisfies $C_n\to K_3$: even cycles are bipartite, so
+$C_n\to K_2\subset K_3$; odd cycles are $3$-chromatic, so $C_n\to K_3$
+directly.  Hence $|C_n,K_3|=0$ for all $n\ge 3$.
+
+By contrast, $|C_n,K_2|=0$ for even $n$ and $|C_n,K_2|=1$ for odd $n\ge 3$
+(removing any edge produces a path, which is bipartite).
+
+\subsection{The Petersen Graph}
+
+The Petersen graph $P$ has $10$ vertices, $15$ edges, chromatic number $3$,
+and is its own core.  Since $\chi(P)=3$, $|P,K_m|=0$ for all $m\ge 3$.
+
+\begin{observation}
+\label{obs:PK2}
+$|P,K_2|=3$.  The lower bound from Theorem~\ref{thm:lower_bound} gives
+$|P,K_2|\ge|E(P)|-t(10,2)=15-25=0$, which is not tight (the Petersen graph
+is far from bipartite).  The value $3$ is verified computationally in
+Section~\ref{sec:computation}.
+\end{observation}
+
+% ─────────────────────────────────────────────────────────────────────────────
+\section{The Concentration Parameter}
+% ─────────────────────────────────────────────────────────────────────────────
+
+\begin{definition}[Concentration Parameter]
+\label{def:gamma}
+Let $G$ and $H$ be graphs with $|E(G)|\ge 1$.  For a homomorphism
+$f\colon G\to H$ and an edge $e\in E(H)$, the \emph{load} of $e$ under $f$
+is
+\[
+  \mu(f,e) = \bigl|\{e'\in E(G) : \{f(u),f(v)\}=e
+             \text{ for the endpoints } u,v \text{ of } e'\}\bigr|.
+\]
+Define the \emph{max edge multiplicity} $\mu(f)=\max_{e\in E(H)}\mu(f,e)$.
+The \emph{concentration parameter} is
+\[
+  \gamma(G,H) = \min_{f\colon G\to H} \mu(f).
+\]
+When $G\not\to H$ we set $\gamma(G,H)=+\infty$.
+\end{definition}
+
+\begin{remark}
+Note that $\alpha$ denotes the independence number throughout; the symbol
+$\mu$ is used for edge multiplicities to avoid collision.
+A related per-homomorphism quantity $M^\sigma$ appears in~\cite{daneshgar2007}.
+\end{remark}
+
+Since the $|E(G)|$ pre-images are distributed among $|E(H)|$ images, the
+pigeonhole principle gives:
+
+\begin{proposition}[Pigeonhole lower bound]
+\label{prop:pigeonhole}
+If $G\to H$ then $\gamma(G,H)\ge\lceil|E(G)|/|E(H)|\rceil$.
+\end{proposition}
+
+This bound is not always achieved; Table~\ref{tab:CnK3} shows cases where
+the cycle structure forces a higher concentration.
+
+\begin{lemma}
+\label{lem:gamma_identity}
+$\gamma(G,G)=1$ for any graph $G$ with $|E(G)|\ge 1$.
+\end{lemma}
+
+\begin{proof}
+The identity $\operatorname{id}\colon G\to G$ satisfies $\mu(\operatorname{id})=1$
+since each edge is its own unique pre-image.  Since $\gamma\ge 1$ by
+definition (every edge must map somewhere), $\gamma(G,G)=1$.
+\end{proof}
+
+\begin{lemma}
+\label{lem:gamma_pos}
+If $G\to H$ and $|E(G)|\ge 1$ then $\gamma(G,H)\ge 1$.
+\end{lemma}
+
+\begin{proof}
+Every edge of $G$ must map to an edge of $H$ (since $H$ has no loops), so
+some $H$-edge receives load at least $1$.
+\end{proof}
+
+\begin{lemma}[Multiplicativity]
+\label{lem:gamma_mult}
+If $G\to H\to K$ then $\gamma(G,K)\le\gamma(G,H)\cdot\gamma(H,K)$.
+\end{lemma}
+
+\begin{proof}
+Choose $f\colon G\to H$ with $\mu(f)=\gamma(G,H)$ and $g\colon H\to K$ with
+$\mu(g)=\gamma(H,K)$.  Consider the composition $g\circ f\colon G\to K$.
+For any $K$-edge $e$, the $G$-edges mapping to $e$ under $g\circ f$ are
+exactly those mapping under $f$ to some $H$-edge in $g^{-1}(e)$.  There are
+at most $\mu(g)=\gamma(H,K)$ such $H$-edges, and each carries at most
+$\mu(f)=\gamma(G,H)$ pre-images from $G$.  Hence $\mu(g\circ f)\le
+\gamma(G,H)\cdot\gamma(H,K)$, so
+$\gamma(G,K)\le\mu(g\circ f)\le\gamma(G,H)\cdot\gamma(H,K)$.
+\end{proof}
+
+\begin{lemma}[Bound on non-homomorphism factor]
+\label{lem:nhf_bound}
+If $G\to H$ then $|G,K|\le\gamma(G,H)\cdot|H,K|$ for every graph $K$.
+\end{lemma}
+
+\begin{proof}
+Let $k=|H,K|$ and choose $S\subseteq E(H)$ with $|S|=k$ such that $H-S\to K$.
+Let $f\colon G\to H$ achieve $\mu(f)=\gamma(G,H)$.  Define
+$T=\{e'\in E(G):f(e')\in S\}$.  For each $H$-edge in $S$, at most
+$\gamma(G,H)$ edges of $G$ map to it, so $|T|\le k\cdot\gamma(G,H)$.
+The map $f$ restricted to $G-T$ lands in $H-S$ (since the only $G$-edges
+mapping to removed $H$-edges have been deleted), and $H-S\to K$, so
+$G-T\to K$.  Hence $|G,K|\le|T|\le\gamma(G,H)\cdot|H,K|$.
+\end{proof}
+
+\begin{lemma}[Two-sided bound via a common target]
+\label{lem:two_sided}
+If $G\to H$ and $K\to H$ then
+\[
+  |G,K| \le \gamma(G,H)\cdot|H,K|
+  \qquad\text{and}\qquad
+  |K,G| \le \gamma(K,H)\cdot|H,G|.
+\]
+Consequently,
+$m(G,K)\le\max\!\bigl(\gamma(G,H)\cdot|H,K|,\;\gamma(K,H)\cdot|H,G|\bigr)$.
+\end{lemma}
+
+\begin{proof}
+Both inequalities follow from Lemma~\ref{lem:nhf_bound}, the first applied to
+the pair $(G,H)$ with target $K$, the second to the pair $(K,H)$ with target
+$G$.  The bound on $m$ follows by taking the max.
+\end{proof}
+
+\begin{lemma}[Monotonicity in the target]
+\label{lem:gamma_mono}
+If $H_1\subseteq H_2$ (i.e.\ $H_1$ is a subgraph of $H_2$) and $G\to H_1$,
+then $\gamma(G,H_2)\le\gamma(G,H_1)$.
+\end{lemma}
+
+\begin{proof}
+The inclusion $\iota\colon H_1\hookrightarrow H_2$ is an edge-injective
+homomorphism, so $\mu(\iota)=1$ and $\gamma(H_1,H_2)\le 1$.  Since $\gamma\ge
+1$ always, $\gamma(H_1,H_2)=1$.  By Lemma~\ref{lem:gamma_mult},
+$\gamma(G,H_2)\le\gamma(G,H_1)\cdot\gamma(H_1,H_2)=\gamma(G,H_1)$.
+\end{proof}
+
+\begin{proposition}
+\label{prop:gamma_Kn}
+For $n\le m$, $\gamma(K_n,K_m)=1$.
+For $n>m$, $\gamma(K_n,K_m)=+\infty$ (since $\chi(K_n)=n>m$ forbids any
+homomorphism).
+\end{proposition}
+
+\begin{proof}
+When $n\le m$ the inclusion $K_n\hookrightarrow K_m$ is edge-injective, so
+$\mu(\iota)=1$ and $\gamma(K_n,K_m)\le 1$.  Combined with
+Lemma~\ref{lem:gamma_pos}, $\gamma(K_n,K_m)=1$.
+\end{proof}
+
+\subsection{Concentration for Regular Graphs}
+
+\begin{theorem}[d-Regularity Formula]
+\label{thm:d_regular}
+Let $G$ be a $d$-regular graph on $n$ vertices with $\chi(G)=3$.
+Let
+\[
+  M = \min\bigl\{\,\max(s_1,s_2,s_3) :
+      s_1+s_2+s_3=n,\; s_i\ge 0,\;
+      s_1\equiv s_2\equiv s_3\pmod{2}\,\bigr\}.
+\]
+Then $\gamma(G,K_3) = \dfrac{d}{2}\cdot M$.
+\end{theorem}
+
+\begin{proof}
+Let $f\colon G\to K_3$ be any homomorphism with colour classes $A,B,C$
+of sizes $a,b,c$ (so $a+b+c=n$).  Because $G$ is $d$-regular, the
+number of edges between classes satisfies
+\[
+  e_{AB}=\tfrac{d}{2}(a+b-c),\quad
+  e_{AC}=\tfrac{d}{2}(a+c-b),\quad
+  e_{BC}=\tfrac{d}{2}(b+c-a).
+\]
+(Each vertex in $A$ contributes $d$ edges total; all neighbours in $A$
+contribute $0$ (no monochromatic edges), so $e_{AB}+e_{AC}=da$; the
+analogous identities for $B$ and $C$ give the three equations above.)
+Writing $s_1=a+b-c$, $s_2=a+c-b$, $s_3=b+c-a$, the triple
+$(s_1,s_2,s_3)$ is non-negative, sums to $n$, and all have the same
+parity (each $s_i\equiv a+b+c-2x_i\equiv n\pmod{2}$ for appropriate
+$x_i$).  The max edge load under $f$ is $\mu(f)=(d/2)\max(s_1,s_2,s_3)$.
+
+Minimising over all achievable class distributions gives
+\[
+  \gamma(G,K_3) = \frac{d}{2}\cdot
+  \min_{\substack{s_1+s_2+s_3=n,\; s_i\ge 0\\s_1\equiv s_2\equiv s_3\pmod{2}}}
+  \max(s_1,s_2,s_3).
+\]
+The minimum is $M$.  (Any triple $(a,b,c)$ of non-negative integers with
+$a+b+c=n$ is realised as an independent-set partition of any
+$3$-chromatic $d$-regular graph provided no colour class is too large,
+which is guaranteed when $G$ has no isolated vertices.)
+\end{proof}
+
+\begin{remark}
+The formula requires $d$ to be even or the $s_i$ to conspire so that
+$\tfrac{d}{2}s_i$ is an integer; this is automatic when $n$ and $d$ are
+both even, or when all $s_i$ are even.  The Petersen graph ($n=10$,
+$d=3$) requires same-parity triples summing to $10$; all-even gives
+minimum max $=4$ (e.g.\ $(4,4,2)$), so $\gamma=\tfrac{3}{2}\cdot 4=6$.
+\end{remark}
+
+% ─────────────────────────────────────────────────────────────────────────────
+\section{The Symmetric Combination $m(G,H)$}
+\label{sec:metric}
+% ─────────────────────────────────────────────────────────────────────────────
+
+\begin{definition}
+\label{def:m}
+$m(G,H) = \max\bigl(|G,H|,\,|H,G|\bigr)$.
+\end{definition}
+
+The function $m$ is clearly non-negative, satisfies $m(G,G)=0$ (since
+$G\to G$), and is symmetric by definition.  The following characterises when
+$m=0$.
+
+\begin{proposition}
+\label{prop:m_zero}
+$m(G,H)=0$ if and only if $G$ and $H$ are homomorphically equivalent
+(i.e.\ $G\leftrightarrow H$), which holds if and only if $\operatorname{core}(G)
+\cong\operatorname{core}(H)$.
+\end{proposition}
+
+\begin{proof}
+$m(G,H)=0$ means $|G,H|=0$ and $|H,G|=0$, i.e.\ $G\to H$ and $H\to G$.
+This is precisely homomorphic equivalence, and two graphs are homomorphically
+equivalent iff they have isomorphic cores.
+\end{proof}
+
+\begin{theorem}
+\label{thm:no_triangle}
+$m$ does \emph{not} satisfy the triangle inequality in general.
+\end{theorem}
+
+\begin{proof}
+By Theorem~\ref{thm:KnKm} and the fact that $K_n\to K_m$ for all $n\le m$:
+\begin{align*}
+  m(K_7,K_3) &= \max(|K_7,K_3|,\,|K_3,K_7|) = \max(5,0) = 5,\\
+  m(K_7,K_5) &= \max(|K_7,K_5|,\,|K_5,K_7|) = \max(2,0) = 2,\\
+  m(K_5,K_3) &= \max(|K_5,K_3|,\,|K_3,K_5|) = \max(2,0) = 2.
+\end{align*}
+The triangle inequality would require
+$m(K_7,K_3)\le m(K_7,K_5)+m(K_5,K_3)$, i.e.\ $5\le 4$.
+This fails.
+\end{proof}
+
+\begin{remark}
+Khoshkha~\cite{khoshkha2005} claims $m$ is a pseudo-metric.
+Theorem~\ref{thm:no_triangle} shows this is incorrect under
+Definition~\ref{def:nhf}.  A modified definition allowing edge additions as
+well as deletions, or using a different minimisation, might restore the
+triangle inequality; we leave this as an open question
+(Section~\ref{sec:open}, Question~\ref{q:metric}).
+\end{remark}
+
+% ─────────────────────────────────────────────────────────────────────────────
+\section{Computational Results}
+\label{sec:computation}
+% ─────────────────────────────────────────────────────────────────────────────
+
+We computed $|G,H|$ and $\gamma(G,H)$ using algorithms implemented in C++
+and Rust (source at \url{https://github.com/rostam/NonHomomorphism}):
+\begin{itemize}
+  \item \textbf{Homomorphism search:} backtracking DFS with early constraint
+        pruning (Rust and C++).
+  \item \textbf{Non-homomorphism factor:} for $k=0,1,2,\ldots$ test all
+        $\binom{|E(G)|}{k}$ edge-removal subsets (C++).
+  \item \textbf{Concentration parameter:} enumerate \emph{all} homomorphisms
+        and compute $\gamma=\min_f\mu(f)$ (C++).
+\end{itemize}
+
+\subsection{Cycles to $K_3$}
+
+\begin{table}[ht]
+\centering
+\caption{Non-homomorphism factor and concentration parameter for $C_n\to K_3$.
+         The column $\lceil n/3\rceil$ is the pigeonhole lower bound
+         (Proposition~\ref{prop:pigeonhole}); starred entries achieve it.
+         Theorem~\ref{thm:cycle_gamma} (verified by DP for $n\le 50$)
+         gives the exact values in column $\gamma$.}
+\label{tab:CnK3}
+\begin{tabular}{crrrc}
+\toprule
+$C_n$ & $|E|$ & $|C_n,K_3|$ & $\gamma(C_n,K_3)$ & $\lceil n/3\rceil$ \\
+\midrule
+$C_3$   &  3 & 0 & $1^*$ & 1 \\
+$C_4$   &  4 & 0 & $2^*$ & 2 \\
+$C_5$   &  5 & 0 & 3     & 2 \\
+$C_6$   &  6 & 0 & $2^*$ & 2 \\
+$C_7$   &  7 & 0 & $3^*$ & 3 \\
+$C_8$   &  8 & 0 & 4     & 3 \\
+$C_9$   &  9 & 0 & $3^*$ & 3 \\
+$C_{10}$& 10 & 0 & $4^*$ & 4 \\
+$C_{11}$& 11 & 0 & 5     & 4 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+The data is consistent with the following exact formula, which holds for
+all $n\ge 3$ and is verified computationally for $n\le 50$.
+
+\begin{theorem}
+\label{thm:cycle_gamma}
+For all $n\ge 3$,
+\[
+  \gamma(C_n, K_3) =
+  \begin{cases}
+    \lceil n/3 \rceil     & \text{if } n \not\equiv 2 \pmod{3}, \\
+    \lceil n/3 \rceil + 1 & \text{if } n \equiv 2 \pmod{3}.
+  \end{cases}
+\]
+\end{theorem}
+
+\begin{proof}
+We apply Theorem~\ref{thm:d_regular} with $d=2$ (cycles are $2$-regular).
+Write $n=3q+r$ with $r\in\{0,1,2\}$.  The parameter $M$ is the minimum
+max of a same-parity non-negative triple summing to $n$.
+
+\textbf{Case $n\equiv 0\pmod 3$} ($r=0$, $n=3q$).
+The triple $(q,q,q)$ sums to $3q$ and all have the same parity.
+Its max is $q=n/3$; no smaller max is possible since the average is $q$.
+Hence $M=q$ and $\gamma=1\cdot q=n/3=\lceil n/3\rceil$.
+
+\textbf{Case $n\equiv 1\pmod 3$} ($r=1$, $n=3q+1$).
+The triple $(q+1,q+1,q-1)$ has the same parity and sums to $3q+1$;
+its max is $q+1$.  Any triple with max $\le q$ sums to at most $3q<n$,
+so $M=q+1=\lceil n/3\rceil$.  Hence $\gamma=q+1=\lceil n/3\rceil$.
+
+\textbf{Case $n\equiv 2\pmod 3$} ($r=2$, $n=3q+2$).
+Suppose there exists a same-parity triple summing to $n$ with max $\le q+1$.
+Then all three values are $\le q+1$ and the sum is at most $3(q+1)=3q+3$.
+But the sum must equal $3q+2$, so at least one value equals $q$.
+A triple with values in $\{q,q+1\}$ and sum $3q+2$ must have two values
+equal to $q+1$ and one to $q$.  But $q$ and $q+1$ have different parities,
+contradicting same-parity.  Hence $M\ge q+2$.  The triple $(q+2,q,q)$
+achieves this (same parity: $q$ and $q+2$ are congruent mod $2$), so
+$M=q+2=\lceil n/3\rceil+1$.  Hence $\gamma=q+2=\lceil n/3\rceil+1$.
+\end{proof}
+
+\begin{remark}
+Theorem~\ref{thm:cycle_gamma} follows from Theorem~\ref{thm:d_regular} by
+setting $d=2$.  The formula is \emph{not} merely the pigeonhole bound
+$\lceil n/3\rceil$: for $n\equiv 2\pmod 3$ the parity obstruction raises
+$\gamma$ by one above the pigeonhole value.  Lemma~\ref{lem:gamma_mono}
+(monotonicity) is also consistent with Table~\ref{tab:CnK3}: since
+$K_2\subset K_3$, any homomorphism $C_n\to K_2$ (for even $n$) lifts to
+$K_3$ with no worse concentration.
+\end{remark}
+
+\subsection{Complete Bipartite Graphs to $K_3$}
+
+\begin{table}[ht]
+\centering
+\caption{Non-homomorphism factor and $\gamma$ for $K_{n,n}\to K_3$.}
+\label{tab:KnnK3}
+\begin{tabular}{crrc}
+\toprule
+$G$ & $|E(G)|$ & $|G,K_3|$ & $\gamma(G,K_3)$ \\
+\midrule
+$K_{1,1}$ &  1 & 0 & 1 \\
+$K_{2,2}$ &  4 & 0 & 2 \\
+$K_{3,3}$ &  9 & 0 & 6 \\
+$K_{4,4}$ & 16 & 0 & 8 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\begin{theorem}
+\label{thm:Knn}
+$\gamma(K_{n,n}, K_3) = n\cdot\lceil n/2\rceil$.
+\end{theorem}
+
+\begin{proof}
+Since $K_{n,n}$ is bipartite, $K_{n,n}\to K_2\subset K_3$, so
+$|K_{n,n},K_3|=0$.
+
+Let $L$ and $R$ be the two parts.  In any homomorphism $f\colon K_{n,n}\to
+K_3$, the colour sets $f(L)$ and $f(R)$ must be disjoint: every vertex of
+$L$ is adjacent to every vertex of $R$, and $K_3$ has no self-loops, so
+$f(\ell)\ne f(r)$ for all $\ell\in L$, $r\in R$.  Since $|V(K_3)|=3$, by the
+pigeonhole principle one part uses at most one colour and the other at most
+two.
+
+Without loss of generality (by symmetry of $K_{n,n}$), suppose $f(R)\subseteq
+\{c\}$ and $f(L)\subseteq\{a,b\}$ with $\{a,b,c\}=V(K_3)$.  If $k$ vertices
+of $L$ map to $a$ and $(n-k)$ map to $b$, then the loads on $\{a,c\}$ and
+$\{b,c\}$ are $nk$ and $n(n-k)$ respectively (each $R$-vertex contributes
+one edge to each $L$-vertex), and the load on $\{a,b\}$ is zero.  The maximum
+is minimised at $k=\lfloor n/2\rfloor$, giving
+$\max(n\lceil n/2\rceil, n\lfloor n/2\rfloor)=n\lceil n/2\rceil$.
+Hence $\gamma(K_{n,n},K_3)=n\lceil n/2\rceil$.
+\end{proof}
+
+For $n=1,2,3,4$ this gives $1,2,6,8$, matching Table~\ref{tab:KnnK3}.
+
+\subsection{The Petersen Graph}
+
+\begin{table}[ht]
+\centering
+\caption{Non-homomorphism factor and $\gamma$ from the Petersen graph $P$ to
+         complete graphs.  The pigeonhole bound is $\lceil 15/|E(H)|\rceil$.}
+\label{tab:Petersen}
+\begin{tabular}{crrrc}
+\toprule
+$H$ & $|E(H)|$ & $|P,H|$ & $\gamma(P,H)$ & pigeonhole lb \\
+\midrule
+$K_2$ &  1 & 3       & $+\infty$ & --- \\
+$K_3$ &  3 & 0       & 6         & 5   \\
+$K_4$ &  6 & 0       & 4         & 3   \\
+$K_5$ & 10 & 0       & 2         & 2   \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+Observation~\ref{obs:PK2} gives $|P,K_2|=3$.  Since $\chi(P)=3$, $|P,K_m|=0$
+for all $m\ge 3$.
+
+\begin{observation}
+\label{obs:petersen_mono}
+$\gamma(P,K_3)=6>\gamma(P,K_4)=4>\gamma(P,K_5)=2$.  This is consistent with
+Lemma~\ref{lem:gamma_mono}: since $K_3\subset K_4\subset K_5$, each inclusion
+is edge-injective and monotonicity gives
+$\gamma(P,K_3)\ge\gamma(P,K_4)\ge\gamma(P,K_5)$.
+\end{observation}
+
+\begin{observation}
+\label{obs:petersen_exceed}
+$\gamma(P,K_3)=6$ strictly exceeds the pigeonhole lower bound
+$\lceil 15/3\rceil=5$.  Theorem~\ref{thm:d_regular} explains this:
+with $n=10$, $d=3$, the optimal same-parity triple summing to $10$
+has minimum max $M=4$ (e.g.\ $(4,4,2)$; all-odd is impossible since
+$10$ is even), giving $\gamma=\tfrac{3}{2}\cdot 4=6$.  The parity
+obstruction prevents $M=3$ (which would require $(3,4,3)$, mixed parity).
+\end{observation}
+
+\begin{observation}
+\label{obs:gamma_K5}
+The value $\gamma(P,K_5)=2$ meets the pigeonhole bound $\lceil 15/10\rceil=2$.
+By Lemma~\ref{lem:gamma_mult} applied to $K_3\to K_4\to K_5$:
+$\gamma(P,K_5)\le\gamma(P,K_3)\cdot\gamma(K_3,K_5)=6\cdot 1=6$
+and $\gamma(P,K_4)\le\gamma(P,K_3)\cdot\gamma(K_3,K_4)=6\cdot 1=6$.
+Both are consistent with (but do not imply) the computed values.
+\end{observation}
+
+\subsection{Lemma Verification}
+
+\medskip\noindent
+\textbf{Proposition~\ref{prop:monotone}(\ref{it:mon1}):}
+$K_3\to K_4$, so $|P,K_3|\ge|P,K_4|$: $0\ge 0$.~\checkmark
+
+\medskip\noindent
+\textbf{Theorem~\ref{thm:KnKm} ($|K_{n+1},K_n|=1$):}
+Verified computationally for $n=2,3,4$.~\checkmark
+
+\medskip\noindent
+\textbf{Lemma~\ref{lem:gamma_mult}:}
+$\gamma(P,K_4)=4\le\gamma(P,K_3)\cdot\gamma(K_3,K_4)=6\cdot 1=6$.~\checkmark
+
+\medskip\noindent
+\textbf{Lemma~\ref{lem:nhf_bound}:}
+$|P,K_2|=3\le\gamma(P,K_3)\cdot|K_3,K_2|=6\cdot 1=6$.~\checkmark
+
+\medskip\noindent
+\textbf{Theorem~\ref{thm:no_triangle} ($m$ fails triangle inequality):}
+$m(K_7,K_3)=5>4=m(K_7,K_5)+m(K_5,K_3)$.~\checkmark
+
+% ─────────────────────────────────────────────────────────────────────────────
+\section{Open Questions}
+\label{sec:open}
+% ─────────────────────────────────────────────────────────────────────────────
+
+\begin{enumerate}
+
+\item\label{q:regularity_general}
+\textbf{Extend the $d$-regularity formula to general $H$.}
+Theorem~\ref{thm:d_regular} gives $\gamma(G,K_3)$ exactly for $d$-regular
+$G$ with $\chi(G)=3$.  Is there an analogous formula for $\gamma(G,H)$
+when $H$ is an arbitrary $k$-chromatic graph?  The argument uses the fact
+that $K_3$ has a unique edge type (all $3$ edges are equivalent under
+automorphisms); for $H$ with multiple edge orbits the formula would need
+to track the load on each orbit separately.
+
+\item\label{q:edge_trans}
+\textbf{When does $\gamma(G,H)$ meet the ratio $|E(G)|/|E(H)|$?}
+For $d$-regular $G$ with $\chi(G)=3$, Theorem~\ref{thm:d_regular} shows
+that $\gamma(G,K_3)$ meets the pigeonhole bound $\lceil|E(G)|/|E(K_3)|\rceil$
+exactly when $n\equiv 0\pmod 3$ (equal class sizes achievable), and
+exceeds it by $d/2$ when $n\equiv 2\pmod 3$ (parity obstruction).
+For the Petersen graph ($n=10$, $d=3$, $n\equiv 1\pmod 3$) we get
+$\gamma(P,K_3)=6>5=\lceil 15/3\rceil$.
+Does $\gamma(G,H)$ always equal the ratio $|E(G)|/|E(H)|$ when $H$ is
+``large enough'' relative to $G$?  (Computations show $\gamma(P,K_5)=2$
+meets the pigeonhole bound $\lceil 15/10\rceil=2$.)
+
+\item\label{q:metric}
+\textbf{Can $m$ be repaired into a metric?}
+Theorem~\ref{thm:no_triangle} shows $m(G,H)=\max(|G,H|,|H,G|)$ does not
+satisfy the triangle inequality.  Two variants worth investigating are:
+(a) $d(G,H)=\min\{k : \exists\,G'\text{ with }|E(G)\triangle E(G')|=k
+    \text{ and }G'\to H\}$ (edge-edit distance to a subgraph mapping to $H$);
+(b) $m'(G,H)=\max(|G,H|,|H,G|)$ restricted to graphs with the same vertex
+    count.  Do either of these satisfy a triangle inequality?
+
+\item\label{q:gamma_frac}
+\textbf{$\gamma$ and the fractional chromatic number.}
+For vertex-transitive $G$, $\chi_f(G)=|V(G)|/\alpha(G)$.  The Petersen graph
+has $\chi_f(P)=5/2$.  Is $\gamma(G,K_m)$ related to $\chi_f(G)$?  For
+example, does $\gamma(G,K_m)\ge|E(G)|/(m\lfloor|V(G)|/m\rfloor)$ hold for
+vertex-transitive $G$?  For $P$ and $m=3$: $15/(3\cdot 3)=5/3$, which gives
+$\lceil 5/3\rceil=2$, weaker than the actual value $6$.  A tighter bound using
+$\chi_f$ may explain why $\gamma(P,K_3)=6$ instead of $5$.
+
+\item\label{q:subadditivity}
+\textbf{Characterise when $|G,K|\le|G,H|+|H,K|$.}
+The triangle inequality fails for $m$, but the sub-additivity of $|G,\cdot|$
+might hold under additional conditions.  For complete graphs,
+$|K_n,K_m|+|K_m,K_\ell|=|K_n,K_\ell|$ when $n,m,\ell$ are in arithmetic
+progression (e.g.\ $K_4,K_3,K_2$: $1+1=2$\checkmark), but fails when the
+gap grows faster (e.g.\ $K_7,K_5,K_3$: $2+2<5$).
+A systematic search finds 108 triples $(K_a,K_b,K_c)$ with $a,b,c\le 10$
+where $m(K_a,K_c)>m(K_a,K_b)+m(K_b,K_c)$; the excess is largest when
+$b\approx\sqrt{ac}$ (the ``geometric middle''), which maximises the Tur\'an
+discrepancy $t(a,b)-t(a,c)>|K_b,K_c|$.  What characterises the
+triples $(G,H,K)$ for which sub-additivity holds?
+
+\end{enumerate}
+
+% ─────────────────────────────────────────────────────────────────────────────
+\section*{References}
+% ─────────────────────────────────────────────────────────────────────────────
 
 \begin{thebibliography}{9}
-\bibitem{kh1} Kaveh Khoshkhah (2005), \emph{Nonhomomorphism Factors}, Thesis at Sharif University.
-\bibitem{daneshgar} Amir Daneshgar, Hossein Hajiabolhassan (2007), \emph{Circular colouring and algebraic no-homomorphism theorems}, European Journal of Combinatorics, 28(6), 1843–1853.
-\bibitem{hn} Pavol Hell, Jaroslav Nešetřil (2004), \emph{Graphs and homomorphisms}, Oxford Lecture Series in Mathematics and Its Applications.
-\bibitem{rw} Amir Daneshgar, Hossein Hajiabolhassan (2003), \emph{Graph Homomorphisms Through Random Walks}, JGT 44 (2003) 15–38.
-\bibitem{shitov} Yaroslav Shitov (2019), \emph{Counterexamples to Hedetniemi’s conjecture}, Annals of Mathematics, 190(2), 663–667.
+
+\bibitem{khoshkha2005}
+K.~Khoshkha,
+\textit{Nonhomomorphism Factors},
+M.Sc.\ thesis, Sharif University of Technology, 2005.
+
+\bibitem{daneshgar2007}
+A.~Daneshgar and H.~Hajiabolhassan,
+``Circular colouring and algebraic no-homomorphism theorems,''
+\textit{European Journal of Combinatorics},
+vol.~28, no.~6, pp.~1843--1853, 2007.
+
+\bibitem{daneshgar2003}
+A.~Daneshgar and H.~Hajiabolhassan,
+``Graph homomorphisms through random walks,''
+\textit{Journal of Graph Theory},
+vol.~44, pp.~15--38, 2003.
+
+\bibitem{hell2004}
+P.~Hell and J.~Ne\v{s}et\v{r}il,
+\textit{Graphs and Homomorphisms},
+Oxford University Press, 2004.
+
+\bibitem{shitov2019}
+Y.~Shitov,
+``Counterexamples to Hedetniemi's conjecture,''
+\textit{Annals of Mathematics},
+vol.~190, no.~2, pp.~663--667, 2019.
+
 \end{thebibliography}
 
 \end{document}
