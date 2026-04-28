@@ -262,6 +262,18 @@ fn paley_13() -> Graph {
     g
 }
 
+/// Petersen graph + two extra edges.
+/// We add {0,2} and {1,3}: both are skip-1 non-edges on the outer pentagon,
+/// symmetric to each other under the outer-pentagon automorphism (rotation by 1).
+fn petersen_plus_two_edges() -> Graph {
+    let mut g = petersen();
+    assert!(!g.has_edge(0, 2));
+    assert!(!g.has_edge(1, 3));
+    g.add_edge(0, 2);
+    g.add_edge(1, 3);
+    g
+}
+
 /// Petersen graph + one extra edge between two non-adjacent vertices.
 /// All non-edges are automorphically equivalent (S5 acts transitively on them),
 /// so any choice gives an isomorphic graph. Here we add edge 0–2 (vertices 0
@@ -1054,6 +1066,61 @@ mod tests {
     fn gen_petersen_gp62_to_k3() {
         // GP(6,2) is 3-colourable
         assert_eq!(nonhom_param(&gen_petersen(6, 2), &complete(3)), 0);
+    }
+
+    #[test]
+    fn petersen_plus_two_edges_structure() {
+        let g = petersen_plus_two_edges();
+        assert_eq!(g.n, 10);
+        assert_eq!(g.edge_count(), 17); // 15 + 2
+        assert!(g.has_edge(0, 2) && g.has_edge(2, 0));
+        assert!(g.has_edge(1, 3) && g.has_edge(3, 1));
+    }
+
+    #[test]
+    fn petersen_plus_two_edges_to_petersen() {
+        // Both {0,2} and {1,3} are non-edges in Petersen. Petersen is a core →
+        // any hom to Petersen is an automorphism → automorphisms preserve
+        // non-edges → neither added edge can be satisfied → need to remove both.
+        let g = petersen_plus_two_edges();
+        let h = petersen();
+        let val = nonhom_param(&g, &h);
+        println!("|PetGraph+2, Petersen|_0 = {val}");
+        assert_eq!(val, 2);
+    }
+
+    #[test]
+    fn petersen_plus_two_edges_to_k3() {
+        // Both added edges connect differently-coloured vertices in a valid
+        // 3-colouring of Petersen (0→1, 1→2, 2→3, 3→1, ...) → still 3-colourable.
+        let g = petersen_plus_two_edges();
+        let val = nonhom_param(&g, &complete(3));
+        println!("|PetGraph+2, K3|_0 = {val}");
+        assert_eq!(val, 0);
+    }
+
+    #[test]
+    fn petersen_plus_two_edges_to_c5() {
+        // Petersen → C5 already needed 2 removals; adding edges can only
+        // increase or keep the parameter.
+        let g = petersen_plus_two_edges();
+        let val = nonhom_param(&g, &cycle(5));
+        println!("|PetGraph+2, C5|_0 = {val}");
+        assert!(val >= 2);
+    }
+
+    #[test]
+    fn petersen_plus_two_edges_to_pet_plus_one() {
+        // PetGraphPlusOneEdge has edge {0,2} but not {1,3}.
+        // Whether a hom exists that satisfies {1,3} depends on endomorphisms
+        // of PetGraphPlusOneEdge — less obvious, let the algorithm decide.
+        let g  = petersen_plus_two_edges();
+        let h  = petersen_plus_one_edge();
+        let val = nonhom_param(&g, &h);
+        println!("|PetGraph+2, PetGraph+1|_0 = {val}");
+        // At minimum: if no hom exists, we need ≥ 1 removal.
+        // Upper bound: remove {1,3} → get PetGraph+{0,2} → identity is a hom → ≤ 1.
+        assert!(val <= 1);
     }
 
     #[test]
