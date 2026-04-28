@@ -1070,6 +1070,20 @@ mod tests {
     }
 
     #[test]
+    fn petersen_plus_one_edge_to_petersen() {
+        // Petersen is a core: every endomorphism is an automorphism,
+        // and automorphisms preserve non-edges. Since 0 and 2 are
+        // non-adjacent in Petersen, no endomorphism can map (0,2) to
+        // an edge → no homomorphism PetPlus1 → Petersen exists.
+        // Removing the added edge {0,2} recovers Petersen (identity hom) → answer = 1.
+        let g = petersen_plus_one_edge();
+        let h = petersen();
+        let result = nonhom_param(&g, &h);
+        println!("|PetGraphPlusOneEdge, PetGraph|_0 = {result}");
+        assert_eq!(result, 1);
+    }
+
+    #[test]
     fn petersen_plus_one_edge_to_k3() {
         let g = petersen_plus_one_edge();
         let k3 = complete(3);
