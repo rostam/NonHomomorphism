@@ -262,6 +262,19 @@ fn paley_13() -> Graph {
     g
 }
 
+/// Petersen graph + one extra edge between two non-adjacent vertices.
+/// All non-edges are automorphically equivalent (S5 acts transitively on them),
+/// so any choice gives an isomorphic graph. Here we add edge 0–2 (vertices 0
+/// and 2 are both on the outer pentagon but not adjacent; each has exactly one
+/// common neighbour with the other, confirming they are genuinely non-adjacent).
+fn petersen_plus_one_edge() -> Graph {
+    let mut g = petersen();
+    // Verify 0 and 2 are not adjacent before adding the edge
+    assert!(!g.has_edge(0, 2), "0-2 is already an edge");
+    g.add_edge(0, 2);
+    g
+}
+
 /// Octahedron = K_{2,2,2}: 6 vertices, 4-regular, 12 edges, χ = 3.
 fn octahedron() -> Graph {
     let mut g = Graph::new(6);
@@ -496,6 +509,32 @@ fn main() {
         let h = complete(n);
         let label = format!("Petersen → K{n}");
         run(&label, &pet, &h);
+    }
+
+    // ── Petersen + one edge ─────────────────────────────────────────────────
+    {
+        println!("\n── Petersen + one edge ─────────────────────────────────────");
+        let pet_plus = petersen_plus_one_edge();
+        println!(
+            "  PetGraphPlusOneEdge: {} vertices, {} edges (Petersen had {})",
+            pet_plus.n, pet_plus.edge_count(), petersen().edge_count()
+        );
+        // Show adjacency of the added vertices for clarity
+        print!("  Neighbours of 0 after adding edge 0-2: {{");
+        let mut mask = pet_plus.adj[0];
+        let mut first = true;
+        while mask != 0 {
+            let v = mask.trailing_zeros() as usize;
+            mask &= mask - 1;
+            if !first { print!(", "); }
+            print!("{v}");
+            first = false;
+        }
+        println!("}}");
+        run("PetGraphPlusOneEdge → K3", &pet_plus, &k3);
+        run("PetGraphPlusOneEdge → K2", &pet_plus, &k2);
+        run("PetGraphPlusOneEdge → K4", &pet_plus, &k4);
+        run("PetGraphPlusOneEdge → C5", &pet_plus, &c5);
     }
 
     // ── New uncommon / interesting graphs ───────────────────────────────────
@@ -1015,6 +1054,30 @@ mod tests {
     fn gen_petersen_gp62_to_k3() {
         // GP(6,2) is 3-colourable
         assert_eq!(nonhom_param(&gen_petersen(6, 2), &complete(3)), 0);
+    }
+
+    #[test]
+    fn petersen_plus_one_edge_structure() {
+        let g = petersen_plus_one_edge();
+        assert_eq!(g.n, 10);
+        assert_eq!(g.edge_count(), 16); // Petersen's 15 + 1
+        assert!(g.has_edge(0, 2));
+        assert!(g.has_edge(2, 0));
+        // Original Petersen edges still present
+        assert!(g.has_edge(0, 1));
+        assert!(g.has_edge(0, 4));
+        assert!(g.has_edge(0, 5));
+    }
+
+    #[test]
+    fn petersen_plus_one_edge_to_k3() {
+        let g = petersen_plus_one_edge();
+        let k3 = complete(3);
+        let result = nonhom_param(&g, &k3);
+        println!("|PetGraphPlusOneEdge, K3|_0 = {result}");
+        // The Petersen graph has a 3-colouring where 0 and 2 get different
+        // colours, so adding edge 0-2 leaves the graph 3-colourable.
+        assert_eq!(result, 0);
     }
 
     #[test]
