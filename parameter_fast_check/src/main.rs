@@ -262,6 +262,18 @@ fn paley_13() -> Graph {
     g
 }
 
+/// Petersen graph + four extra edges: {0,2},{1,3},{2,4},{0,3}.
+/// The outer-pentagon subgraph becomes K5 − {1,4}, which has χ = 4,
+/// so the whole graph is no longer 3-colourable.
+fn petersen_plus_four_edges() -> Graph {
+    let mut g = petersen();
+    for (u, v) in [(0,2),(1,3),(2,4),(0,3)] {
+        assert!(!g.has_edge(u, v));
+        g.add_edge(u, v);
+    }
+    g
+}
+
 /// Petersen graph + three extra edges: {0,2}, {1,3}, {2,4} — the three
 /// consecutive skip-1 non-edges on the outer pentagon.
 fn petersen_plus_three_edges() -> Graph {
@@ -1079,6 +1091,39 @@ mod tests {
     fn gen_petersen_gp62_to_k3() {
         // GP(6,2) is 3-colourable
         assert_eq!(nonhom_param(&gen_petersen(6, 2), &complete(3)), 0);
+    }
+
+    #[test]
+    fn petersen_plus_four_edges_suite() {
+        let g  = petersen_plus_four_edges();
+        let pet = petersen();
+        let p1  = petersen_plus_one_edge();
+        let p2  = petersen_plus_two_edges();
+        let p3  = petersen_plus_three_edges();
+        let k3  = complete(3);
+        let c5  = cycle(5);
+
+        assert_eq!(g.n, 10);
+        assert_eq!(g.edge_count(), 19); // 15 + 4
+
+        let v_pet = nonhom_param(&g, &pet); println!("|PetGraph+4, Petersen|_0   = {v_pet}");
+        let v_k3  = nonhom_param(&g, &k3);  println!("|PetGraph+4, K3|_0         = {v_k3}");
+        let v_c5  = nonhom_param(&g, &c5);  println!("|PetGraph+4, C5|_0         = {v_c5}");
+        let v_p1  = nonhom_param(&g, &p1);  println!("|PetGraph+4, PetGraph+1|_0 = {v_p1}");
+        let v_p2  = nonhom_param(&g, &p2);  println!("|PetGraph+4, PetGraph+2|_0 = {v_p2}");
+        let v_p3  = nonhom_param(&g, &p3);  println!("|PetGraph+4, PetGraph+3|_0 = {v_p3}");
+
+        // 3, not 4: removing an original Petersen edge (not just added ones) can
+        // enable a non-automorphic hom to Petersen, so the bound is tighter than
+        // "one removal per non-edge".
+        assert_eq!(v_pet, 3);
+        // Outer subgraph K5−{1,4} has χ=4 → not 3-colourable; removing one
+        // added edge (e.g. {0,3}) recovers PetGraph+3 which is 3-colourable → = 1
+        assert_eq!(v_k3, 1);
+        assert_eq!(v_c5, 3);
+        assert_eq!(v_p1, 1);
+        assert_eq!(v_p2, 1);
+        assert_eq!(v_p3, 1);
     }
 
     #[test]
