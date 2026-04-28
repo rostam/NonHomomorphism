@@ -262,6 +262,19 @@ fn paley_13() -> Graph {
     g
 }
 
+/// Petersen graph + three extra edges: {0,2}, {1,3}, {2,4} — the three
+/// consecutive skip-1 non-edges on the outer pentagon.
+fn petersen_plus_three_edges() -> Graph {
+    let mut g = petersen();
+    assert!(!g.has_edge(0, 2));
+    assert!(!g.has_edge(1, 3));
+    assert!(!g.has_edge(2, 4));
+    g.add_edge(0, 2);
+    g.add_edge(1, 3);
+    g.add_edge(2, 4);
+    g
+}
+
 /// Petersen graph + two extra edges.
 /// We add {0,2} and {1,3}: both are skip-1 non-edges on the outer pentagon,
 /// symmetric to each other under the outer-pentagon automorphism (rotation by 1).
@@ -1066,6 +1079,36 @@ mod tests {
     fn gen_petersen_gp62_to_k3() {
         // GP(6,2) is 3-colourable
         assert_eq!(nonhom_param(&gen_petersen(6, 2), &complete(3)), 0);
+    }
+
+    #[test]
+    fn petersen_plus_three_edges_suite() {
+        let g   = petersen_plus_three_edges();
+        let pet = petersen();
+        let p1  = petersen_plus_one_edge();
+        let p2  = petersen_plus_two_edges();
+        let k3  = complete(3);
+        let c5  = cycle(5);
+
+        assert_eq!(g.n, 10);
+        assert_eq!(g.edge_count(), 18); // 15 + 3
+
+        let v_pet = nonhom_param(&g, &pet); println!("|PetGraph+3, Petersen|_0  = {v_pet}");
+        let v_k3  = nonhom_param(&g, &k3);  println!("|PetGraph+3, K3|_0        = {v_k3}");
+        let v_c5  = nonhom_param(&g, &c5);  println!("|PetGraph+3, C5|_0        = {v_c5}");
+        let v_p1  = nonhom_param(&g, &p1);  println!("|PetGraph+3, PetGraph+1|_0 = {v_p1}");
+        let v_p2  = nonhom_param(&g, &p2);  println!("|PetGraph+3, PetGraph+2|_0 = {v_p2}");
+
+        // Petersen is a core: all three non-edges must be removed
+        assert_eq!(v_pet, 3);
+        // Still 3-colourable (coloring assigns 2→3, 4→2, different colours)
+        assert_eq!(v_k3, 0);
+        // Adding edges to G can never lower |G,H|_0; Petersen → C5 = 2
+        assert!(v_c5 >= 2);
+        // Removing {1,3} and {2,4} recovers PetGraph+1 → upper bound 2
+        assert!(v_p1 <= 2);
+        // Removing {2,4} recovers PetGraph+2 → upper bound 1
+        assert!(v_p2 <= 1);
     }
 
     #[test]
