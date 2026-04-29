@@ -35,7 +35,7 @@ The non-homomorphism factor $|G,H|$ was introduced by Khoshkha [[1]](#1). Key pr
 | $K_7$ | 9 | 5 | 3 | 2 | 1 |
 
 **General lower bound.** For any graphs $G$ and $H$:
-$$|G,H| \;\ge\; \max\!\left(0,\;|E(G)|-t(|V(G)|,\chi(H))\right)$$
+$$|G,H| \ge \max\left(0,\ |E(G)|-t(|V(G)|,\chi(H))\right)$$
 
 ### Concentration Parameter
 
@@ -49,7 +49,7 @@ We introduce the **concentration parameter** $\gamma(G,H)$, which measures the u
 - **Bound on non-homomorphism factor:** If $G\to H$, then $|G,K| \le \gamma(G,H) \cdot |H,K|$
 
 **d-Regularity formula.** For a $d$-regular graph $G$ on $n$ vertices with $\chi(G)=3$:
-$$\gamma(G,K_3) = \frac{d}{2} \cdot M, \quad M = \min\left\{\max(s_1,s_2,s_3) : s_1+s_2+s_3=n,\; s_i\ge 0,\; s_1\equiv s_2\equiv s_3\pmod{2}\right\}$$
+$$\gamma(G,K_3) = \frac{d}{2} \cdot M, \quad M = \min\left\lbrace\max(s_1,s_2,s_3) : s_1+s_2+s_3=n,\quad s_i\ge 0,\quad s_1\equiv s_2\equiv s_3\pmod{2}\right\rbrace$$
 
 **Exact cycle formula** (verified computationally for $n\le 50$):
 $$\gamma(C_n, K_3) = \begin{cases} \lceil n/3 \rceil & \text{if } n \not\equiv 2 \pmod{3} \\\\ \lceil n/3 \rceil + 1 & \text{if } n \equiv 2 \pmod{3} \end{cases}$$
