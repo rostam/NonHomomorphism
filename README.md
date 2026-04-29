@@ -37,6 +37,28 @@ The non-homomorphism factor $|G,H|$ was introduced by Khoshkha [[1]](#1). Key pr
 **General lower bound.** For any graphs $G$ and $H$:
 $$|G,H| \ge \max\left(0,\ |E(G)|-t(|V(G)|,\chi(H))\right)$$
 
+**Diverse source graphs.** The table below gives $|G,H|$ for a range of well-known graphs against five targets. Values were computed by the branch-and-bound solver in `parameter_fast_check/src/bin/table.rs`; entries marked "—" exceeded the time budget.
+
+| $G$ | $\chi$ | $\|E\|$ | $K_2$ | $K_3$ | $K_4$ | $K_5$ | $C_5$ | Petersen |
+|:---|:---:|---:|:---:|:---:|:---:|:---:|:---:|:---:|
+| $C_5$ | 3 | 5 | 1 | 0 | 0 | 0 | 0 | 0 |
+| $C_7$ | 3 | 7 | 1 | 0 | 0 | 0 | 0 | 0 |
+| Petersen | 3 | 15 | 3 | 0 | 0 | 0 | 2 | 0 |
+| Octahedron $K_{2,2,2}$ | 3 | 12 | 4 | 0 | 0 | 0 | 4 | 4 |
+| Grötzsch $M(4)$ | 4 | 20 | 4 | 1 | 0 | 0 | 3 | 3 |
+| Kneser $K(6,2)$ | 4 | 45 | 15 | 3 | 0 | 0 | 15 | — |
+| Icosahedron | 4 | 30 | 10 | 3 | 0 | 0 | 10 | 10 |
+| Dodecahedron | 3 | 30 | 6 | 0 | 0 | 0 | 3 | — |
+| Paley $P(13)$ | 5 | 39 | 13 | 5 | 1 | 0 | 13 | — |
+| Heawood | 2 | 21 | 0 | 0 | 0 | 0 | 0 | — |
+
+**Observations from the table:**
+- The $K_5$ column is uniformly 0 since every graph above has $\chi \le 5$.
+- Heawood is bipartite ($\chi=2$), so it maps to $K_2$ for free; by the chain $K_2\to C_5\to\text{Petersen}$, all five columns would be 0.
+- For Kneser $K(6,2)$, Icosahedron, and Octahedron: $|G,C_5|=|G,K_2|$. Even though $C_5$ is a richer target than $K_2$, the minimum cut needed is identical — bipartiteness is the bottleneck for these graphs.
+- For Dodecahedron: $|G,C_5|=3 < 6=|G,K_2|$. Since $\chi(\text{Dodecahedron})=3$, three edge removals suffice to reach a $C_5$-coloring without going all the way to bipartite.
+- Paley $P(13)$: $|G,C_5|=|G,K_2|=13=\lceil|E|/3\rceil$, showing a tight three-way tie between the $K_2$ and $C_5$ bottlenecks.
+
 ### Concentration Parameter
 
 We introduce the **concentration parameter** $\gamma(G,H)$, which measures the unavoidable edge congestion under homomorphisms. When $G\not\to H$, we set $\gamma(G,H)=+\infty$.
