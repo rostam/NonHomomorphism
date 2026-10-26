@@ -1,0 +1,11 @@
+[package]
+name = "q_profiles"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+rayon = "1.10"
+nonhom_param = { path = "/home/rostam/kara/NonHomomorphism/parameter_fast_check" }
+
+[profile.release]
+opt-level = 3

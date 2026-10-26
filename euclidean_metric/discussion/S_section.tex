@@ -1,0 +1,297 @@
+% ============================================================================
+% Draft section for Paper/paper.tex  (Agent S, discussion2, round 2)
+% Suggested placement: after \section{The Symmetric Combination $m(G,H)$}
+% (label sec:metric) and before \section{Computational Results}.
+% Notation follows the paper: |T,G| is the non-homomorphism factor,
+% \alpha is the INDEPENDENCE number (do not use it for |T,G|),
+% \mu(f), \gamma(G,H) as in Definition~\ref{def:gamma}.
+% New bibitems are at the end of this file; paste them into thebibliography.
+% Items marked  % [check]  were cited from memory and not verified online.
+% ============================================================================
+
+\section{The Profile of a Graph}
+\label{sec:profile}
+
+The quantity $|T,G|$ can also be read with $G$ as the \emph{target}.
+For a fixed $G$, it then records how badly each test graph $T$ fails to
+map into $G$.  Normalising by $|E(T)|$ makes graphs of different sizes
+comparable.
+
+Throughout, $\operatorname{mc}_G(T)=|E(T)|-|T,G|$ denotes the largest number
+of edges of $T$ preserved by a vertex map $V(T)\to V(G)$.  This is the
+optimum of the \textsc{Max $G$-Col} problem~\cite{fjt2009,efjt2015}, also
+called maximum graph homomorphism~\cite{lrs2006}.
+
+\begin{definition}[Profile]
+\label{def:profile}
+Let $\mathfrak F$ be a countable family of graphs, each with at least one
+edge (the \emph{test graphs}).  For a graph $G$ with at least one edge, the
+\emph{profile} of $G$ is
+\[
+  \varphi(G)=\bigl(\varphi_T(G)\bigr)_{T\in\mathfrak F},\qquad
+  \varphi_T(G)=\frac{|T,G|}{|E(T)|}\in[0,1].
+\]
+Given weights $w\colon\mathfrak F\to(0,\infty)$ with
+$\sum_T w_T<\infty$, the \emph{profile distances} are
+\[
+  E_w(G,H)=\Bigl(\sum_{T\in\mathfrak F}w_T\bigl(\varphi_T(G)-\varphi_T(H)\bigr)^2\Bigr)^{1/2},
+  \qquad
+  E_\infty(G,H)=\sup_{T\in\mathfrak F}\bigl|\varphi_T(G)-\varphi_T(H)\bigr|.
+\]
+\end{definition}
+
+The profile is the target-side, max-plus analogue of Lov\'asz's vector of
+homomorphism numbers $(\hom(T,G))_T$.  Its zero set
+$\{T:\varphi_T(G)=0\}=\{T: T\to G\}$ is the qualitative version of that vector.
+Unlike the source-side quantity $|G,H|$, which differs for $2K_4$ and $K_4$
+(both against $K_3$), the profile depends only on the homomorphism class of
+$G$.
+
+\begin{proposition}[Monotonicity and order embedding]
+\label{prop:profile_order}
+\begin{enumerate}
+\item[(a)] If $G\to H$, then $\varphi_T(G)\ge\varphi_T(H)$ for every $T$.
+      In particular, $\varphi(G)=\varphi(H)$ whenever $G$ and $H$ are
+      homomorphically equivalent.
+\item[(b)] If $\mathfrak F$ contains a graph homomorphically equivalent to
+      $G$, then $\varphi(G)\ge\varphi(H)$ implies $G\to H$.
+\end{enumerate}
+Consequently, if $\mathfrak F$ contains all connected cores, then $G\mapsto\varphi(G)$
+is an order-reversing embedding of the homomorphism order into
+$([0,1]^{\mathfrak F},\le)$.  In that case, $E_w$ and $E_\infty$ are metrics on
+homomorphism classes, and $\|\varphi(G)\|_1$ (for finite $\mathfrak F$) is a
+strictly decreasing height function on the cores in $\mathfrak F$.
+\end{proposition}
+
+\begin{proof}
+(a) If $T-S\to G\to H$, then $T-S\to H$.  This is the profile form of
+\cite[Lemma~2.6]{efjt2015}.
+(b) Let $T\in\mathfrak F$ with $T\leftrightarrow G$.  Then
+$0=\varphi_T(G)\ge\varphi_T(H)$, so $G\to T\to H$.
+Disconnected graphs are handled component by component.
+\end{proof}
+
+The embedding is not a lattice map.  The join and meet of the
+homomorphism order are $G\sqcup H$ and $G\times H$.  These satisfy
+$\varphi(G\sqcup H)\le\min(\varphi(G),\varphi(H))$ and
+$\varphi(G\times H)\ge\max(\varphi(G),\varphi(H))$, and both inequalities can
+be strict.  For example, take $T$ to be $K_3$ and the Gr\"otzsch graph $\mathrm{Gr}$
+joined by a bridge.  Then $|T,K_3|=|T,\mathrm{Gr}|=1$ but
+$|T,K_3\times\mathrm{Gr}|=2$.
+
+\begin{proposition}[Clique and odd-cycle coordinates]
+\label{prop:profile_closed}
+Let $G$ have $\omega(G)=r\ge2$ and odd girth $g$ ($g=\infty$ if $G$ is
+bipartite).  For every $n\ge2$ and $k\ge1$,
+\[
+  |K_n,G|=\binom n2-t\bigl(n,\min(n,r)\bigr),\qquad
+  \varphi_{C_{2k+1}}(G)=
+  \begin{cases}0,&2k+1\ge g,\\[2pt] \dfrac1{2k+1},&2k+1<g.\end{cases}
+\]
+Every bipartite test has $\varphi_T(G)=0$.  Hence $\omega(G)$ and the odd
+girth of $G$ can be read off $\varphi(G)$:
+$\omega(G)\ge n\iff\varphi_{K_n}(G)=0$, and
+$g\le 2k+1\iff\varphi_{C_{2k+1}}(G)=0$.
+\end{proposition}
+
+\begin{proof}
+The preserved edges of $K_n$ form a graph that maps to $G$, so this graph
+is $K_{r+1}$-free.  By Tur\'an's theorem it has at most $t(n,r)$ edges.
+Mapping $K_n$ in a balanced way onto an $r$-clique of $G$ attains this
+bound.  For odd cycles, $C_{2k+1}\to G$ if and only if $G$ has an odd cycle
+of length at most $2k+1$.  Otherwise, deleting one edge leaves a path,
+which maps to an edge.
+These are \cite[Props.~2.4, 2.5]{efjt2015} in the language of
+separation.
+\end{proof}
+
+\begin{remark}
+The argument improves Theorem~\ref{thm:lower_bound}: for all $G,H$,
+\[
+|G,H|\ \ge\ |E(G)|-t\bigl(|V(G)|,\omega(H)\bigr),
+\]
+because every subgraph of $G$ that maps to $H$ is
+$K_{\omega(H)+1}$-free.  Since $\omega(H)\le\chi(H)$, this is never weaker.
+It is attained by $G=K_n$ for \emph{every} $H$.
+For example, $|K_5,C_5|=4$, while the $\chi$-bound gives only $10-t(5,3)=2$.
+\end{remark}
+
+\begin{proposition}[Range of the profile]
+\label{prop:profile_range}
+For every $G$ with an edge and every test $T$,
+$\varphi_T(G)\le\varphi_T(K_{\omega(G)})\le 1/\omega(G)$.
+Moreover $\varphi_{K_n}(G)\to1/\omega(G)$ as $n\to\infty$, so
+$\sup_T\varphi_T(G)=1/\omega(G)$.  In particular,
+$E_\infty(G,H)\ge\bigl|1/\omega(G)-1/\omega(H)\bigr|$.
+\end{proposition}
+
+\begin{proof}
+The first inequality is Proposition~\ref{prop:profile_order}(a) applied to
+$K_{\omega(G)}\to G$.  For the second, colour $V(T)$ uniformly at random
+with $\omega(G)$ colours.  Each edge is properly coloured with probability
+$1-1/\omega(G)$, so some colouring preserves at least that fraction of
+$E(T)$.  The limit follows from Proposition~\ref{prop:profile_closed}.
+\end{proof}
+
+\begin{proposition}[Bounded tests cannot see $\chi$]
+\label{prop:profile_blind}
+Suppose every $T\in\mathfrak F$ has at most $m$ vertices, and $G$ has an
+edge and odd girth larger than $m$.  Then $\varphi(G)=\varphi(K_2)$ on
+$\mathfrak F$.
+\end{proposition}
+
+\begin{proof}
+Let $f\colon V(T)\to V(G)$.  The image of the preserved edges is a subgraph
+of $G$ on at most $m$ vertices.  It has no odd cycle, so it maps to an edge
+of $G$.  Hence $\operatorname{mc}_G(T)=\operatorname{mc}_{K_2}(T)$.
+\end{proof}
+
+By Erd\H{o}s' theorem on graphs of large girth and chromatic number,
+no finite family of tests detects $\chi$, $\chi_f$, or even
+bipartiteness.  With summable weights, $E_w(G,K_2)\to0$ along any sequence
+of graphs whose odd girth tends to infinity, whatever their chromatic
+numbers.
+The same phenomenon appears among small cores.  On the $1276$ cores
+with at most $9$ vertices, every family of tests that separates all
+homomorphism classes has at least $253$ members.  This is because $253$
+pairs are separated by exactly one test, namely one of the two graphs
+themselves.  A greedy search finds a separating family of size $311$.
+
+\begin{proposition}[Relation to the separation of
+F\"arnqvist--Jonsson--Thapper]
+\label{prop:profile_fjt}
+For edge-weighted graphs $(T,w)$, write
+$p_G(T,w)=\operatorname{mc}_G(T,w)/\|w\|_1$; for unit weights,
+$p_G(T)=1-\varphi_T(G)$.  The separation
+of~\cite{fjt2009,efjt2015} is
+\[
+  s(G,H)=\inf_{(T,w)}\frac{p_G(T,w)}{p_H(T,w)}.
+\]
+\begin{enumerate}
+\item[(a)] If $T$ is edge-transitive, then $\varphi_T(G)=1-s(G,T)$
+      \cite[Thm.~2.1]{efjt2015}.
+\item[(b)] The additive form of the FJT metric is the Hilbert projective
+      metric on profiles:
+      \[
+        -\log s(G,H)-\log s(H,G)
+        =\log\sup_{(T,w)}\frac{p_H(T,w)}{p_G(T,w)}
+        +\log\sup_{(T,w)}\frac{p_G(T,w)}{p_H(T,w)}.
+      \]
+      For a finite unweighted family $\mathfrak F$, the same expression with
+      the suprema over $T\in\mathfrak F$ is a pseudometric.  It is a metric on
+      the homomorphism classes of graphs whose cores lie in $\mathfrak F$.
+\end{enumerate}
+\end{proposition}
+
+\begin{proof}
+(a) is the edge-transitive case of \cite[Thm.~2.1]{efjt2015}.
+(b) is the definition of $s$, rewritten.  Positivity on a finite family
+follows as in Proposition~\ref{prop:profile_order}(b).
+\end{proof}
+
+Thus the sup-distance $E_\infty$, the Euclidean distance $E_w$ and the FJT metric
+are three distances on one embedding $G\mapsto\varphi(G)$.  Only the FJT
+metric carries an approximation-theoretic meaning~\cite[Lemma~1.6]{efjt2015}.
+
+\begin{proposition}[Moving the target; link to concentration]
+\label{prop:profile_lip}
+Let $S\subseteq E(T)$ with $|S|=|T,G|$, and let $f\colon T-S\to G$ be a
+homomorphism.  For every graph $H$,
+\[
+  |T,H|\ \le\ |T,G|+\mu(f)\,|G,H|.
+\]
+In particular, if $T\to G$, then $|T,H|\le\gamma(T,G)\,|G,H|$.  Also
+$|T,G-e|\le|T,G|+\mu(f,e)$ for every $e\in E(G)$.
+\end{proposition}
+
+\begin{proof}
+Let $S'\subseteq E(G)$ be optimal with $g\colon G-S'\to H$.  Delete from
+$T-S$ the at most $\mu(f)|S'|$ edges that $f$ maps into $S'$.  The map
+$g\circ f$ is then a homomorphism from what remains to $H$.
+\end{proof}
+
+So the concentration parameter $\gamma$ is the local Lipschitz constant of
+the profile under changes of the target.  The jump can be large:
+deleting a triangle edge from $K_3$ with a long pendant path changes
+$\varphi_{K_3}$ from $0$ to $1/3$, however many edges the graph has.
+
+\begin{remark}[Computation]
+$\operatorname{mc}_G(T)=\lim_{\beta\to\infty}\beta^{-1}\log\hom(T,W_\beta)$,
+where $W_\beta$ is the looped complete graph on $V(G)$ with weight $e^\beta$
+on $E(G)$ and $1$ elsewhere.  Consequently, the tree-decomposition dynamic
+program for $\hom(T,\cdot)$, run over the $(\max,+)$ semiring, computes
+$\varphi_T(G)$ in time $O(|V(T)|\,|V(G)|^{\operatorname{tw}(T)+1})$.
+\end{remark}
+
+% --- Suggested figure (data and plot by agents Q/R, discussion2/R_axes.png) ---
+% \begin{figure}[ht]\centering
+% \includegraphics[width=.9\linewidth]{figures/profile_pca.png}
+% \caption{Principal components of $\varphi$ for the 85 cores ($\le 8$ vertices,
+%  tests = the same cores). All Hasse covers of $\to$ point downward along
+%  PC1 $\approx\|\varphi\|_1$ (Proposition~\ref{prop:profile_order}); PC2 is the
+%  clique number (Proposition~\ref{prop:profile_closed}).}
+% \label{fig:profile}
+% \end{figure}
+
+\subsection*{Open questions on the profile}
+\begin{enumerate}
+\item \textbf{Size of a separating family.}
+  Let $\sigma(n)$ be the least size of a family $\mathfrak F$ such that $\varphi$
+  restricted to $\mathfrak F$ separates all cores on at most $n$ vertices.
+  We know $253\le \sigma(9)\le311$.  Is $\sigma(n)$ comparable to the number of
+  cores on $n$ vertices, or is it much smaller?  Which cores are
+  \emph{forced}, i.e.\ the only test separating some pair?
+\item \textbf{The closure of the profile space.}
+  The image of $\varphi$ is not closed: $\varphi(K_n)\to0$, and the
+  Mycielski chain converges to a non-realised point.  Is the closure of
+  $\{\varphi(G)\}$ in the product topology exactly the set of profiles of
+  countable graphs?  Is the set of homomorphism classes totally bounded
+  under $E_\infty$?
+\item \textbf{Unweighted versus weighted separation.}
+  Is
+  $\sup_{X\to G}|X,T|/|E(X)|=1-s(T,G)$ for all $G,T$?  Here the supremum is
+  over simple graphs $X$, and the right-hand side is the weighted FJT value.
+  Equality holds when $G$ is edge-transitive (take $X=G$).  A positive
+  answer would make both the FJT metric and the source-side profile
+  definable without weights.
+\end{enumerate}
+
+% ---------------------------------------------------------------------------
+% New bibitems (paste into thebibliography):
+%
+% \bibitem{fjt2009}
+% T.~F\"arnqvist, P.~Jonsson and J.~Thapper,
+% ``Approximability distance in the space of $H$-colourability problems,''
+% in \textit{CSR 2009}, LNCS vol.~5675, pp.~92--104, 2009.
+% doi:10.1007/978-3-642-03351-3\_11, arXiv:0802.0423.
+%
+% \bibitem{efjt2015}
+% R.~Engstr\"om, T.~F\"arnqvist, P.~Jonsson and J.~Thapper,
+% ``An approximability-related parameter on graphs -- properties and
+% applications,''
+% \textit{Discrete Mathematics \& Theoretical Computer Science},
+% vol.~17, no.~1, pp.~33--66, 2015.
+%
+% \bibitem{lrs2006}
+% M.~Langberg, Y.~Rabani and C.~Swamy,
+% ``Approximation algorithms for graph homomorphism problems,''
+% in \textit{APPROX 2006}, LNCS vol.~4110, pp.~176--187, 2006.
+% doi:10.1007/11830924\_18.
+%
+% \bibitem{samal2015}
+% R.~\v{S}\'amal,
+% ``Cubical coloring -- fractional covering by cuts and semidefinite
+% programming,''
+% \textit{Discrete Mathematics \& Theoretical Computer Science},
+% vol.~17, no.~2, 2015. arXiv:0911.2589.
+%
+% \bibitem{dgr2018}
+% H.~Dell, M.~Grohe and G.~Rattan,
+% ``Lov\'asz meets Weisfeiler and Leman,''
+% in \textit{ICALP 2018}, LIPIcs vol.~107, pp.~40:1--40:14, 2018.
+% doi:10.4230/LIPIcs.ICALP.2018.40.
+%
+% \bibitem{lovasz1967}   % [check]
+% L.~Lov\'asz, ``Operations with structures,''
+% \textit{Acta Math. Acad. Sci. Hungar.}, vol.~18, pp.~321--328, 1967.
+% ---------------------------------------------------------------------------

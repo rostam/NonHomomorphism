@@ -1,0 +1,211 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Euclidean Profile Metric</title>
+<style>
+:root{--bg:#fbfaf7;--panel:#fff;--ink:#1d1f23;--muted:#5e6470;--line:#e3e0d8;--accent:#2f5d8a;--good:#2e7d4f;--bad:#b0413e;--warn:#a46a00;--code:#f2f0ea}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){--bg:#16181c;--panel:#1e2126;--ink:#e6e3dc;--muted:#9aa0aa;--line:#30343b;--accent:#7fb0e0;--good:#6cc28f;--bad:#e58a86;--warn:#e0b252;--code:#262a30}}
+:root[data-theme="dark"]{--bg:#16181c;--panel:#1e2126;--ink:#e6e3dc;--muted:#9aa0aa;--line:#30343b;--accent:#7fb0e0;--good:#6cc28f;--bad:#e58a86;--warn:#e0b252;--code:#262a30}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.6 Georgia,"Iowan Old Style","Palatino Linotype",serif}
+.wrap{display:grid;grid-template-columns:220px minmax(0,1fr);max-width:1180px;margin:0 auto;gap:40px;padding:32px 24px}
+nav{position:sticky;top:24px;align-self:start;font:14px/1.5 system-ui,sans-serif}
+nav a{display:block;color:var(--muted);text-decoration:none;padding:3px 0 3px 10px;border-left:2px solid var(--line)}
+nav a:hover{color:var(--accent);border-color:var(--accent)}
+nav .t{font-weight:600;margin-bottom:8px}
+main{min-width:0}
+h1{font-size:2rem;line-height:1.2;margin:0 0 6px}
+.sub{color:var(--muted);font:15px system-ui,sans-serif;margin-bottom:24px}
+h2{font-size:1.35rem;margin:44px 0 12px;padding-top:8px;border-top:1px solid var(--line)}
+h3{font-size:1.05rem;margin:22px 0 6px}
+.verdict{background:var(--panel);border:1px solid var(--line);border-left:4px solid var(--accent);padding:14px 20px;border-radius:6px}
+.links{display:flex;flex-wrap:wrap;gap:10px;margin:14px 0}
+.links a{font:600 14px system-ui,sans-serif;color:var(--accent);background:var(--panel);border:1px solid var(--line);border-radius:6px;padding:7px 12px;text-decoration:none}
+.tag{display:inline-block;font:600 11px system-ui,sans-serif;letter-spacing:.04em;text-transform:uppercase;padding:2px 7px;border-radius:4px;margin-right:6px;vertical-align:2px}
+.new{background:color-mix(in srgb,var(--good) 18%,transparent);color:var(--good)}
+.known{background:color-mix(in srgb,var(--accent) 18%,transparent);color:var(--accent)}
+.cex{background:color-mix(in srgb,var(--bad) 18%,transparent);color:var(--bad)}
+.open{background:color-mix(in srgb,var(--warn) 20%,transparent);color:var(--warn)}
+.box{background:var(--panel);border:1px solid var(--line);border-radius:6px;padding:12px 18px;margin:12px 0;text-align:center;font-family:ui-monospace,Menlo,monospace;font-size:.95em;overflow-x:auto}
+li{margin:6px 0}
+code{font-family:ui-monospace,Menlo,monospace;font-size:.88em;background:var(--code);padding:1px 5px;border-radius:4px}
+.tw{overflow-x:auto}
+table{border-collapse:collapse;width:100%;font:14px/1.45 system-ui,sans-serif;margin:10px 0}
+th,td{border-bottom:1px solid var(--line);padding:8px 10px;text-align:left;vertical-align:top}
+th{background:var(--panel)}
+figure{margin:22px 0;background:var(--panel);border:1px solid var(--line);border-radius:6px;padding:12px}
+figure img{width:100%;height:auto;display:block;cursor:zoom-in;background:#fff;border-radius:3px}
+figcaption{font:14px/1.5 system-ui,sans-serif;color:var(--muted);margin-top:8px}
+details.wu{background:var(--panel);border:1px solid var(--line);border-radius:6px;margin:10px 0}
+details.wu summary{cursor:pointer;padding:10px 14px;font:600 15px system-ui,sans-serif}
+details.wu .md{padding:0 18px 14px;font-size:15px;overflow-x:auto}
+details.wu pre{white-space:pre-wrap;font:13px/1.5 ui-monospace,Menlo,monospace}
+#zoom{position:fixed;inset:0;background:rgba(0,0,0,.85);display:none;align-items:center;justify-content:center;z-index:9;cursor:zoom-out;padding:16px}
+#zoom img{max-width:100%;max-height:100%;background:#fff}
+#themeBtn{margin-top:16px;font:13px system-ui,sans-serif;background:var(--panel);color:var(--ink);border:1px solid var(--line);border-radius:4px;padding:4px 8px;cursor:pointer}
+@media (max-width:820px){.wrap{grid-template-columns:1fr;padding:20px 16px;gap:0}nav{position:static;margin-bottom:12px}nav a{display:inline-block;border:none;padding:2px 8px 2px 0}h1{font-size:1.6rem}}
+</style>
+</head>
+<body>
+<div class="wrap">
+<nav>
+  <div class="t">Contents</div>
+  <a href="#summary">Summary</a>
+  <a href="#def">1. Definition</a>
+  <a href="#space">2. Shape of the space</a>
+  <a href="#gp">3. Cliques, circular, GP</a>
+  <a href="#psi">4. Seeing χ: ψ</a>
+  <a href="#lit">5. Literature: what is new</a>
+  <a href="#rec">6. Recommendations</a>
+  <a href="#open">7. Open questions</a>
+  <a href="#figs">8. More figures</a>
+  <a href="#notes">9. Agent notes</a>
+  <button id="themeBtn" type="button">Toggle theme</button>
+</nav>
+<main>
+<h1>The Euclidean α-profile metric</h1>
+<div class="sub">4-agent discussion (theory P, computation Q, data analysis R, literature S), two rounds · 2026-10-26 · α(T,G) = |T,G| = min #edges deleted from T so that T → G.</div>
+<div class="links">
+  <a href="alpha_profile_3d.html">Interactive 3D view (PCA axes) →</a>
+  <a href="profile_axes_3d.html">3D view with graphs as axes →</a>
+  <a href="graph_zoo_3d.html">Graph zoo (136 graphs) →</a>
+  <a href="../paper/alpha_profile.pdf">Paper draft (PDF) →</a>
+  <a href="../paper/alpha_profile.tex">LaTeX source →</a>
+</div>
+
+<section id="summary" class="verdict">
+<p><b>Summary.</b> The profile φ(G) = (α(T,G)/e(T))<sub>T</sub> gives an exact Euclidean metric E on homomorphism classes.</p>
+<ul>
+<li>It reverses the homomorphism order. The main principal axis is the height in that order.</li>
+<li>It reads the clique number ω and the odd girth exactly.</li>
+<li>It cannot see χ: no finite family of test graphs can. A source-side profile ψ, equal to the FJT quantity 1 − s(T,G), adds χ.</li>
+<li>Much of the theory is in Engström–Färnqvist–Jonsson–Thapper (2015) under the name "separation".</li>
+<li>New here: the Euclidean embedding, an ω-strengthening of the clique lower bound, the blindness result, the link to γ, and the computations.</li>
+</ul>
+</section>
+
+<h2 id="def">1. Definition</h2>
+<div class="box">φ(G) = ( w<sub>T</sub> · α(T,G) / e(T) )<sub>T ∈ 𝔉</sub> &nbsp;&nbsp;&nbsp; E(G,H) = ‖φ(G) − φ(H)‖<sub>2</sub></div>
+<ul>
+<li><b>Test family 𝔉:</b> the 85 cores (all cores on ≤ 8 vertices, plus C9, C11, Petersen, Grötzsch, Icosahedron).</li>
+<li><b>Weights:</b> χ-balanced, w<sub>T</sub> = 1/√N<sub>χ(T)</sub>, so each chromatic class of tests carries equal total squared weight.</li>
+<li><b>G is the target.</b> That is why φ is constant on homomorphism classes: α(2K4,K3) = 2 ≠ 1 = α(K4,K3), but every α(T,·) agrees on 2K4 and K4.</li>
+<li><span class="tag known">EFJT L2.6</span><b>Order embedding:</b> G → H ⇒ φ(G) ≥ φ(H) coordinatewise. The converse holds when 𝔉 contains a graph equivalent to G (P).</li>
+</ul>
+
+<h2 id="space">2. Shape of the space</h2>
+<ul>
+<li><b>One dominant axis.</b> PC1 carries 92% of the variance and is the height ‖φ‖<sub>1</sub>. It never decreases along any of the 615,167 comparable pairs among the 1276 cores (R).</li>
+<li><span class="tag known">EFJT P2.4</span><b>Clique coordinates depend only on ω:</b> α(K<sub>n</sub>,G) = C(n,2) − t(n, min(n,ω(G))). Moreover sup<sub>T</sub> φ<sub>T</sub>(G) = 1/ω(G) (P).</li>
+<li><span class="tag known">EFJT P2.5</span><b>Odd-cycle coordinates</b> take only the values 0 and 1/(2k+1), so they read the odd girth exactly. Odd cycles converge to K2.</li>
+<li><b>Clusters follow ω, not χ.</b> Nearest neighbours share ω 96% of the time and χ 81% (R).</li>
+<li><span class="tag new">New</span><b>Bounded tests can't see χ.</b> If every test has ≤ m vertices and G has odd girth &gt; m, then φ(G) = φ(K2) (P). Q's example: the generalized Mycielskian μ<sub>5</sub>(C11), with 67 vertices and χ = 4, has exactly the profile of K2 on a 12-test basis.</li>
+</ul>
+
+<h2 id="gp">3. Complete graphs, circular cliques and generalized Petersen graphs</h2>
+<figure><img src="{{IMG:alpha_profile_pca.png}}" alt="Profile space with complete graphs and generalized Petersen graphs">
+<figcaption><b>The profile space, PC1 vs PC2.</b> Large circles are the complete graphs K2…K8, joined in order. Purple-edged squares joined by a dashed line are the 24 circular cliques K<sub>p/q</sub> (p ≤ 13), in order of p/q. Diamonds are the 30 generalized Petersen graphs GP(n,k), 3 ≤ n ≤ 12. Panel (b) zooms on the triangle-free end. <a href="alpha_profile_3d.html">Rotate it in 3D →</a></figcaption></figure>
+<p>The complete graphs form a straight chain K8 → K7 → … → K3 along the main axis, then jump to K2 at the triangle-free end, where the odd cycles accumulate.</p>
+<h3>Circular cliques: a Farey staircase</h3>
+<p>The circular cliques K<sub>p/q</sub> form a chain in the homomorphism order. It contains the complete graphs K<sub>n/1</sub> and the odd cycles K<sub>(2k+1)/k</sub>. In profile space this chain is a <b>staircase</b>:</p>
+<ul>
+<li>13 of the 24 are themselves test graphs: K2…K8, C5, C7, C9, C11, K7/2 and K8/3.</li>
+<li>Each of the other 11 lands <b>exactly</b> on the largest circular clique below it whose numerator is ≤ 8. For example, K13/6 lands on K2, K12/5 on C7, K11/4 on K8/3, and K11/3 on K7/2.</li>
+<li>K10/3 has χ = 4 but the same profile as K3.</li>
+<li><span class="tag new">New</span><b>Why.</b> χ<sub>c</sub> of a graph on ≤ m vertices is a fraction with numerator ≤ m, and X → K<sub>p/q</sub> iff χ<sub>c</sub>(X) ≤ p/q (Vince 1988; Zhu 2001). So tests with ≤ m vertices give φ(K<sub>p/q</sub>) = φ(K<sub>⌊p/q⌋<sub>m</sub></sub>), where ⌊r⌋<sub>m</sub> is the largest fraction ≤ r with numerator ≤ m.</li>
+</ul>
+<div class="tw"><table>
+<tr><th>Lands on</th><th>Circular cliques</th></tr>
+<tr><td>K2</td><td>K13/6</td></tr>
+<tr><td>C7 = K7/3</td><td>K7/3, K12/5</td></tr>
+<tr><td>C5 = K5/2</td><td>K5/2, K13/5</td></tr>
+<tr><td>K8/3</td><td>K8/3, K11/4</td></tr>
+<tr><td>K3</td><td>K3, K13/4, K10/3</td></tr>
+<tr><td>K7/2</td><td>K7/2, K11/3</td></tr>
+<tr><td>K4</td><td>K4, K13/3, K9/2</td></tr>
+<tr><td>K5</td><td>K5, K11/2</td></tr>
+<tr><td>K6</td><td>K6, K13/2</td></tr>
+<tr><td>themselves</td><td>C9 = K9/4, C11 = K11/5, K7, K8</td></tr>
+</table></div>
+<h3>Generalized Petersen graphs</h3>
+<p>Every GP(n,k) with n ≤ 12 lands <b>exactly</b> on one of seven cores: K2, K3, C5, C7, C9, C11 or Petersen. For 11 of them this is <b>not</b> homomorphic equivalence. They are 3-chromatic graphs of odd girth 5 or 7 that do not map to C5 or C7 (checked by exhaustive search), yet no test with ≤ 12 vertices tells them apart from the cycle. This is the blindness result in action.</p>
+<div class="tw"><table>
+<tr><th>Lands on</th><th>Homomorphically equivalent</th><th>Same profile, not equivalent</th></tr>
+<tr><td>K2</td><td>GP(4,1), GP(6,1), GP(8,1), GP(8,3), GP(10,1), GP(10,3), GP(12,1), GP(12,3), GP(12,5)</td><td>—</td></tr>
+<tr><td>K3</td><td>GP(3,1), GP(6,2), GP(9,3), GP(12,4)</td><td>—</td></tr>
+<tr><td>C5</td><td>GP(5,1), GP(10,4)</td><td>GP(7,2), GP(7,3), GP(8,2), GP(9,2), GP(9,4), GP(10,2) = dodecahedron, GP(11,2), GP(11,5), GP(12,2)</td></tr>
+<tr><td>C7</td><td>GP(7,1)</td><td>GP(11,3), GP(11,4)</td></tr>
+<tr><td>C9</td><td>GP(9,1)</td><td>—</td></tr>
+<tr><td>C11</td><td>GP(11,1)</td><td>—</td></tr>
+<tr><td>Petersen</td><td>GP(5,2)</td><td>—</td></tr>
+</table></div>
+
+<h2 id="psi">4. Seeing χ: the source-side profile ψ</h2>
+<ul>
+<li><b>Why it's needed.</b> φ records what maps <i>into</i> G, while χ is about where G maps <i>to</i>. The naive α(G,T)/e(G) is not class-invariant (K3 vs K<sub>n,n,n</sub>).</li>
+<li><span class="tag known">EFJT T2.1, P5.4</span><b>Definition (P).</b> ψ<sub>T</sub>(G) = max over edge weights of α<sub>w</sub>(G,T)/‖w‖, which equals 1 − s(T,G) (FJT) and 1 − 1/χ<sub>T</sub>(G).</li>
+<li><b>Properties.</b> ψ<sub>T</sub> is class-invariant and order-preserving. ψ<sub>T</sub>(G) = 0 iff G → T, so ψ<sub>K<sub>k</sub></sub>(G) &gt; 0 iff χ(G) &gt; k.</li>
+<li><b>Lattice operations.</b> ψ(G⊔H) = max. ψ(G×H) ≤ min, and Shitov's counterexample to Hedetniemi shows this can be strict even on the support.</li>
+<li><b>Together:</b> φ reads ω and ψ reads χ, so the gap χ − ω is what panel (b) of the summary figure shows.</li>
+</ul>
+<figure><img src="{{IMG:R_final.png}}" alt="Summary figure: height axis, phi vs psi, big graphs">
+<figcaption><b>R's summary.</b> (a) The 1276 cores: PC1 is a strict height on the homomorphism order. (b) Mean φ against mean ψ. ψ is approximated as the max over cores X → G, which includes X = G, so the χ separation by design is partly tautological; the strict ordering of the classes is empirical. (c) Larger graphs on a 12-test basis land on small cores.</figcaption></figure>
+
+<h2 id="lit">5. Literature: what is known and what is new</h2>
+<div class="tw"><table>
+<tr><th>Statement</th><th>Status</th></tr>
+<tr><td>Monotonicity / class invariance of φ</td><td><span class="tag known">known</span>EFJT (DMTCS 17:1, 2015) Lemma 2.6, Prop 2.8</td></tr>
+<tr><td>Clique formula, odd-cycle values</td><td><span class="tag known">known</span>EFJT Props 2.4, 2.5</td></tr>
+<tr><td>Weighted ψ = 1 − s(T,G) = 1 − 1/χ<sub>T</sub></td><td><span class="tag known">known</span>EFJT Thm 2.1, Cor 2.11, Prop 5.4; Šámal (cubical colouring)</td></tr>
+<tr><td>Euclidean metric E on profiles; E<sub>∞</sub>, E and FJT (Hilbert projective) as three distances on one embedding</td><td><span class="tag new">new framing</span></td></tr>
+<tr><td>|G,H| ≥ e(G) − t(|V(G)|, ω(H)): strengthens the paper's χ-bound, and is tight for G = K<sub>n</sub> and every H (e.g. |K5,C5| = 4 vs 2)</td><td><span class="tag new">new</span></td></tr>
+<tr><td>Bounded tests are blind to χ and to bipartiteness</td><td><span class="tag new">new</span></td></tr>
+<tr><td>|T,H| ≤ |T,G| + μ(f)·|G,H|: γ as the Lipschitz constant of the profile</td><td><span class="tag new">new</span></td></tr>
+<tr><td>Separating all n ≤ 9 cores needs 253–311 tests (critical covers)</td><td><span class="tag new">new (computational)</span></td></tr>
+</table></div>
+<p>Related work: Lovász homomorphism vectors (Lovász 1967; Dell–Grohe–Rattan 2018), Langberg–Rabani–Swamy (APPROX 2006), Färnqvist–Jonsson–Thapper (CSR 2009), Borgs et al. (Ann. Math. 2012), and edit distance to monotone properties (Alon–Stav).</p>
+
+<h2 id="rec">6. Recommendations</h2>
+<ul>
+<li><b>Default metric:</b> all cores as tests with χ-balanced weights. On the 1276 cores it correlates .92 with dist and .83 with d*, merges no pairs, and is very stable (Spearman ρ ≥ .9995 when any one test is removed).</li>
+<li><b>Cheap variant:</b> the 85 tests, which gives ρ = .991 with the default but merges about 5% of pairs.</li>
+<li><b>Avoid:</b> the 12-test basis alone (only 16 classes on the 1276 cores) and 1/e(T) weights.</li>
+<li><b>Good for:</b> a height function on the hom order; exact ω and odd girth; one embedding carrying three distances; a geometric picture of χ − ω (with ψ).</li>
+<li><b>Not good for:</b> χ without ψ; compact invariants; graph-ML features on large graphs, where most coordinates are 0.</li>
+</ul>
+
+<h2 id="open">7. Open questions</h2>
+<ol>
+<li><span class="tag open">open</span>How does the minimum size of a separating test family grow? For n ≤ 9 it lies in [253, 311].</li>
+<li><span class="tag open">open</span>Is the closure of the profile space exactly the profiles of countable graphs? K<sub>n</sub> → 0, and the Mycielski chain has a non-realised limit.</li>
+<li><span class="tag open">open</span>Does the unweighted source-side profile equal the weighted ψ for all G and T?</li>
+<li><span class="tag open">open</span>Is d* bi-Lipschitz embeddable into ℓ<sup>2</sup>, or into the profile space?</li>
+</ol>
+
+<h2 id="figs">8. More figures (agent R)</h2>
+<figure><img src="{{IMG:R_axes.png}}" alt="Principal axes"><figcaption><b>Principal axes</b> and their correlations with graph invariants.</figcaption></figure>
+<figure><img src="{{IMG:R_geometry.png}}" alt="Geometry"><figcaption><b>Euclidean geometry:</b> class centroids, the K3–K4 segment (an empty corridor), and the convex hull.</figcaption></figure>
+<figure><img src="{{IMG:R_clusters.png}}" alt="Clusters"><figcaption><b>Clusters.</b> The main split among ω = 3 cores is whether W5 maps into G.</figcaption></figure>
+
+<h2 id="notes">9. Agent notes (full text)</h2>
+{{NOTES}}
+</main>
+</div>
+<div id="zoom"><img alt=""></div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/marked/12.0.2/marked.min.js"></script>
+<script>
+const MD = {{MD_JSON}};
+if (window.marked) document.querySelectorAll('.md[data-src]').forEach(el => { try { el.innerHTML = marked.parse(MD[el.dataset.src]); } catch (e) {} });
+const z = document.getElementById('zoom'), zi = z.querySelector('img');
+document.querySelectorAll('figure img').forEach(im => im.addEventListener('click', () => { zi.src = im.src; z.style.display = 'flex'; }));
+z.addEventListener('click', () => { z.style.display = 'none'; });
+document.getElementById('themeBtn').addEventListener('click', () => {
+  const r = document.documentElement;
+  const dark = r.dataset.theme ? r.dataset.theme === 'dark' : matchMedia('(prefers-color-scheme: dark)').matches;
+  r.dataset.theme = dark ? 'light' : 'dark';
+});
+</script>
+</body>
+</html>

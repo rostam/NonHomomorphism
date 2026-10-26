@@ -1,0 +1,137 @@
+name,family,n,m,chi,omega,odd_girth,shortcut
+P6,Bipartite,6,5,2,2,,K2
+P12,Bipartite,12,11,2,2,,K2
+"star K1,6",Bipartite,7,6,2,2,,K2
+binary tree (depth 3),Bipartite,15,14,2,2,,K2
+random tree (20),Bipartite,20,19,2,2,,K2
+C6,Bipartite,6,6,2,2,,K2
+C10,Bipartite,10,10,2,2,,K2
+C16,Bipartite,16,16,2,2,,K2
+grid 3x4,Bipartite,12,17,2,2,,K2
+grid 5x5,Bipartite,25,40,2,2,,K2
+hypercube Q3,Bipartite,8,12,2,2,,K2
+hypercube Q4,Bipartite,16,32,2,2,,K2
+hypercube Q5,Bipartite,32,80,2,2,,K2
+"K3,3",Bipartite,6,9,2,2,,K2
+"K4,6",Bipartite,10,24,2,2,,K2
+Heawood,Bipartite,14,21,2,2,,K2
+"Moebius-Kantor GP(8,3)",Bipartite,16,24,2,2,,K2
+"Desargues GP(10,3)",Bipartite,20,30,2,2,,K2
+crown S6,Bipartite,12,30,2,2,,K2
+random bipartite (10+10),Bipartite,20,23,2,2,,K2
+C3,Cycles & circulants,3,3,3,3,3,K3
+C5,Cycles & circulants,5,5,3,2,5,C5
+C7,Cycles & circulants,7,7,3,2,7,C7
+C9,Cycles & circulants,9,9,3,2,9,C9
+C11,Cycles & circulants,11,11,3,2,11,C11
+C13,Cycles & circulants,13,13,3,2,13,
+C15,Cycles & circulants,15,15,3,2,15,
+C17,Cycles & circulants,17,17,3,2,17,
+C21,Cycles & circulants,21,21,3,2,21,
+"C7(1,2)",Cycles & circulants,7,14,4,3,3,
+"C8(1,2)",Cycles & circulants,8,16,4,3,3,
+"C9(1,2)",Cycles & circulants,9,18,3,3,3,K3
+"C10(1,2)",Cycles & circulants,10,20,4,3,3,
+"C11(1,2)",Cycles & circulants,11,22,4,3,3,
+"C13(1,2)",Cycles & circulants,13,26,4,3,3,
+"C8(1,3)",Cycles & circulants,8,16,2,2,,K2
+"C10(1,3)",Cycles & circulants,10,20,2,2,,K2
+"C11(1,3)",Cycles & circulants,11,22,3,2,5,
+"C14(1,3)",Cycles & circulants,14,28,2,2,,K2
+"C13(1,5)",Cycles & circulants,13,26,4,2,5,
+"C16(1,3,8)",Cycles & circulants,16,40,4,2,5,
+complement of C7,Cycles & circulants,7,14,4,3,3,
+complement of C9,Cycles & circulants,9,27,5,4,3,
+Moebius ladder M8 (Wagner),Cycles & circulants,8,12,3,2,5,
+Moebius ladder M10,Cycles & circulants,10,15,2,2,,K2
+antiprism (6),Cycles & circulants,12,24,3,3,3,K3
+antiprism (7),Cycles & circulants,14,28,4,3,3,
+antiprism (9),Cycles & circulants,18,36,3,3,3,K3
+K4,Cliques & multipartite,4,6,4,4,3,K4
+K5,Cliques & multipartite,5,10,5,5,3,K5
+K6,Cliques & multipartite,6,15,6,6,3,K6
+K7,Cliques & multipartite,7,21,7,7,3,K7
+"K2,2,2 (octahedron)",Cliques & multipartite,6,12,3,3,3,K3
+"K3,3,3",Cliques & multipartite,9,27,3,3,3,K3
+"K2,2,2,2",Cliques & multipartite,8,24,4,4,3,K4
+"K1,2,3,4",Cliques & multipartite,10,35,4,4,3,K4
+"Turan T(12,5)",Cliques & multipartite,12,57,5,5,3,K5
+K5 minus an edge,Cliques & multipartite,5,9,4,4,3,K4
+K7 minus an edge,Cliques & multipartite,7,20,6,6,3,K6
+K6 minus a perfect matching,Cliques & multipartite,6,12,3,3,3,K3
+2K4,Cliques & multipartite,8,12,4,4,3,K4
+K4 + C5 (disjoint),Cliques & multipartite,9,11,4,4,3,K4
+K3 + Grotzsch (disjoint),Cliques & multipartite,14,23,4,3,3,
+friendship F4,Cliques & multipartite,9,12,3,3,3,K3
+book B5,Cliques & multipartite,7,11,3,3,3,K3
+tetrahedron,Planar,4,6,4,4,3,K4
+cube,Planar,8,12,2,2,,K2
+octahedron,Planar,6,12,3,3,3,K3
+dodecahedron,Planar,20,30,3,2,5,
+icosahedron,Planar,12,30,4,3,3,
+wheel W4,Planar,5,8,3,3,3,K3
+wheel W5,Planar,6,10,4,3,3,
+wheel W6,Planar,7,12,3,3,3,K3
+wheel W7,Planar,8,14,4,3,3,
+wheel W8,Planar,9,16,3,3,3,K3
+wheel W9,Planar,10,18,4,3,3,
+prism C3xK2,Planar,6,9,3,3,3,K3
+prism C4xK2,Planar,8,12,2,2,,K2
+prism C5xK2,Planar,10,15,3,2,5,C5
+prism C6xK2,Planar,12,18,2,2,,K2
+prism C7xK2,Planar,14,21,3,2,7,C7
+Apollonian (2 levels),Planar,20,54,4,4,3,K4
+triangular grid (side 5),Planar,15,30,3,3,3,K3
+"Kneser K(5,2)","Kneser, Johnson, SRG",10,15,3,2,5,
+"Kneser K(6,2)","Kneser, Johnson, SRG",15,45,4,3,3,
+"Kneser K(7,2)","Kneser, Johnson, SRG",21,105,5,3,3,
+"Kneser K(7,3)","Kneser, Johnson, SRG",35,70,3,2,7,
+"Johnson J(5,2)","Kneser, Johnson, SRG",10,30,5,4,3,
+"Johnson J(6,2)","Kneser, Johnson, SRG",15,60,5,5,3,K5
+Clebsch,"Kneser, Johnson, SRG",16,40,4,2,5,
+Shrikhande,"Kneser, Johnson, SRG",16,48,4,3,3,
+rook 3x3 (Paley 9),"Kneser, Johnson, SRG",9,18,3,3,3,K3
+rook 4x4,"Kneser, Johnson, SRG",16,48,4,4,3,K4
+Paley 13,"Kneser, Johnson, SRG",13,39,5,3,3,
+Paley 17,"Kneser, Johnson, SRG",17,68,6,3,3,
+complement of Petersen,"Kneser, Johnson, SRG",10,30,5,4,3,
+Grotzsch (M4),Triangle-free & Mycielski,11,20,4,2,5,
+Mycielski M5,Triangle-free & Mycielski,23,71,5,2,5,
+Mycielskian of C7,Triangle-free & Mycielski,15,28,4,2,5,
+gen. Mycielskian mu2(C7),Triangle-free & Mycielski,22,42,4,2,7,
+gen. Mycielskian mu3(C9),Triangle-free & Mycielski,37,72,4,2,9,
+Chvatal,Triangle-free & Mycielski,12,24,4,2,5,
+"Robertson (4,5)-cage",Triangle-free & Mycielski,19,38,3,2,5,
+"McGee (3,7)-cage",Triangle-free & Mycielski,24,36,3,2,7,
+"cubic LCF[5,-5]^12",Triangle-free & Mycielski,24,36,2,2,,K2
+"GP(7,2)",Triangle-free & Mycielski,14,21,3,2,5,
+"GP(9,2)",Triangle-free & Mycielski,18,27,3,2,5,
+"GP(11,3)",Triangle-free & Mycielski,22,33,3,2,7,
+"GP(12,5)",Triangle-free & Mycielski,24,36,2,2,,K2
+Petersen,Triangle-free & Mycielski,10,15,3,2,5,
+C5 x C5 (Cartesian),Triangle-free & Mycielski,25,50,3,2,5,C5
+"G(12,0.3) #1",Random,12,21,3,3,3,K3
+"G(15,0.3) #2",Random,15,26,3,3,3,K3
+"G(15,0.5) #3",Random,15,43,4,4,3,K4
+"G(20,0.2) #4",Random,20,43,4,3,3,
+"G(20,0.3) #5",Random,20,51,4,4,3,K4
+"G(20,0.5) #6",Random,20,96,6,6,3,K6
+"G(25,0.15) #7",Random,25,50,3,3,3,K3
+"G(25,0.4) #8",Random,25,119,5,4,3,
+"G(30,0.1) #9",Random,30,57,4,3,3,
+"G(30,0.25) #10",Random,30,108,5,4,3,
+random 3-regular (12) #1,Random,12,18,3,3,3,K3
+random 3-regular (20) #2,Random,20,30,3,3,3,K3
+random 4-regular (16) #3,Random,16,32,3,3,3,K3
+random 5-regular (20) #4,Random,20,50,3,3,3,K3
+K3 x K3 (tensor),Products & operations,9,18,3,3,3,K3
+C5 x K4 (tensor),Products & operations,20,60,3,2,5,C5
+K4 x K5 (tensor),Products & operations,20,120,4,4,3,K4
+C5 strong K2,Products & operations,10,25,5,4,3,
+C5 strong C5,Products & operations,25,100,5,4,3,
+K4 x C5 (Cartesian),Products & operations,20,50,4,4,3,K4
+line graph of Petersen,Products & operations,15,30,4,3,3,
+"line graph of K4,4",Products & operations,16,48,4,4,3,K4
+line graph of cube,Products & operations,12,24,3,3,3,K3
+Mycielskian of K4,Products & operations,9,22,5,4,3,
+complement of C5 x K2,Products & operations,10,30,5,4,3,
