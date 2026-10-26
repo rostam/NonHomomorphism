@@ -23,6 +23,8 @@ button{font:14px system-ui,sans-serif;background:var(--panel);color:var(--ink);b
 button[aria-pressed="true"]{border-color:var(--ink);font-weight:600}
 #plot{width:100%;height:72vh;min-height:440px;background:var(--panel);border:1px solid var(--line);border-radius:8px}
 @media (max-width:760px){.axes{grid-template-columns:1fr}}
+.measure{background:var(--panel);border:1px solid var(--line);border-left:4px solid #e34948;border-radius:8px;padding:10px 14px;margin:10px 0;font-size:14px;color:var(--ink)}
+.measure ul{margin:6px 0 6px 18px;padding:0}.measure li{margin:3px 0}.measure small{color:var(--muted)}
 </style>
 </head>
 <body>
@@ -36,11 +38,13 @@ button[aria-pressed="true"]{border-color:var(--ink);font-weight:600}
   <button id="bj" aria-pressed="true">Spread stacked points</button>
   <button id="bc" aria-pressed="true">Circular cliques</button>
   <button id="bg" aria-pressed="true">GP(n,k)</button>
+  <button id="bm" aria-pressed="false">Measure distance</button>
   <button id="bz">Reset zoom</button>
   <button id="bt">Toggle theme</button>
 </div>
 <div id="plot"></div>
 <p id="note"></p>
+<div id="measure" class="measure" hidden></div>
 </div>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/plotly.js/2.27.0/plotly.min.js"></script>
 <script>
@@ -64,7 +68,7 @@ function buildAxes(){
     const t = D.tests[sel[a]];
     const div = document.createElement('div'); div.className = 'axis';
     div.innerHTML = `<div class="k">${k}</div>${svgGraph(t)}<div style="min-width:0"><select aria-label="${k} axis graph">${order.map(i => `<option value="${i}" ${i===sel[a]?'selected':''}>${name(D.tests[i])}</option>`).join('')}</select><div class="info">T = ${t.label}: ${t.n} vertices, ${t.m} edges, χ = ${t.chi}</div></div>`;
-    div.querySelector('select').onchange = ev => { sel[a] = +ev.target.value; setTimeout(resetZoom, 0); buildAxes(); draw(); };
+    div.querySelector('select').onchange = ev => { sel[a] = +ev.target.value; picks = []; setTimeout(resetZoom, 0); buildAxes(); draw(); };
     box.appendChild(div);
   });
 }
@@ -87,6 +91,7 @@ function bindClick(){
     const still = down && Math.hypot(e.clientX - down.x, e.clientY - down.y) < 5 && performance.now() - down.t < 600;
     down = null;
     if (!still) return;
+    if (measure) { if (hovered) measurePick(hovered); else showMeasure('<b>Measure:</b> hover over a graph point, then click it.'); return; }
     // Prefer the hovered point; otherwise use Plotly's own pick (it also hits lines, which send no hover events).
     const s = gd._fullLayout.scene._scene, sel = s.glplot.selection;
     // scene units: Plotly draws a data value v at v * dataScale
@@ -104,6 +109,56 @@ function zoomTo(gd, g){
                        'scene.camera.eye': {x: c[0] + v[0] * ZOOM, y: c[1] + v[1] * ZOOM, z: c[2] + v[2] * ZOOM}});
 }
 function resetZoom(){ Plotly.relayout(document.getElementById('plot'), {'scene.camera': DEFAULT_CAM}); }
+const MT = {labels: D.tests.map(t => t.label), w: D.w, m: D.tests.map(t => t.m)};
+const VIEWNOTE = () => 'uses only the three chosen test graphs' + (jitter ? ', plus spread offsets' : '');
+// ── distance measuring: click two points; the numbers come from the full 85-test profiles ──
+let measure = false, picks = [], lastTraces = [];
+function measureTrace(){
+  if (!picks.length) return null;
+  return {type:'scatter3d', mode:'lines+markers', name:'measured', showlegend:false, hoverinfo:'skip',
+    x: picks.map(p=>p.xyz[0]), y: picks.map(p=>p.xyz[1]), z: picks.map(p=>p.xyz[2]),
+    line:{color:'#e34948', width:6}, marker:{size:10, color:'#e34948', symbol:'circle-open', line:{color:'#e34948', width:3}}};
+}
+function showMeasure(html){ const m = document.getElementById('measure'); m.hidden = false; m.innerHTML = html; }
+function measurePick(pt){
+  const tr = lastTraces[pt.curveNumber], rec = tr && tr._rec && tr._rec[pt.pointNumber];
+  if (!rec) { showMeasure('<b>Measure:</b> click on a graph point (lines cannot be measured).'); return; }
+  if (picks.length >= 2) picks = [];
+  picks.push({name: rec.name, P: rec.P, xyz: [pt.x, pt.y, pt.z]});
+  if (picks.length === 1) showMeasure(`<b>Measure:</b> first point <b>${rec.name}</b>. Now click a second point.`);
+  else reportMeasure();
+  draw();
+}
+function reportMeasure(){
+  const [A, B] = picks, T = MT.labels, n = T.length, f = v => (+v).toFixed(4);
+  const diff = A.P.map((v, t) => v - B.P[t]);
+  const E = Math.sqrt(diff.reduce((s, d, t) => s + (MT.w[t] * d) ** 2, 0));
+  const E2 = Math.sqrt(diff.reduce((s, d) => s + d * d, 0));
+  let ti = 0; diff.forEach((d, t) => { if (Math.abs(d) > Math.abs(diff[ti])) ti = t; });
+  const nz = diff.filter(d => Math.abs(d) > 1e-9).length;
+  const scr = Math.hypot(...A.xyz.map((v, i) => v - B.xyz[i]));
+  const alpha = (P, t) => Math.round(P[t] * MT.m[t]);
+  const top = diff.map((d, t) => [Math.abs(MT.w[t] * d), t]).filter(x => x[0] > 1e-9).sort((a, b) => b[0] - a[0]).slice(0, 6);
+  // a point may stand for several graphs with the same profile ("K4, K13/3, K9/2"); use a member that is a test graph
+  const asTest = r => { const m = r.name.split(', ').find(x => T.includes(x)); return m ? [m, T.indexOf(m)] : [null, -1]; };
+  const [na, ia] = asTest(A), [nb, ib] = asTest(B);
+  const dist = ia >= 0 && ib >= 0 ? `<li><b>dist</b> = max(α(${na},${nb}), α(${nb},${na})) = max(${alpha(B.P, ia)}, ${alpha(A.P, ib)}) = <b>${Math.max(alpha(B.P, ia), alpha(A.P, ib))}</b>: the original (non-metric) distance, available because both are test graphs</li>` : '';
+  showMeasure(`<b>Distance between ${A.name} and ${B.name}</b>
+  <ul>
+   <li><b>Profile distance E = ${f(E)}</b> (Euclidean over all ${n} test graphs, χ-balanced weights)${E < 1e-9 ? ': identical profiles, no test graph separates them' : ''}</li>
+   <li>Unweighted: ${f(E2)} · largest single-test difference ${f(Math.abs(diff[ti]))} (test ${T[ti]})</li>
+   <li>On screen: ${f(scr)} (${VIEWNOTE()})</li>
+   <li>${nz} of ${n} test graphs separate them${top.length ? '. Largest contributions: ' + top.map(([, t]) => `${T[t]}: α = ${alpha(A.P, t)} vs ${alpha(B.P, t)}`).join('; ') : ''}</li>
+   ${dist}
+  </ul>
+  <small>φ<sub>T</sub>(G) = α(T,G)/e(T) is the fraction of T's edges lost when T is mapped into G. E uses the full profiles, so it does not depend on the view or on spread offsets.</small>`);
+}
+function toggleMeasure(){
+  measure = !measure; picks = [];
+  const b = document.getElementById('bm'); b.setAttribute('aria-pressed', String(measure));
+  if (measure) showMeasure('<b>Measure:</b> click two graph points.'); else document.getElementById('measure').hidden = true;
+  draw();
+}
 function draw(){
   const d = D.sets[cur], pal = isDark() ? SLOTS_DARK : SLOTS, ink = css('--ink'), ring = css('--bg');
   const [xi, yi, zi] = sel, J = jitter ? 0.022 : 0;
@@ -113,7 +168,7 @@ function draw(){
     const idx = d.chi.map((v,i)=> v===c && !d.clique[i] ? i : -1).filter(i=>i>=0);
     traces.push({type:'scatter3d', mode:'markers', name:'χ = '+c,
       x: idx.map(i=>co(d.P,i,xi,1)), y: idx.map(i=>co(d.P,i,yi,2)), z: idx.map(i=>co(d.P,i,zi,3)),
-      customdata: idx.map(i=>[d.label[i], d.chi[i], d.P[i][xi], d.P[i][yi], d.P[i][zi]]),
+      _rec: idx.map(i=>({name:d.label[i], P:d.P[i]})), customdata: idx.map(i=>[d.label[i], d.chi[i], d.P[i][xi], d.P[i][yi], d.P[i][zi]]),
       hovertemplate:'<b>%{customdata[0]}</b> (χ = %{customdata[1]})<br>X = %{customdata[2]:.4f}, Y = %{customdata[3]:.4f}, Z = %{customdata[4]:.4f}<extra></extra>',
       marker:{size: cur==='n8'?4:2.6, color: pal[c-2], opacity:0.65, line:{color:ring, width:0.4}}});
   });
@@ -121,7 +176,7 @@ function draw(){
   traces.push({type:'scatter3d', mode:'lines+markers+text', name:'complete graphs Kₙ',
     x: cl.map(i=>d.P[i][xi]), y: cl.map(i=>d.P[i][yi]), z: cl.map(i=>d.P[i][zi]),
     text: cl.map(i=>d.label[i]), textposition:'top center', textfont:{color:ink, size:14},
-    customdata: cl.map(i=>[d.label[i], d.P[i][xi], d.P[i][yi], d.P[i][zi]]),
+    _rec: cl.map(i=>({name:d.label[i], P:d.P[i]})), customdata: cl.map(i=>[d.label[i], d.P[i][xi], d.P[i][yi], d.P[i][zi]]),
     hovertemplate:'<b>%{customdata[0]}</b><br>X = %{customdata[1]:.4f}, Y = %{customdata[2]:.4f}, Z = %{customdata[3]:.4f}<extra></extra>',
     line:{color:ink, width:4}, marker:{size:10, color: cl.map(i=>pal[d.chi[i]-2]), line:{color:ink, width:3}}});
   const group = (F, keep) => { const g = {}; F.label.forEach((l,i) => { if (!keep(i)) return; const k = [F.P[i][xi],F.P[i][yi],F.P[i][zi]].join('|'); (g[k] = g[k] || {i, names:[]}).names.push(l); }); return Object.values(g); };
@@ -132,7 +187,7 @@ function draw(){
     const g = group(C, i => C.q[i] > 1);
     traces.push({type:'scatter3d', mode:'markers+text', name:'circular clique K_p/q',
       x: g.map(o=>C.P[o.i][xi]), y: g.map(o=>C.P[o.i][yi]), z: g.map(o=>C.P[o.i][zi]),
-      text: g.map(o=>o.names.join(', ')), textposition:'middle left', textfont:{color:purple, size:11},
+      _rec: g.map(o=>({name:o.names.join(', '), P:C.P[o.i]})), text: g.map(o=>o.names.join(', ')), textposition:'middle left', textfont:{color:purple, size:11},
       hovertemplate:'<b>%{text}</b><extra></extra>',
       marker:{size:7, symbol:'square', color: g.map(o=>pal[Math.min(C.chi[o.i],9)-2]), line:{color:purple, width:3}}});
   }
@@ -141,16 +196,18 @@ function draw(){
     traces.push({type:'scatter3d', mode:'markers+text', name:'generalized Petersen GP(n,k)',
       x: g.map(o=>G.P[o.i][xi]), y: g.map(o=>G.P[o.i][yi]), z: g.map(o=>G.P[o.i][zi]),
       text: g.map(o=> o.names.length > 3 ? o.names.slice(0,3).join(', ')+` +${o.names.length-3}` : o.names.join(', ')),
-      customdata: g.map(o=>o.names.join(', ')), hovertemplate:'<b>%{customdata}</b><extra></extra>',
+      _rec: g.map(o=>({name:o.names.join(', '), P:G.P[o.i]})), customdata: g.map(o=>o.names.join(', ')), hovertemplate:'<b>%{customdata}</b><extra></extra>',
       textposition:'middle right', textfont:{color:ink, size:11},
       marker:{size:9, symbol:'diamond-open', color:ink, line:{color:ink, width:3}}});
   }
   const t = i => D.tests[sel[i]].label;
   const ax = (i, k) => ({title:`${k}: φ_${t(i)}(G)`, color:css('--muted'), gridcolor:css('--line'), zerolinecolor:css('--line'), backgroundcolor:css('--panel'), rangemode:'tozero', ...zoomRange(i)});
+  const mt = measureTrace(); if (mt) traces.push(mt);
+  lastTraces = traces;
   Plotly.react('plot', traces, {uirevision:'keep', paper_bgcolor:css('--panel'), font:{color:ink}, margin:{l:0,r:0,t:10,b:0}, legend:{x:0.01,y:0.98},
     scene:{xaxis:ax(0,'X'), yaxis:ax(1,'Y'), zaxis:ax(2,'Z'), aspectmode:'cube'}}, {responsive:true, displaylogo:false}).then(bindClick);
   const pts = new Set(d.P.map(r => [r[xi],r[yi],r[zi]].join('|')));
-  document.getElementById('note').textContent = `Click a point to zoom toward it (Reset zoom to undo). ${d.label.length} cores occupy ${pts.size} distinct points for these three axes.` + (jitter ? ' Points are spread slightly so stacked graphs are visible; hover shows exact values.' : ' Exact positions.');
+  document.getElementById('note').textContent = `Click a point to zoom toward it (Reset zoom to undo); use Measure distance to compare two graphs. ${d.label.length} cores occupy ${pts.size} distinct points for these three axes.` + (jitter ? ' Points are spread slightly so stacked graphs are visible; hover shows exact values.' : ' Exact positions.');
 }
 const press = (b, on) => b.setAttribute('aria-pressed', String(on));
 const b8 = document.getElementById('b8'), b9 = document.getElementById('b9');
@@ -162,6 +219,7 @@ tog('bc', () => (showCC = !showCC));
 tog('bg', () => (showGP = !showGP));
 document.getElementById('bt').onclick = () => { const r=document.documentElement; r.dataset.theme = isDark() ? 'light' : 'dark'; buildAxes(); draw(); };
 document.getElementById('bz').onclick = resetZoom;
+document.getElementById('bm').onclick = toggleMeasure;
 buildAxes();
 if (window.Plotly) draw(); else document.getElementById('plot').textContent = 'Plotly could not load (offline?).';
 </script>

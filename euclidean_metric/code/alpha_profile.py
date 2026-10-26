@@ -225,17 +225,19 @@ def main():
     idx = [lab9.index(t) for t in tests]
     Y9 = proj(profile(a9[idx, :]))
     payload = {"var": [round(float(v), 4) for v in var[:3]], "sets": {}}
-    for key, (L, Yk, inf) in {"n8": (lab, Y, info), "n9": (lab9, Y9, info9)}.items():
+    raw = lambda A: np.round((A / t_m[:, None]).T, 5).tolist()     # full profiles, for the distance tool
+    payload.update({"tests": lab, "w": np.round(w, 6).tolist(), "tm": t_m.tolist()})
+    for key, (L, Yk, inf, Pk) in {"n8": (lab, Y, info, raw(a)), "n9": (lab9, Y9, info9, raw(a9[idx, :]))}.items():
         payload["sets"][key] = {
             "x": Yk[:, 0].round(5).tolist(), "y": Yk[:, 1].round(5).tolist(), "z": Yk[:, 2].round(5).tolist(),
             "label": L, "chi": inf["chi"].tolist(), "n": inf["n"].tolist(), "m": inf["m"].tolist(),
-            "clique": [is_clique(l) for l in L], "named": [is_named(l) for l in L]}
+            "clique": [is_clique(l) for l in L], "named": [is_named(l) for l in L], "P": Pk}
     payload["gp"] = {"x": GY[:, 0].round(5).tolist(), "y": GY[:, 1].round(5).tolist(), "z": GY[:, 2].round(5).tolist(),
                      "label": gp_names, "n": [int(r["n"]) for r in gp], "m": [int(r["m"]) for r in gp],
-                     "equiv": [c if d < 1e-9 else "-" for c, d in gp_core]}
+                     "equiv": [c if d < 1e-9 else "-" for c, d in gp_core], "P": raw(G_alpha)}
     payload["circ"] = {"x": CY[:, 0].round(5).tolist(), "y": CY[:, 1].round(5).tolist(), "z": CY[:, 2].round(5).tolist(),
                        "label": cc_name, "pq": [p_ / q_ for p_, q_ in cc_pq], "q": [q_ for _, q_ in cc_pq],
-                       "chi": cc_chi, "at": cc_core}
+                       "chi": cc_chi, "at": cc_core, "P": raw(C_alpha)}
     tpl = (pathlib.Path(__file__).parent / "alpha_profile_3d.tpl").read_text()
     html = (tpl.replace("{{DATA}}", json.dumps(payload))
                .replace("{{SLOTS}}", json.dumps(SLOTS)).replace("{{SLOTS_DARK}}", json.dumps(SLOTS_DARK)))

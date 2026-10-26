@@ -35,7 +35,17 @@ def main():
             al = np.array([float(c[t].lstrip("<=")) for t in lab])
             # The icosahedron has 20 triangles and every edge lies in exactly 2 of them, so mapping it
             # into a triangle-free graph deletes >= 10 edges: an upper bound of 10 is then exact.
-            bounds_ok = all(not c[t].startswith("<=") or (t == "Icosahedron" and c[t] == "<=10" and r["omega"] == "2")
+            # A clique test has the closed form |K_k,G| = C(k,2) - t(k, min(k, omega(G))) (Turan), so an upper
+            # bound equal to it is exact too.
+            def turan(n, r):
+                q, s_ = divmod(n, r)
+                return (n * n - s_ * (q + 1) ** 2 - (r - s_) * q * q) // 2
+            def clique_exact(t, v):
+                k = int(t[1:]) if t[0] == "K" and t[1:].isdigit() else 0
+                return k and v == k * (k - 1) // 2 - turan(k, min(k, int(r["omega"])))
+            bounds_ok = all(not c[t].startswith("<=")
+                            or (t == "Icosahedron" and c[t] == "<=10" and r["omega"] == "2")
+                            or clique_exact(t, int(c[t][2:]))
                             for t in lab)
             exact = c["exact_all"] == "true" or bounds_ok
             how = "computed" if exact else "computed (some entries are upper bounds)"
@@ -76,7 +86,8 @@ def main():
         tests.append({"label": l, "n": n, "m": int(info["m"][t]), "chi": int(info["chi"][t]), "named": ap.is_named(l),
                       "edges": edges, "pos": [[round(x, 4), round(y, 4)] for x, y in pa.layout(n, edges)]})
     payload = {"families": FAMILIES, "zoo": zoo, "cores": cores, "tests": tests,
-               "var": [round(float(v), 4) for v in var[:3]], "default": ["K5", "Petersen", "W5"]}
+               "var": [round(float(v), 4) for v in var[:3]], "default": ["K5", "Petersen", "W5"],
+               "w": np.round(w, 6).tolist()}
     tpl = (ap.pathlib.Path(__file__).parent / "graph_zoo_3d.tpl").read_text()
     html = (tpl.replace("{{DATA}}", json.dumps(payload, separators=(",", ":")))
                .replace("{{SLOTS}}", json.dumps(ap.SLOTS)).replace("{{SLOTS_DARK}}", json.dumps(ap.SLOTS_DARK)))

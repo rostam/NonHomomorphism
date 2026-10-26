@@ -33,6 +33,8 @@ th,td{border-bottom:1px solid var(--line);padding:6px 9px;text-align:left;white-
 th{position:sticky;top:0;background:var(--panel)}
 td.num{text-align:right;font-variant-numeric:tabular-nums}
 @media (max-width:760px){.axes.on{grid-template-columns:1fr}}
+.measure{background:var(--panel);border:1px solid var(--line);border-left:4px solid #e34948;border-radius:8px;padding:10px 14px;margin:10px 0;font-size:14px;color:var(--ink)}
+.measure ul{margin:6px 0 6px 18px;padding:0}.measure li{margin:3px 0}.measure small{color:var(--muted)}
 </style>
 </head>
 <body>
@@ -51,12 +53,14 @@ td.num{text-align:right;font-variant-numeric:tabular-nums}
   <button id="bs" aria-pressed="true">Spread</button>
   <button id="bk" aria-pressed="true">Test cores</button>
   <button id="bl" aria-pressed="true">Labels</button>
+  <button id="bm" aria-pressed="false">Measure distance</button>
   <button id="bz">Reset zoom</button>
   <button id="bt">Theme</button>
 </div>
 <div class="axes" id="axes"></div>
 <div id="plot"></div>
 <p id="note"></p>
+<div id="measure" class="measure" hidden></div>
 <h2>Where each graph lands</h2>
 <div class="row"><input id="q" type="search" placeholder="Filter by name, family or landing point…" aria-label="Filter table" style="min-width:280px"></div>
 <div class="tw"><table><thead><tr><th>Graph</th><th>Family</th><th>n</th><th>m</th><th>χ</th><th>ω</th><th>odd girth</th><th>Same profile as</th><th>How</th></tr></thead><tbody id="tb"></tbody></table></div>
@@ -95,7 +99,7 @@ function buildAxes(){
   ['X','Y','Z'].forEach((k, a) => {
     const t = D.tests[sel[a]], div = document.createElement('div'); div.className = 'axis';
     div.innerHTML = `<div class="k">${k}</div>${svgGraph(t)}<div style="min-width:0"><select aria-label="${k} axis graph">${order.map(i => `<option value="${i}" ${i===sel[a]?'selected':''}>${D.tests[i].named ? D.tests[i].label : D.tests[i].label + ' (graph6)'}</option>`).join('')}</select><div class="info">${t.n} vertices, ${t.m} edges, χ = ${t.chi}</div></div>`;
-    div.querySelector('select').onchange = ev => { sel[a] = +ev.target.value; setTimeout(resetZoom, 0); buildAxes(); draw(); };
+    div.querySelector('select').onchange = ev => { sel[a] = +ev.target.value; picks = []; setTimeout(resetZoom, 0); buildAxes(); draw(); };
     box.appendChild(div);
   });
 }
@@ -119,6 +123,7 @@ function bindClick(){
     const still = down && Math.hypot(e.clientX - down.x, e.clientY - down.y) < 5 && performance.now() - down.t < 600;
     down = null;
     if (!still) return;
+    if (measure) { if (hovered) measurePick(hovered); else showMeasure('<b>Measure:</b> hover over a graph point, then click it.'); return; }
     // Prefer the hovered point; otherwise use Plotly's own pick (it also hits lines, which send no hover events).
     const s = gd._fullLayout.scene._scene, sel = s.glplot.selection;
     // scene units: Plotly draws a data value v at v * dataScale
@@ -136,13 +141,63 @@ function zoomTo(gd, g){
                        'scene.camera.eye': {x: c[0] + v[0] * ZOOM, y: c[1] + v[1] * ZOOM, z: c[2] + v[2] * ZOOM}});
 }
 function resetZoom(){ Plotly.relayout(document.getElementById('plot'), {'scene.camera': DEFAULT_CAM}); }
+const MT = {labels: D.tests.map(t => t.label), w: D.w, m: D.tests.map(t => t.m)};
+const VIEWNOTE = () => (view === 'pca' ? 'projection onto the first three principal axes' : 'uses only the three chosen test graphs') + (spread ? ', plus spread offsets' : '');
+// ── distance measuring: click two points; the numbers come from the full 85-test profiles ──
+let measure = false, picks = [], lastTraces = [];
+function measureTrace(){
+  if (!picks.length) return null;
+  return {type:'scatter3d', mode:'lines+markers', name:'measured', showlegend:false, hoverinfo:'skip',
+    x: picks.map(p=>p.xyz[0]), y: picks.map(p=>p.xyz[1]), z: picks.map(p=>p.xyz[2]),
+    line:{color:'#e34948', width:6}, marker:{size:10, color:'#e34948', symbol:'circle-open', line:{color:'#e34948', width:3}}};
+}
+function showMeasure(html){ const m = document.getElementById('measure'); m.hidden = false; m.innerHTML = html; }
+function measurePick(pt){
+  const tr = lastTraces[pt.curveNumber], rec = tr && tr._rec && tr._rec[pt.pointNumber];
+  if (!rec) { showMeasure('<b>Measure:</b> click on a graph point (lines cannot be measured).'); return; }
+  if (picks.length >= 2) picks = [];
+  picks.push({name: rec.name, P: rec.P, xyz: [pt.x, pt.y, pt.z]});
+  if (picks.length === 1) showMeasure(`<b>Measure:</b> first point <b>${rec.name}</b>. Now click a second point.`);
+  else reportMeasure();
+  draw();
+}
+function reportMeasure(){
+  const [A, B] = picks, T = MT.labels, n = T.length, f = v => (+v).toFixed(4);
+  const diff = A.P.map((v, t) => v - B.P[t]);
+  const E = Math.sqrt(diff.reduce((s, d, t) => s + (MT.w[t] * d) ** 2, 0));
+  const E2 = Math.sqrt(diff.reduce((s, d) => s + d * d, 0));
+  let ti = 0; diff.forEach((d, t) => { if (Math.abs(d) > Math.abs(diff[ti])) ti = t; });
+  const nz = diff.filter(d => Math.abs(d) > 1e-9).length;
+  const scr = Math.hypot(...A.xyz.map((v, i) => v - B.xyz[i]));
+  const alpha = (P, t) => Math.round(P[t] * MT.m[t]);
+  const top = diff.map((d, t) => [Math.abs(MT.w[t] * d), t]).filter(x => x[0] > 1e-9).sort((a, b) => b[0] - a[0]).slice(0, 6);
+  // a point may stand for several graphs with the same profile ("K4, K13/3, K9/2"); use a member that is a test graph
+  const asTest = r => { const m = r.name.split(', ').find(x => T.includes(x)); return m ? [m, T.indexOf(m)] : [null, -1]; };
+  const [na, ia] = asTest(A), [nb, ib] = asTest(B);
+  const dist = ia >= 0 && ib >= 0 ? `<li><b>dist</b> = max(α(${na},${nb}), α(${nb},${na})) = max(${alpha(B.P, ia)}, ${alpha(A.P, ib)}) = <b>${Math.max(alpha(B.P, ia), alpha(A.P, ib))}</b>: the original (non-metric) distance, available because both are test graphs</li>` : '';
+  showMeasure(`<b>Distance between ${A.name} and ${B.name}</b>
+  <ul>
+   <li><b>Profile distance E = ${f(E)}</b> (Euclidean over all ${n} test graphs, χ-balanced weights)${E < 1e-9 ? ': identical profiles, no test graph separates them' : ''}</li>
+   <li>Unweighted: ${f(E2)} · largest single-test difference ${f(Math.abs(diff[ti]))} (test ${T[ti]})</li>
+   <li>On screen: ${f(scr)} (${VIEWNOTE()})</li>
+   <li>${nz} of ${n} test graphs separate them${top.length ? '. Largest contributions: ' + top.map(([, t]) => `${T[t]}: α = ${alpha(A.P, t)} vs ${alpha(B.P, t)}`).join('; ') : ''}</li>
+   ${dist}
+  </ul>
+  <small>φ<sub>T</sub>(G) = α(T,G)/e(T) is the fraction of T's edges lost when T is mapped into G. E uses the full profiles, so it does not depend on the view or on spread offsets.</small>`);
+}
+function toggleMeasure(){
+  measure = !measure; picks = [];
+  const b = document.getElementById('bm'); b.setAttribute('aria-pressed', String(measure));
+  if (measure) showMeasure('<b>Measure:</b> click two graph points.'); else document.getElementById('measure').hidden = true;
+  draw();
+}
 function draw(){
   const p = pal(), ink = css('--ink'), ring = css('--bg'), traces = [];
   const J = spread ? (view === 'pca' ? 0.02 : 0.025) : 0;
   if (showCores) {
     const ci = C.label.map((l,i)=>i);
     traces.push({type:'scatter3d', mode:'markers', name:'85 test cores', x: ci.map(i=>coords(C,i)[0]), y: ci.map(i=>coords(C,i)[1]), z: ci.map(i=>coords(C,i)[2]),
-      customdata: ci.map(i=>C.label[i]), hovertemplate:'test core <b>%{customdata}</b><extra></extra>',
+      _rec: ci.map(i=>({name:C.label[i], P:C.P[i]})), customdata: ci.map(i=>C.label[i]), hovertemplate:'test core <b>%{customdata}</b><extra></extra>',
       marker:{size:2.5, color: css('--muted'), opacity:0.35}});
     const cl = ci.filter(i=>C.clique[i]).sort((a,b)=> +C.label[a].slice(1) - +C.label[b].slice(1));
     traces.push({type:'scatter3d', mode:'lines+markers+text', name:'complete graphs Kₙ', x: cl.map(i=>coords(C,i)[0]), y: cl.map(i=>coords(C,i)[1]), z: cl.map(i=>coords(C,i)[2]),
@@ -159,17 +214,19 @@ function draw(){
     const txt = idx.map(j => { const k = coords(Z,j).join('|'); if (!labels || seen[k]) return ''; seen[k] = 1; return Z.at[j] ? '' : Z.name[j]; });
     traces.push({type:'scatter3d', mode: labels ? 'markers+text' : 'markers', name: g.name,
       x: xyz.map(c=>c[0]), y: xyz.map(c=>c[1]), z: xyz.map(c=>c[2]), text: txt, textposition:'middle right', textfont:{color:ink, size:10},
-      customdata: idx.map(j => [Z.name[j], F[Z.family[j]], Z.n[j], Z.m[j], Z.chi[j] ?? '?', Z.omega[j], Z.at[j] || 'its own point', Z.exact[j] ? '' : ' (upper bounds)']),
+      _rec: idx.map(j=>({name:Z.name[j], P:Z.P[j]})), customdata: idx.map(j => [Z.name[j], F[Z.family[j]], Z.n[j], Z.m[j], Z.chi[j] ?? '?', Z.omega[j], Z.at[j] || 'its own point', Z.exact[j] ? '' : ' (upper bounds)']),
       hovertemplate:'<b>%{customdata[0]}</b><br>%{customdata[1]}<br>n = %{customdata[2]}, m = %{customdata[3]}, χ = %{customdata[4]}, ω = %{customdata[5]}<br>same profile as: %{customdata[6]}%{customdata[7]}<extra></extra>',
       marker:{size:5, color:g.colour, opacity:0.9, symbol: idx.map(j => Z.exact[j] ? 'circle' : 'circle-open'), line:{color:ring, width:0.6}}});
   });
   const axt = i => view === 'pca' ? `PC${i+1} (${(D.var[i]*100).toFixed(0)}%)` : `${'XYZ'[i]}: φ_${D.tests[sel[i]].label}(G)`;
   const ax = i => ({title: axt(i), color:css('--muted'), gridcolor:css('--line'), zerolinecolor:css('--line'), backgroundcolor:css('--panel'), ...zoomRange(i)});
+  const mt = measureTrace(); if (mt) traces.push(mt);
+  lastTraces = traces;
   Plotly.react('plot', traces, {uirevision:'keep', paper_bgcolor:css('--panel'), font:{color:ink}, margin:{l:0,r:0,t:10,b:0}, legend:{x:0.01,y:0.98},
     scene:{xaxis:ax(0), yaxis:ax(1), zaxis:ax(2), aspectmode:'cube'}}, {responsive:true, displaylogo:false}).then(bindClick);
   const vis = Z.name.map((n,j)=>j).filter(j => on[Z.family[j]]);
   const pts = new Set(vis.map(j => coords(Z,j).join('|')));
-  document.getElementById('note').textContent = `Click a point to zoom toward it (Reset zoom to undo). ${vis.length} graphs shown, at ${pts.size} distinct points. Text labels mark graphs whose profile is not that of any test core. Open circles: some coordinates are solver upper bounds (timeout).`;
+  document.getElementById('note').textContent = `Click a point to zoom toward it (Reset zoom to undo); use Measure distance to compare two graphs. ${vis.length} graphs shown, at ${pts.size} distinct points. Text labels mark graphs whose profile is not that of any test core. Open circles: some coordinates are solver upper bounds (timeout).`;
 }
 // table
 const tb = document.getElementById('tb');
@@ -181,14 +238,15 @@ Z.name.forEach((n, j) => {
 document.getElementById('q').oninput = ev => { const q = ev.target.value.toLowerCase(); [...tb.rows].forEach(r => r.style.display = r.textContent.toLowerCase().includes(q) ? '' : 'none'); };
 // controls
 const vp = document.getElementById('vp'), vg = document.getElementById('vg'), cf = document.getElementById('cf'), cc = document.getElementById('cc');
-vp.onclick = () => { view='pca'; setTimeout(resetZoom, 0); press(vp,true); press(vg,false); document.getElementById('axes').classList.remove('on'); draw(); };
-vg.onclick = () => { view='graph'; setTimeout(resetZoom, 0); press(vg,true); press(vp,false); document.getElementById('axes').classList.add('on'); draw(); };
+vp.onclick = () => { view='pca'; picks = []; setTimeout(resetZoom, 0); press(vp,true); press(vg,false); document.getElementById('axes').classList.remove('on'); draw(); };
+vg.onclick = () => { view='graph'; picks = []; setTimeout(resetZoom, 0); press(vg,true); press(vp,false); document.getElementById('axes').classList.add('on'); draw(); };
 cf.onclick = () => { colour='family'; press(cf,true); press(cc,false); draw(); };
 cc.onclick = () => { colour='chi'; press(cc,true); press(cf,false); draw(); };
 const tog = (id, f) => { const b = document.getElementById(id); b.onclick = () => { press(b, f()); draw(); }; };
 tog('bs', () => (spread = !spread)); tog('bk', () => (showCores = !showCores)); tog('bl', () => (labels = !labels));
 document.getElementById('bt').onclick = () => { const r=document.documentElement; r.dataset.theme = isDark() ? 'light' : 'dark'; buildAxes(); draw(); };
 document.getElementById('bz').onclick = resetZoom;
+document.getElementById('bm').onclick = toggleMeasure;
 buildAxes();
 if (window.Plotly) draw(); else document.getElementById('plot').textContent = 'Plotly could not load (offline?).';
 </script>

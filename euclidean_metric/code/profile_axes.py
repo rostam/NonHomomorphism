@@ -96,7 +96,9 @@ def main():
                  "chi": [-(-int(r["p"]) // int(r["q"])) for r in cc],
                  "P": prof(np.array([[float(r[t]) for t in lab] for r in cc]).T)},
     }
-    payload = {"tests": tests, "sets": sets, **extra, "default": ["K5", "Petersen", "W5"]}
+    cnt = {c: int((info["chi"] == c).sum()) for c in set(info["chi"].tolist())}
+    w = [round(1 / cnt[int(c)] ** 0.5, 6) for c in info["chi"]]         # chi-balanced test weights
+    payload = {"tests": tests, "sets": sets, **extra, "w": w, "default": ["K5", "Petersen", "W5"]}
     tpl = (pathlib.Path(__file__).parent / "profile_axes_3d.tpl").read_text()
     html = (tpl.replace("{{DATA}}", json.dumps(payload, separators=(",", ":")))
                .replace("{{SLOTS}}", json.dumps(ap.SLOTS)).replace("{{SLOTS_DARK}}", json.dumps(ap.SLOTS_DARK)))

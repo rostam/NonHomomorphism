@@ -18,7 +18,8 @@ homomorphism order.  The earlier discussion of `dist` itself is in
 | `html/euclidean_metric_review.html` | Review page: all results, figures, GP table, agent notes (self-contained) |
 | `html/alpha_profile_3d.html` | Interactive 3D view; complete graphs, circular cliques K_{p/q} and GP(n,k) highlighted (needs internet for Plotly) |
 | `html/profile_axes_3d.html` | Interactive 3D view whose x, y, z axes are test graphs you choose (each axis is φ_T(G) = \|T,G\|/e(T)), with a drawing of each axis graph |
-| `html/graph_zoo_3d.html` | A zoo of 136 graphs from 8 families (mostly non-cores) in the profile space: PCA or graphs-as-axes view, family filters, searchable table of where each graph lands |
+| `html/graph_zoo_3d.html` | A zoo of 314 graphs from 8 families (mostly non-cores) in the profile space: PCA or graphs-as-axes view, family filters, searchable table of where each graph lands |
+| `html/graph_matrix.html` | Graphs on the axes: distance matrix (G on x, H on y), distance surface, and the triangle cube (G, H, K on x, y, z; points mark triangle-inequality failures). Zoo with E, or the 85 test cores with E, dist and d* |
 | `paper/alpha_profile.pdf` | Paper draft (7 pages), source `paper/alpha_profile.tex` |
 
 ## Main results
@@ -62,6 +63,7 @@ python alpha_profile.py      # figures/alpha_profile_pca.png, html/alpha_profile
 python profile_axes.py       # html/profile_axes_3d.html
 python zoo_graphs.py         # data/zoo_graphs.txt, data/zoo_meta.csv (graphs + exact shortcuts)
 python zoo_view.py           # html/graph_zoo_3d.html (needs data/zoo_profiles_computed.csv)
+python graph_matrix.py       # html/graph_matrix.html
 python build_review.py       # html/euclidean_metric_review.html
 cd gp_profiles && cargo run --release -- ../../data/cores_meta.csv 20 12 > ../../data/gp_profiles.csv
 cargo run --release -- circular ../../data/cores_meta.csv 20 13 8 > ../../data/circular_profiles.csv
