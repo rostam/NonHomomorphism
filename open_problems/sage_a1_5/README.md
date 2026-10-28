@@ -73,7 +73,8 @@ Heuristic for the threshold: deleting alternate rim edges leaves the jump-2 cycl
 | 17 | 2 | **9** | **9** | **9** | 10 | 10 |
 | 18 | 0 | **9** | **9** | **9** | 10 | 10 |
 | 21 | 0 | **11** | **11** | **11** | ≤11 | 12 |
-| 22 | 1 | **11** | **11** | **11** | ≤12 | 12 |
+| 22 | 1 | **11** | **11** | **11** | **11** | 12 |
+| 25 | 1 | **13** | | | ≤13 | 14 |
 
 (n ≡ 0, 3 mod 4 rows: every odd cycle column equals the K2 column, e.g. n=12: 6 everywhere, n=15: 8 everywhere.)
 
@@ -82,6 +83,61 @@ Heuristic for the threshold: deleting alternate rim edges leaves the jump-2 cycl
 **|W_m, C_{2k+1}| = |W_m, K2| = ⌈m/2⌉** for rim length m ≥ 3 and all k ≥ 2. The m triangles each need a deletion and
 a spoke covers ≤ 2 of them. Upper bound: alternate the rim colours and cut spokes to one class, plus one rim edge if m is odd.
 Verified m = 3..20.
+
+## 5. Generalized Petersen graphs GP(n,k)
+
+Outer cycle u_0…u_{n−1}, spokes u_i v_i, inner edges v_i v_{i+k}; 2n vertices, 3n edges. GP(n,k) ≅ GP(n,l) when
+kl ≡ ±1 (mod n). It is bipartite iff n is even and k is odd, and |GP(n,k),K3| = 0 always (Brooks).
+Scripts: `gp2.py` (all k, 14 ≤ n ≤ 24, K2 and C5), `gp3.py` (K2, odd n ≤ 31), `gp5.py` (C5, k = 2,3,4, n ≤ 27),
+`rot.py`; raw output in `data/`.
+
+### 5a. Prisms (proved)
+
+**|GP(n,1), C_{2k+1}| = 2 if n is odd and n < 2k+1, and 0 otherwise** (the same holds with K2 in place of C_{2k+1}, as the case k = ∞).
+The outer and inner n-cycles are edge-disjoint, and an odd n-cycle maps to C_{2k+1} only if n ≥ 2k+1.
+Deleting u_0u_1 and v_0v_1 leaves a bipartite ladder. If n ≥ 2k+1, lift f: C_n → C_{2k+1} by (i,a) ↦ f(i)+a.
+
+### 5b. |GP(n,2), K2| = ⌈n/2⌉ + [n ≡ 2 (mod 4)] (lower bound proved; equality verified 5 ≤ n ≤ 24 and odd n ≤ 31)
+
+*Lower bound.* The n 5-cycles C^i = u_i u_{i+1} u_{i+2} v_{i+2} v_i must each lose an edge. An outer edge lies on
+exactly C^{i−1}, C^i, a spoke u_iv_i on exactly C^{i−2}, C^i, and an inner edge on one, so ≥ ⌈n/2⌉.
+If n ≡ 2 (mod 4) and only n/2 edges are deleted, all of them must be outer edges or spokes. Then the inner rim (two cycles
+of odd length n/2) is untouched, a contradiction. ∎
+
+### 5c. Bipartization of GP(n,k) is achieved by "rotation" colourings (verified 168/168 cases, 5 ≤ n ≤ 31)
+
+Place u_i at t·i and v_i at t·i + b on a circle of length 2n, and colour by half-circle. The minimum number of
+monochromatic edges over t, b ∈ [0, 2n) equals the exact |GP(n,k),K2| in **every** computed case. So the
+exponential search collapses to an O(n³) formula.
+
+For odd n the simplest members (linear colourings) give the closed-form bound
+
+    |GP(n,k), K2| ≤ min_t [ odd(t) + odd(t·k mod n) ],   odd(x) = whichever of x, n−x is odd,
+
+which is exact in 97 of 111 odd-n cases. In the other 14 the truth is one less, and all have n ≡ 1 (mod 4)
+(the k ≅ 2 class, plus GP(17,4), GP(25,4) ≅ GP(25,6)). With t = 1 this gives |GP(n,k),K2| ≤ k+1 for odd n and odd k, which is often sharp,
+e.g. 4 for k = 3 and every odd n from 9 to 31.
+
+### 5d. Maps to C5
+
+- **GP(n,k) → C5 whenever 5 | n and k ≡ ±1 (mod 5)** (proved: u_i ↦ i, v_i ↦ i+1 mod 5). More generally,
+  GP(n,k) → C_{2m+1} when (2m+1) | n and k ≡ ±1 (mod 2m+1).
+- **|GP(n,4), C5| = (0, 1, 2, 1, 2)[n mod 5]** for all 13 ≤ n ≤ 27, and also n = 10, 11. The only small exception is GP(12,4) = 4.
+  The zeros come from the bullet above. The upper bound for other residues presumably comes from patching that map, which is not proved.
+- **|GP(n,3), C5| = 0 for all 14 ≤ n ≤ 27** (odd n is the content; even n is bipartite). For n = 7, 9, 11, 13 the
+  values are 2, 3, 1, 1. (This may be related to known circular-chromatic-number results for GP(n,3).)
+- GP(n,2) → C5 is genuinely costly. For n = 5…22 the values are
+  2,2,2,2, 3,3,3,3, 4,3, 4,4,4,4, 5,5,5,5, and |GP(25,2),C5| = 5. This is roughly n/4.5 with no clean formula yet (note the dip at n = 14).
+  The solver times out for n = 23, 24, 26, 27 (≤ 6).
+
+| \|GP(n,k),K2\| / \|GP(n,k),C5\| | k=2 | k=3 | k=4 | k=5 |
+|---|---|---|---|---|
+| n=13 | 7 / 4 | 4 / 1 | 4 / 1 | — |
+| n=15 | 8 / 4 | 4 / 0 | 6 / 0 | 6 / 5 |
+| n=17 | 9 / 4 | 4 / 0 | 7 / 2 | 6 / 2 |
+| n=19 | 10 / 5 | 4 / 0 | 6 / 2 | 6 / 2 |
+| n=21 | 11 / 5 | 4 / 0 | 6 / 1 | 6 / 1 |
+| n=23 | 12 / ≤6 | 4 / 0 | 8 / 1 | 6 / 1 |
 
 ## Other data from the run
 
