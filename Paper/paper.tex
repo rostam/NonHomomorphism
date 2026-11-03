@@ -11,13 +11,14 @@
 \usepackage[colorlinks=true, allcolors=blue]{hyperref}
 
 \newtheorem{theorem}{Theorem}[section]
-\newtheorem{proposition}{Proposition}[section]
-\newtheorem{definition}{Definition}[section]
-\newtheorem{lemma}{Lemma}[section]
-\newtheorem{corollary}{Corollary}[section]
-\newtheorem{conjecture}{Conjecture}[section]
-\newtheorem{observation}{Observation}[section]
-\newtheorem{remark}{Remark}[section]
+\newtheorem{proposition}[theorem]{Proposition}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{corollary}[theorem]{Corollary}
+\theoremstyle{definition}
+\newtheorem{definition}[theorem]{Definition}
+\newtheorem{remark}[theorem]{Remark}
+
+\newcommand{\lean}[1]{\texttt{#1}}
 
 \title{Non-Homomorphism Factors and the Concentration Parameter\\
        in Graph Homomorphisms}
@@ -26,152 +27,135 @@
 \begin{document}
 \maketitle
 
-\begin{abstract}
-We study two measures associated with graph homomorphisms.
-The \emph{non-homomorphism factor} $|G,H|$ is the minimum number of edges
-that must be removed from $G$ to obtain a graph admitting a homomorphism to
-$H$.  We prove $|K_n,K_m| = \binom{n}{2} - t(n,m)$ via Tur\'an's theorem and
-derive a lower bound $|G,H|\ge|E(G)|-t(|V(G)|,\chi(H))$ for arbitrary $G$.
-We introduce the \emph{concentration parameter} $\gamma(G,H)$, the minimum
-over all homomorphisms $f\colon G\to H$ of the maximum number of $G$-edges
-mapped to any single $H$-edge.  We prove a multiplicativity inequality
-$\gamma(G,K)\le\gamma(G,H)\cdot\gamma(H,K)$, a monotonicity property
-$\gamma(G,H_2)\le\gamma(G,H_1)$ when $H_1\subseteq H_2$, and the bound
-$|G,K|\le\gamma(G,H)\cdot|H,K|$.  Computational experiments on cycles,
-complete graphs, complete bipartite graphs, and the Petersen graph yield
-exact values of $\gamma$ and reveal that the symmetric combination
-$m(G,H)=\max(|G,H|,|H,G|)$, previously claimed to be a pseudo-metric, does
-\emph{not} in general satisfy the triangle inequality
-(108 counterexample triples found among complete graphs with at most $10$
-vertices).  We also prove an exact formula for $\gamma(C_n,K_3)$ for all
-$n\ge 3$, verified computationally up to $n=50$, and a general
-$d$-regularity theorem that unifies the cycle formula with the value
-$\gamma(\text{Petersen},K_3)=6$.
-Extended experiments on irregular source graphs (wheel, friendship, and book
-graphs), non-complete targets (odd cycles, the Petersen graph as target),
-and Kneser graphs demonstrate that $\gamma$ exactly equals the pigeonhole
-bound for friendship graphs ($\gamma(F_k,K_3)=k$) but strictly exceeds it
-for wheel graphs and complete multipartite graphs, and that the
-parameter $\gamma$ captures local congestion phenomena fundamentally
-different from the non-homomorphism factor.
+\begin{abstract}\sloppy
+The \emph{non-homomorphism factor} $|G,H|$ is the minimum number of edges that
+must be removed from $G$ so that the remaining graph admits a homomorphism to
+$H$.  The \emph{concentration parameter} $\gamma(G,H)$ is the minimum, over all
+homomorphisms $f\colon G\to H$, of the largest number of edges of $G$ that $f$
+sends onto a single edge of $H$.
+
+For $|G,H|$ we prove $|K_n,K_m|=\binom n2-t(n,m)$ and
+$|K_n,H|=\binom n2-\lfloor n^2/4\rfloor$ for every triangle-free $H$ with an
+edge.  For a $d$-regular graph $G$ on $n$ vertices and triangle-free $H$ we prove
+$|L(G),H|\ge n\lfloor (d-1)^2/4\rfloor$, with equality when $G$ has a balanced
+$2$-edge-colouring.  We prove the quantitative Hedetniemi bound
+\[|G\times H,K|\le\min(2|E(H)|\,|G,K|,\,2|E(G)|\,|H,K|)\]
+and the exact value
+$|C_p\times C_q,K_2|=2p$ for odd $p\le q$.  For cubic $G$ we show that
+$|L(G),L(P)|$, where $P$ is the Petersen graph, is at least the number of leaf
+blocks of the bridge-block tree of $G$.
+
+For $\gamma$ we prove multiplicativity, monotonicity, and the transfer bound
+$|G,K|\le\gamma(G,H)\,|H,K|$.  We find an exact identity for the loads of a
+homomorphism to $K_3$ in terms of the degree sums of its colour classes.  It
+gives exact values of $\gamma(\cdot,K_3)$ for cycles, complete bipartite graphs,
+the Petersen graph, books, friendship graphs, wheels and complete tripartite
+graphs.  We also show that $\max(|G,H|,|H,G|)$ is not a pseudo-metric.
+
+Every result in this paper is formally verified in the Lean~4 proof assistant
+with the Mathlib library.
 \end{abstract}
 
 % ─────────────────────────────────────────────────────────────────────────────
 \section{Introduction}
 % ─────────────────────────────────────────────────────────────────────────────
 
-Throughout this paper all graphs are simple and undirected.
+All graphs are finite, simple and undirected.
 
-\begin{definition}[Graph Homomorphism]
-A \emph{homomorphism} from $G$ to $H$ is a function $f\colon V(G)\to V(H)$
-such that $\{u,v\}\in E(G)$ implies $\{f(u),f(v)\}\in E(H)$.
-We write $G\to H$ when such a function exists.
+\begin{definition}[Graph homomorphism]
+A \emph{homomorphism} from $G$ to $H$ is a map $f\colon V(G)\to V(H)$ such that
+$\{u,v\}\in E(G)$ implies $\{f(u),f(v)\}\in E(H)$.  We write $G\to H$ when such
+a map exists, and $G\leftrightarrow H$ when $G\to H$ and $H\to G$.
 \end{definition}
 
-A homomorphism need not be injective or surjective.
-A bijection whose inverse is also a homomorphism is an \emph{isomorphism};
-an isomorphism from $G$ to itself is an \emph{automorphism}.
+A proper $k$-colouring of $G$ is the same as a homomorphism $G\to K_k$.  Two
+standard facts~\cite{hell2004} follow directly.
 
-A proper $k$-colouring of $G$ exists if and only if $G\to K_k$, giving:
-
-\begin{proposition}[\cite{hell2004}]
+\begin{proposition}
 \label{prop:chi_mono}
-$G\to H \Rightarrow \chi(G)\le\chi(H)$.
+If $G\to H$ then $\chi(G)\le\chi(H)$.
 \end{proposition}
 
-\begin{theorem}[\cite{hell2004}]
-\label{thm:hom_contracts}
-Any homomorphism $f\colon G\to H$ satisfies
-$d_H(f(u),f(v))\le d_G(u,v)$ for all $u,v\in V(G)$.
-\end{theorem}
+\begin{proposition}
+\label{prop:hom_contracts}
+Every homomorphism $f\colon G\to H$ satisfies $d_H(f(u),f(v))\le d_G(u,v)$ for
+all $u,v\in V(G)$.
+\end{proposition}
 
-\begin{theorem}[\cite{hell2004}]
-\label{thm:vertex_trans}
-If $H$ is vertex-transitive and $G\to H$ then
-$\displaystyle\frac{\alpha(G)}{|V(G)|}\ge\frac{\alpha(H)}{|V(H)|}$,
-where $\alpha$ denotes the independence number.
-\end{theorem}
+\begin{proof}
+A walk of length $\ell$ from $u$ to $v$ maps to a walk of length $\ell$ from
+$f(u)$ to $f(v)$.
+\end{proof}
 
-\subsection{Cores}
-
-\begin{definition}
-A graph is a \emph{core} if it has no homomorphism to any proper subgraph of
-itself.  Every graph $G$ contains a unique (up to isomorphism) core subgraph,
-denoted $\operatorname{core}(G)$, such that $G\to\operatorname{core}(G)$ and
-$\operatorname{core}(G)\subseteq G$.
-\end{definition}
-
-A key consequence is that $K\to G$ if and only if
-$K\to\operatorname{core}(G)$.  The Petersen graph is its own core, as it
-admits no homomorphism to any proper subgraph~\cite{hell2004}.
+\paragraph{Formal verification.}
+Every theorem, lemma, proposition and corollary in this paper has been proved in
+Lean~4~\cite{lean4} using Mathlib~\cite{mathlib}.  The only exceptions are the
+two classical results quoted in Remark~\ref{rem:balanced}.  The development is in
+the \texttt{lean/NonHom} directory of the repository.
+Section~\ref{sec:formal} describes it and lists the Lean name of each result.
 
 % ─────────────────────────────────────────────────────────────────────────────
 \section{Non-Homomorphism Factors}
 % ─────────────────────────────────────────────────────────────────────────────
 
-\begin{definition}[Non-Homomorphism Factor \cite{khoshkha2005}]
+\begin{definition}[Non-homomorphism factor~\cite{khoshkha2005}]
 \label{def:nhf}
-$|G,H|$ is the minimum number of edges that must be removed from $G$ to
-obtain a graph $G'$ with $G'\to H$.  If $G\to H$ then $|G,H|=0$.
+$|G,H|$ is the minimum number of edges that must be removed from $G$ to obtain a
+graph $G'$ with $G'\to H$.  In particular $|G,H|=0$ if and only if $G\to H$.
 \end{definition}
+
+\begin{remark}[Complexity]
+For fixed $H$, deciding $|G,H|\le k$ is \textsc{Edge Deletion-$H$-Colouring},
+studied by Foucaud, Hocquard, Lajou, Mitsou and Pierron~\cite{foucaud2019}.  The
+case $k=0$ is \textsc{$H$-Colouring}.  So by the Hell--Ne\v{s}et\v{r}il
+dichotomy~\cite{hell2004}, computing $|G,H|$ is NP-hard whenever the core of $H$
+has more than one edge.  For $H=K_2$ the problem is \textsc{Edge Bipartization},
+which is NP-complete but fixed-parameter tractable in $k$.
+\end{remark}
 
 \begin{proposition}[\cite{khoshkha2005}]
 \label{prop:monotone}
 \begin{enumerate}
-  \item\label{it:mon1} $H_1\to H_2 \Rightarrow |G,H_1|\ge|G,H_2|$ for every
-        graph $G$.
-  \item\label{it:mon2} $H_1\leftrightarrow H_2 \Rightarrow |G,H_1|=|G,H_2|$
-        for every $G$.
-  \item\label{it:mon3} If $f\colon G_1\to G_2$ is edge-injective
-        (distinct edges map to distinct edges) then
-        $|G_1,H|\le|G_2,H|$ for every $H$.
+  \item\label{it:mon1} If $H_1\to H_2$ then $|G,H_1|\ge|G,H_2|$ for every $G$.
+  \item\label{it:mon2} If $H_1\leftrightarrow H_2$ then $|G,H_1|=|G,H_2|$ for every $G$.
+  \item\label{it:mon3} If $f\colon G_1\to G_2$ is edge-injective (distinct edges
+        map to distinct edges) then $|G_1,H|\le|G_2,H|$ for every $H$.
 \end{enumerate}
 \end{proposition}
 
 \begin{proof}
-(\ref{it:mon1}) If $G'\to H_1$ then $G'\to H_1\to H_2$, so every graph
-witnessing $|G,H_1|$ also witnesses $|G,H_2|$.
-(\ref{it:mon2}) Apply~(\ref{it:mon1}) in both directions.
-(\ref{it:mon3}) Let $S\subseteq E(G_2)$ with $|S|=|G_2,H|$ such that
-$G_2-S\to H$.  Set $S'=\{e\in E(G_1):f(e)\in S\}$.  Since $f$ is
-edge-injective, $|S'|\le|S|$.  The restricted map $f\colon G_1-S'\to G_2-S$
-is still a homomorphism, so $G_1-S'\to H$, giving $|G_1,H|\le|S'|\le|G_2,H|$.
+(\ref{it:mon1}) If $G'\to H_1$ then $G'\to H_1\to H_2$.
+(\ref{it:mon2}) Apply (\ref{it:mon1}) in both directions.
+(\ref{it:mon3}) Take $S\subseteq E(G_2)$ with $|S|=|G_2,H|$ and $G_2-S\to H$, and
+let $S'=\{e\in E(G_1):f(e)\in S\}$.  Edge-injectivity gives $|S'|\le|S|$, and $f$
+restricts to a homomorphism $G_1-S'\to G_2-S$.
 \end{proof}
 
-\subsection{Complete Graphs and Tur\'an's Theorem}
+\subsection{Complete graphs and Tur\'an's theorem}
 
-\begin{theorem}[Tur\'an~\cite{hell2004}]
-\label{thm:turan}
-Among all $K_{m+1}$-free graphs on $n$ vertices the one with the most edges is
-the \emph{Tur\'an graph} $T(n,m)$, obtained by partitioning the $n$ vertices
-into $m$ classes of sizes as equal as possible and taking all edges between
-distinct classes; write $t(n,m)=|E(T(n,m))|$.
-\end{theorem}
+Let $t(n,m)$ be the number of edges of the Tur\'an graph $T(n,m)$, the complete
+$m$-partite graph on $n$ vertices with parts as equal as possible.  By Tur\'an's
+theorem, every $K_{m+1}$-free graph on $n$ vertices has at most $t(n,m)$ edges.
 
 \begin{theorem}
 \label{thm:KnKm}
-$\displaystyle|K_n,K_m| = \binom{n}{2} - t(n,m)$.
+For $m\ge1$, $\displaystyle|K_n,K_m| = \binom{n}{2} - t(n,m)$.
 If $n=qm+r$ with $0\le r<m$, this equals
 $r\dbinom{q+1}{2}+(m-r)\dbinom{q}{2}$.
-In particular, $|K_{n+1},K_n|=1$ for all $n\ge 1$.
+In particular $|K_{n+1},K_n|=1$ for all $n\ge1$.
 \end{theorem}
 
 \begin{proof}
-A spanning subgraph $G'$ of $K_n$ satisfies $G'\to K_m$ if and only if
-$\chi(G')\le m$.  The maximum number of edges an $m$-colourable graph on $n$
-vertices can have is $t(n,m)$ (Tur\'an's theorem), so removing the minimum
-number of edges to achieve $m$-colourability requires removing exactly
-$\binom{n}{2}-t(n,m)$ edges.  The explicit formula follows from
-$t(n,m)=\binom{n}{2}-r\binom{q+1}{2}-(m-r)\binom{q}{2}$.
-For $|K_{n+1},K_n|$: set $G=K_{n+1}$, $m=n$, so $q=1$, $r=1$, giving
-$1\cdot\binom{2}{2}+(n-1)\cdot\binom{1}{2}=1$.
+Removing the edges outside $T(n,m)$ leaves an $m$-colourable graph.  Conversely,
+an $m$-colourable spanning subgraph of $K_n$ is $K_{m+1}$-free, so by Tur\'an's
+theorem it has at most $t(n,m)$ edges.  The explicit formula follows by induction
+on $q$ from $t(n+m,m)=t(n,m)+n(m-1)+\binom m2$.  For $n+1=1\cdot n+1$ it gives
+$\binom22=1$.
 \end{proof}
 
 \begin{table}[ht]
 \centering
-\caption{$|K_n,K_m|$ for $n=2,\dots,7$ and $m=2,\dots,6$.
-         Values confirmed by exhaustive edge-removal search
-         (Section~\ref{sec:computation}) and by Theorem~\ref{thm:KnKm}.}
+\caption{$|K_n,K_m|$ for $n=2,\dots,7$ and $m=2,\dots,6$, from Theorem~\ref{thm:KnKm}.}
 \label{tab:KnKm}
 \begin{tabular}{c|rrrrr}
 \toprule
@@ -187,106 +171,231 @@ $K_7$  & 9 & 5 & 3 & 2 & 1 \\
 \end{tabular}
 \end{table}
 
-\subsection{A General Lower Bound}
-
 \begin{theorem}
 \label{thm:lower_bound}
-For any graphs $G$ and $H$,
+For all graphs $G$ and $H$,
+$|G,H|\ge \max\bigl(0,\,|E(G)|-t(|V(G)|,\chi(H))\bigr)$.
+\end{theorem}
+
+\begin{proof}
+If $G'\subseteq G$ and $G'\to H$ then $\chi(G')\le\chi(H)$, so $G'$ is
+$K_{\chi(H)+1}$-free and has at most $t(|V(G)|,\chi(H))$ edges.
+\end{proof}
+
+Triangle-free targets all give the same answer for complete graphs.
+
+\begin{theorem}
+\label{thm:Kn_trianglefree}
+If $H$ is triangle-free and has at least one edge, then
+$|K_n,H|=\binom n2-\lfloor n^2/4\rfloor$.
+\end{theorem}
+
+\begin{proof}
+If $G'\to H$ then $G'$ is triangle-free, because a homomorphism maps a triangle
+onto a triangle.  So by Mantel's theorem $|E(G')|\le\lfloor n^2/4\rfloor$.
+Conversely $K_n-E(\overline{T(n,2)})=T(n,2)\to K_2\to H$.
+\end{proof}
+
+\subsection{Cycles and the Petersen graph}
+
+Every cycle is $3$-colourable, so $|C_n,K_3|=0$.  For $K_2$, $|C_n,K_2|=0$ if
+$n$ is even and $|C_n,K_2|=1$ if $n\ge3$ is odd.  Indeed an odd cycle is not
+bipartite, and deleting one edge leaves a path.
+
+Let $P$ be the Petersen graph, with outer cycle $u_0u_1u_2u_3u_4$, spokes
+$u_iv_i$, and inner edges $v_iv_{i+2}$ (indices mod $5$).  It has $10$ vertices,
+$15$ edges, and $\chi(P)=3$, so $|P,K_m|=0$ for $m\ge3$.
+
+\begin{theorem}
+\label{thm:PK2}
+$|P,K_2|=3$.
+\end{theorem}
+
+\begin{proof}
+$P$ has exactly twelve $5$-cycles, and each edge lies on exactly four of them.
+Two edges therefore lie on at most eight, so after deleting any two edges some
+$5$-cycle survives and the graph is not bipartite.  Hence $|P,K_2|\ge3$.
+Conversely, deleting $u_0u_1$, $u_3v_3$ and $v_2v_4$ leaves a bipartite graph
+with sides $\{u_0,u_1,u_3,v_2,v_3,v_4\}$ and $\{u_2,u_4,v_0,v_1\}$.
+\end{proof}
+
+Theorem~\ref{thm:lower_bound} only gives $|P,K_2|\ge15-t(10,2)<0$ here, so the
+odd-cycle structure, not edge density, is what forces the deletions.
+
+\subsection{Line graphs of regular graphs}
+
+\begin{theorem}
+\label{thm:line}
+Let $G$ be $d$-regular on $n$ vertices and let $H$ be triangle-free.  Then
 \[
-  |G,H| \;\ge\; \max\!\bigl(0,\,|E(G)|-t(|V(G)|,\chi(H))\bigr).
+  |L(G),H|\;\ge\; n\left(\binom d2-\left\lfloor\frac{d^2}{4}\right\rfloor\right)
+  \;=\; n\left\lfloor\frac{(d-1)^2}{4}\right\rfloor .
+\]
+Suppose moreover that $H$ has an edge and that $E(G)$ has a $2$-colouring that
+is \emph{balanced}, meaning that at every vertex the two colours occur
+$\lfloor d/2\rfloor$ and $\lceil d/2\rceil$ times.  Then equality holds.
+\end{theorem}
+
+\begin{proof}
+The $d$ edges at a vertex $v$ form a clique $Q_v\cong K_d$ in $L(G)$.  Distinct
+cliques share no edge of $L(G)$, since two distinct edges of $G$ share at most one
+vertex.  If $L(G)-S\to H$ then $L(G)-S$ is triangle-free.  By Mantel's theorem
+it keeps at most $\lfloor d^2/4\rfloor$ of the $\binom d2$ edges of each $Q_v$.
+Summing over $v$ gives the lower bound.
+
+For the upper bound, colour the vertices of $L(G)$ by the given edge colouring,
+and delete the edges of $L(G)$ whose ends have the same colour.  What remains maps
+to $K_2\to H$.  At a vertex with colour counts $a$ and $d-a$ the deleted edges
+number $\binom a2+\binom{d-a}2=\binom d2-a(d-a)$.  This equals
+$\binom d2-\lfloor d^2/4\rfloor$ when the colouring is balanced.
+\end{proof}
+
+\begin{remark}
+\label{rem:balanced}
+Balanced $2$-edge-colourings exist in three cases.  If $4\mid d$, split a
+$2$-factorization (Petersen's $2$-factor theorem~\cite{petersen1891}) evenly.  If
+$G$ is bipartite, group the $d$ colour classes of a proper edge colouring
+(K\H{o}nig~\cite{konig1916}).  If $d$ is odd and $G$ has a perfect matching $M$,
+split $G-M$ into $(d-1)/2$ two-factors.  Then give colour $1$ to $M$ together with
+$\lfloor (d-1)/4\rfloor$ of these two-factors.
+
+In particular every bridgeless cubic graph $G$ on $n$ vertices has a perfect
+matching, by Petersen's theorem~\cite{petersen1891}.  So $|L(G),H|=n$ for every
+triangle-free $H$ with an edge, and the whole ladder
+$|L(G),C_5|=|L(G),C_7|=\dots=|L(G),K_2|$ collapses.
+
+These two classical theorems are not formalized.  The Lean proof establishes the
+cubic case for every cubic graph that has a perfect matching.
+\end{remark}
+
+\begin{theorem}
+\label{thm:square_cycle}
+Let $C_n^2$ ($n\ge5$) be the circulant graph on $\mathbb Z_n$ with jumps $1$ and
+$2$.  For every triangle-free $H$, $|C_n^2,H|\ge\lceil n/2\rceil$.
+\end{theorem}
+
+\begin{proof}
+The $n$ triangles $\{i,i+1,i+2\}$ must each lose an edge.  An edge
+$\{i,i+1\}$ lies only in the triangles starting at $i-1$ and at $i$, and an edge
+$\{i,i+2\}$ lies only in the triangle starting at $i$.  So each deleted edge
+destroys at most two of these triangles.
+\end{proof}
+
+\subsection{Tensor products}
+
+The tensor product $G\times H$ has vertex set $V(G)\times V(H)$, with
+$(g,h)\sim(g',h')$ if and only if $g\sim g'$ and $h\sim h'$.
+
+\begin{theorem}[Quantitative Hedetniemi bound]
+\label{thm:hedetniemi}
+For all graphs $G$, $H$ and every graph $K$ with at least one vertex,
+\[
+  |G\times H,K|\;\le\;\min\bigl(2|E(H)|\cdot|G,K|,\;2|E(G)|\cdot|H,K|\bigr).
 \]
 \end{theorem}
 
 \begin{proof}
-Any $G'\subseteq G$ with $G'\to H$ must satisfy $\chi(G')\le\chi(H)$.
-By Tur\'an's theorem, $|E(G')|\le t(|V(G)|,\chi(H))$.  Hence at least
-$|E(G)|-t(|V(G)|,\chi(H))$ edges must be removed from $G$.
+The projection $G\times H\to G$ sends exactly $2|E(H)|$ edges onto each edge of
+$G$, one for each orientation of each edge of $H$.  Now apply
+Lemma~\ref{lem:nhf_bound} to this map.  If $G\times H$ has no edges it maps to
+any graph with a vertex.  The second bound is symmetric.
 \end{proof}
 
-The bound is tight for $G=K_n$: it then equals $|K_n,K_m|$ from
-Theorem~\ref{thm:KnKm}.  For sparser $G$ the bound may be $0$, but then
-$|G,H|$ can be positive due to structural obstructions beyond edge density.
+The hypothesis on $K$ is needed.  If $K$ has no vertices and $H$ has no edges,
+the right-hand side is $0$ but the left-hand side is infinite.  By
+Shitov's counterexample to Hedetniemi's conjecture~\cite{shitov2019}, the bound
+can be far from tight for large targets: the left-hand side can be $0$ while
+neither factor is $k$-colourable.  For $K=K_2$ and two odd cycles it is tight.
 
-\subsection{Cycles}
+\begin{theorem}
+\label{thm:CpCq}
+For odd $3\le p\le q$, $|C_p\times C_q,K_2|=2p$.
+\end{theorem}
 
-Every cycle $C_n$ satisfies $C_n\to K_3$: even cycles are bipartite, so
-$C_n\to K_2\subset K_3$; odd cycles are $3$-chromatic, so $C_n\to K_3$
-directly.  Hence $|C_n,K_3|=0$ for all $n\ge 3$.
+\begin{proof}
+The upper bound is Theorem~\ref{thm:hedetniemi}, since $|C_q,K_2|=1$.
 
-By contrast, $|C_n,K_2|=0$ for even $n$ and $|C_n,K_2|=1$ for odd $n\ge 3$
-(removing any edge produces a path, which is bipartite).
+For the lower bound, let $\varepsilon_i=+1$ for $0\le i<(q+p)/2$ and
+$\varepsilon_i=-1$ for $(q+p)/2\le i<q$, and let $g_i=\sum_{j<i}\varepsilon_j$.
+Then $g_q=p\equiv0\pmod p$.  For $a\in\mathbb Z_p$, $h\in\mathbb Z_q$ and
+$\sigma\in\{\pm1\}$, the walk $i\mapsto(a+\sigma g_i,\,h+i)$, $0\le i\le q$, is a
+closed walk of odd length $q$ in $C_p\times C_q$.  So each of these $2pq$ walks
+must contain a deleted edge.
 
-\subsection{The Petersen Graph}
+Fix a step index $i$ and an edge $e$.  The second coordinate increases by $1$
+along every step, so it determines which end of $e$ the step leaves from.  The
+first coordinate then determines $\sigma\varepsilon_i$, hence $\sigma$, and then
+$a$ and $h$.  So at most one walk uses $e$ at step $i$.  Charging each walk to
+the step at which it meets the deletion set $S$ gives $2pq\le q|S|$.
+\end{proof}
 
-The Petersen graph $P$ has $10$ vertices, $15$ edges, chromatic number $3$,
-and is its own core.  Since $\chi(P)=3$, $|P,K_m|=0$ for all $m\ge 3$.
+\subsection{Petersen colourings}
 
-\begin{observation}
-\label{obs:PK2}
-$|P,K_2|=3$.  The lower bound from Theorem~\ref{thm:lower_bound} gives
-$|P,K_2|\ge|E(P)|-t(10,2)=15-25=0$, which is not tight (the Petersen graph
-is far from bipartite).  The value $3$ is verified computationally in
-Section~\ref{sec:computation}.
-\end{observation}
+A \emph{Petersen colouring} of a cubic graph $G$ is a map $E(G)\to E(P)$ that
+sends the three edges at each vertex onto the three edges at some vertex of $P$.
+Since $P$ is triangle-free, every triangle of $L(P)$ is the star of a vertex.  So
+Petersen colourings of $G$ are exactly the homomorphisms $L(G)\to L(P)$, and
+Jaeger's Petersen colouring conjecture~\cite{jaeger1988} says that
+$|L(G),L(P)|=0$ for every bridgeless cubic $G$.
+
+\begin{theorem}
+\label{thm:jaeger}
+Let $G$ be cubic.  Let $X_1,\dots,X_t\subseteq V(G)$ be pairwise disjoint sets,
+each of which is left by exactly one edge of $G$.  Then $|L(G),L(P)|\ge t$.  In
+particular $|L(G),L(P)|$ is at least the number of leaves of the bridge-block tree
+of $G$.
+\end{theorem}
+
+\begin{proof}
+Suppose $\varphi\colon L(G)-S\to L(P)$.  Call $x\in V(G)$ \emph{good} if none of
+the three edges of $L(G)$ between edges at $x$ lies in $S$.  For a good $x$, the
+images of the three edges at $x$ form a triangle of $L(P)$, which is a star.
+
+$P$ has exactly six perfect matchings, and each edge lies in exactly two of them.
+Fix $X=X_i$, its leaving edge $b$, and a perfect matching $M$.  Each good $x$ has
+exactly one incident edge whose image is in $M$.  If every vertex of $X$ is good,
+counting incidences gives $|X|=2m+[\varphi(b)\in M]$, where $m$ is the number of
+edges inside $X$ with image in $M$.  But $3|X|=2|E(X)|+1$, so $|X|$ is odd and
+$\varphi(b)\in M$.  This holds for all six matchings, which is impossible.
+
+So each $X_i$ contains a bad vertex $x_i$, together with an edge
+$\{e_i,f_i\}\in S$ of $L(G)$ where $e_i,f_i$ are distinct edges at $x_i$.  Two
+distinct edges of $G$ share at most one vertex, so these $t$ elements of $S$ are
+distinct.  The vertex sets of the leaf blocks of the bridge-block tree satisfy
+the hypothesis, each being left only by its bridge.
+\end{proof}
 
 % ─────────────────────────────────────────────────────────────────────────────
 \section{The Concentration Parameter}
 % ─────────────────────────────────────────────────────────────────────────────
 
-\begin{definition}[Concentration Parameter]
+\begin{definition}[Concentration parameter]
 \label{def:gamma}
-Let $G$ and $H$ be graphs with $|E(G)|\ge 1$.  For a homomorphism
-$f\colon G\to H$ and an edge $e\in E(H)$, the \emph{load} of $e$ under $f$
-is
+For a homomorphism $f\colon G\to H$ and $e\in E(H)$, the \emph{load} $\mu(f,e)$
+is the number of edges of $G$ mapped onto $e$.  Let
+$\mu(f)=\max_{e}\mu(f,e)$ and
 \[
-  \mu(f,e) = \bigl|\{e'\in E(G) : \{f(u),f(v)\}=e
-             \text{ for the endpoints } u,v \text{ of } e'\}\bigr|.
+  \gamma(G,H) = \min_{f\colon G\to H} \mu(f),
 \]
-Define the \emph{max edge multiplicity} $\mu(f)=\max_{e\in E(H)}\mu(f,e)$.
-The \emph{concentration parameter} is
-\[
-  \gamma(G,H) = \min_{f\colon G\to H} \mu(f).
-\]
-When $G\not\to H$ we set $\gamma(G,H)=+\infty$.
+with $\gamma(G,H)=+\infty$ when $G\not\to H$.
 \end{definition}
 
-\begin{remark}
-Note that $\alpha$ denotes the independence number throughout; the symbol
-$\mu$ is used for edge multiplicities to avoid collision.
 A related per-homomorphism quantity $M^\sigma$ appears in~\cite{daneshgar2007}.
-\end{remark}
 
-Since the $|E(G)|$ pre-images are distributed among $|E(H)|$ images, the
-pigeonhole principle gives:
-
-\begin{proposition}[Pigeonhole lower bound]
+\begin{proposition}[Pigeonhole bound]
 \label{prop:pigeonhole}
-If $G\to H$ then $\gamma(G,H)\ge\lceil|E(G)|/|E(H)|\rceil$.
+If $G\to H$ then $|E(G)|\le|E(H)|\cdot\gamma(G,H)$, so
+$\gamma(G,H)\ge\lceil|E(G)|/|E(H)|\rceil$.
 \end{proposition}
 
-This bound is not always achieved; Table~\ref{tab:CnK3} shows cases where
-the cycle structure forces a higher concentration.
-
-\begin{lemma}
-\label{lem:gamma_identity}
-$\gamma(G,G)=1$ for any graph $G$ with $|E(G)|\ge 1$.
-\end{lemma}
-
 \begin{proof}
-The identity $\operatorname{id}\colon G\to G$ satisfies $\mu(\operatorname{id})=1$
-since each edge is its own unique pre-image.  Since $\gamma\ge 1$ by
-definition (every edge must map somewhere), $\gamma(G,G)=1$.
+The loads of $f$ sum to $|E(G)|$.
 \end{proof}
 
 \begin{lemma}
-\label{lem:gamma_pos}
-If $G\to H$ and $|E(G)|\ge 1$ then $\gamma(G,H)\ge 1$.
+\label{lem:gamma_basic}
+If $|E(G)|\ge1$ and $G\to H$ then $\gamma(G,H)\ge1$.  Moreover $\gamma(G,G)=1$.
 \end{lemma}
-
-\begin{proof}
-Every edge of $G$ must map to an edge of $H$ (since $H$ has no loops), so
-some $H$-edge receives load at least $1$.
-\end{proof}
 
 \begin{lemma}[Multiplicativity]
 \label{lem:gamma_mult}
@@ -294,231 +403,85 @@ If $G\to H\to K$ then $\gamma(G,K)\le\gamma(G,H)\cdot\gamma(H,K)$.
 \end{lemma}
 
 \begin{proof}
-Choose $f\colon G\to H$ with $\mu(f)=\gamma(G,H)$ and $g\colon H\to K$ with
-$\mu(g)=\gamma(H,K)$.  Consider the composition $g\circ f\colon G\to K$.
-For any $K$-edge $e$, the $G$-edges mapping to $e$ under $g\circ f$ are
-exactly those mapping under $f$ to some $H$-edge in $g^{-1}(e)$.  There are
-at most $\mu(g)=\gamma(H,K)$ such $H$-edges, and each carries at most
-$\mu(f)=\gamma(G,H)$ pre-images from $G$.  Hence $\mu(g\circ f)\le
-\gamma(G,H)\cdot\gamma(H,K)$, so
-$\gamma(G,K)\le\mu(g\circ f)\le\gamma(G,H)\cdot\gamma(H,K)$.
+Take optimal $f\colon G\to H$ and $g\colon H\to K$.  An edge $e$ of $K$ has at
+most $\mu(g)$ preimage edges in $H$, and each of these has at most $\mu(f)$
+preimages in $G$.  So $\mu(g\circ f)\le\mu(f)\mu(g)$.
 \end{proof}
 
-\begin{lemma}[Bound on non-homomorphism factor]
+\begin{lemma}[Transfer bound]
 \label{lem:nhf_bound}
-If $G\to H$ then $|G,K|\le\gamma(G,H)\cdot|H,K|$ for every graph $K$.
+If $G\to H$ and $|E(G)|\ge1$, then $|G,K|\le\gamma(G,H)\cdot|H,K|$ for every $K$.
+More generally $|G,K|\le\mu(f)\,|H,K|$ for every homomorphism $f\colon G\to H$.
 \end{lemma}
 
 \begin{proof}
-Let $k=|H,K|$ and choose $S\subseteq E(H)$ with $|S|=k$ such that $H-S\to K$.
-Let $f\colon G\to H$ achieve $\mu(f)=\gamma(G,H)$.  Define
-$T=\{e'\in E(G):f(e')\in S\}$.  For each $H$-edge in $S$, at most
-$\gamma(G,H)$ edges of $G$ map to it, so $|T|\le k\cdot\gamma(G,H)$.
-The map $f$ restricted to $G-T$ lands in $H-S$ (since the only $G$-edges
-mapping to removed $H$-edges have been deleted), and $H-S\to K$, so
-$G-T\to K$.  Hence $|G,K|\le|T|\le\gamma(G,H)\cdot|H,K|$.
+Let $H-S\to K$ with $|S|=|H,K|$, and let $T$ be the set of edges of $G$ that $f$
+maps into $S$.  Then $|T|\le\mu(f)|S|$, and $f$ restricts to
+$G-T\to H-S\to K$.
 \end{proof}
 
-\begin{lemma}[Two-sided bound via a common target]
-\label{lem:two_sided}
-If $G\to H$ and $K\to H$ then
-\[
-  |G,K| \le \gamma(G,H)\cdot|H,K|
-  \qquad\text{and}\qquad
-  |K,G| \le \gamma(K,H)\cdot|H,G|.
-\]
-Consequently,
-$m(G,K)\le\max\!\bigl(\gamma(G,H)\cdot|H,K|,\;\gamma(K,H)\cdot|H,G|\bigr)$.
-\end{lemma}
-
-\begin{proof}
-Both inequalities follow from Lemma~\ref{lem:nhf_bound}, the first applied to
-the pair $(G,H)$ with target $K$, the second to the pair $(K,H)$ with target
-$G$.  The bound on $m$ follows by taking the max.
-\end{proof}
+\begin{corollary}[Two-sided bound]
+\label{cor:two_sided}
+If $G\to H$ and $K\to H$, and both have an edge, then
+$\max(|G,K|,|K,G|)\le\max\bigl(\gamma(G,H)|H,K|,\ \gamma(K,H)|H,G|\bigr)$.
+\end{corollary}
 
 \begin{lemma}[Monotonicity in the target]
 \label{lem:gamma_mono}
-If $H_1\subseteq H_2$ (i.e.\ $H_1$ is a subgraph of $H_2$) and $G\to H_1$,
-then $\gamma(G,H_2)\le\gamma(G,H_1)$.
+If $H_1$ embeds injectively in $H_2$ (for instance $H_1\subseteq H_2$), then
+$\gamma(G,H_2)\le\gamma(G,H_1)$.
 \end{lemma}
 
 \begin{proof}
-The inclusion $\iota\colon H_1\hookrightarrow H_2$ is an edge-injective
-homomorphism, so $\mu(\iota)=1$ and $\gamma(H_1,H_2)\le 1$.  Since $\gamma\ge
-1$ always, $\gamma(H_1,H_2)=1$.  By Lemma~\ref{lem:gamma_mult},
-$\gamma(G,H_2)\le\gamma(G,H_1)\cdot\gamma(H_1,H_2)=\gamma(G,H_1)$.
+Composing with an injective homomorphism does not change any load.
 \end{proof}
 
 \begin{proposition}
 \label{prop:gamma_Kn}
-For $n\le m$, $\gamma(K_n,K_m)=1$.
-For $n>m$, $\gamma(K_n,K_m)=+\infty$ (since $\chi(K_n)=n>m$ forbids any
-homomorphism).
+For $2\le n\le m$, $\gamma(K_n,K_m)=1$.  For $n>m$, $\gamma(K_n,K_m)=+\infty$.
 \end{proposition}
 
+\subsection{An exact identity for homomorphisms to $K_3$}
+
+For $f\colon G\to K_3$ with colour classes $A_0,A_1,A_2$, let
+$D_i=\sum_{v\in A_i}\deg v$ and write $L_{ij}=\mu(f,\{i,j\})$.
+
+\begin{lemma}
+\label{lem:degree_identity}
+For every graph $G$, every $f\colon G\to K_3$ and distinct colours $a,b,c$,
+\[
+  2L_{ab}=D_a+D_b-D_c,
+  \qquad\text{hence}\qquad
+  2\mu(f)=\max(D_0+D_1-D_2,\;D_0+D_2-D_1,\;D_1+D_2-D_0).
+\]
+\end{lemma}
+
 \begin{proof}
-When $n\le m$ the inclusion $K_n\hookrightarrow K_m$ is edge-injective, so
-$\mu(\iota)=1$ and $\gamma(K_n,K_m)\le 1$.  Combined with
-Lemma~\ref{lem:gamma_pos}, $\gamma(K_n,K_m)=1$.
+Each edge at a vertex of $A_a$ goes to $A_b$ or to $A_c$, so $D_a=L_{ab}+L_{ac}$.
+Solve the three equations.
 \end{proof}
 
-\subsection{Concentration for Regular Graphs}
-
-\begin{theorem}[d-Regularity Formula]
+\begin{theorem}[$d$-regularity formula]
 \label{thm:d_regular}
-Let $G$ be a $d$-regular graph on $n$ vertices with $\chi(G)=3$.
-Let
+Let $G$ be $d$-regular on $n$ vertices with $d\ge1$, and let $f\colon G\to K_3$
+have colour classes of sizes $a,b,c$.  Then
 \[
-  M = \min\bigl\{\,\max(s_1,s_2,s_3) :
-      s_1+s_2+s_3=n,\; s_i\ge 0,\;
-      s_1\equiv s_2\equiv s_3\pmod{2}\,\bigr\}.
+  2\mu(f) = d\cdot\max(a+b-c,\; a+c-b,\; b+c-a).
 \]
-Then $\gamma(G,K_3) = \dfrac{d}{2}\cdot M$.
+The triple $(a+b-c,a+c-b,b+c-a)$ is non-negative, sums to $n$, and has constant
+parity.  Hence, if $M$ is the least maximum of such a triple, then
+$\gamma(G,K_3)\ge\frac d2M$.  Equality holds as soon as some proper $3$-colouring
+attains $M$.
 \end{theorem}
 
 \begin{proof}
-Let $f\colon G\to K_3$ be any homomorphism with colour classes $A,B,C$
-of sizes $a,b,c$ (so $a+b+c=n$).  Because $G$ is $d$-regular, the
-number of edges between classes satisfies
-\[
-  e_{AB}=\tfrac{d}{2}(a+b-c),\quad
-  e_{AC}=\tfrac{d}{2}(a+c-b),\quad
-  e_{BC}=\tfrac{d}{2}(b+c-a).
-\]
-(Each vertex in $A$ contributes $d$ edges total; all neighbours in $A$
-contribute $0$ (no monochromatic edges), so $e_{AB}+e_{AC}=da$; the
-analogous identities for $B$ and $C$ give the three equations above.)
-Writing $s_1=a+b-c$, $s_2=a+c-b$, $s_3=b+c-a$, the triple
-$(s_1,s_2,s_3)$ is non-negative, sums to $n$, and all have the same
-parity (each $s_i\equiv a+b+c-2x_i\equiv n\pmod{2}$ for appropriate
-$x_i$).  The max edge load under $f$ is $\mu(f)=(d/2)\max(s_1,s_2,s_3)$.
-
-Minimising over all achievable class distributions gives
-\[
-  \gamma(G,K_3) = \frac{d}{2}\cdot
-  \min_{\substack{s_1+s_2+s_3=n,\; s_i\ge 0\\s_1\equiv s_2\equiv s_3\pmod{2}}}
-  \max(s_1,s_2,s_3).
-\]
-The minimum is $M$.  (Any triple $(a,b,c)$ of non-negative integers with
-$a+b+c=n$ is realised as an independent-set partition of any
-$3$-chromatic $d$-regular graph provided no colour class is too large,
-which is guaranteed when $G$ has no isolated vertices.)
+Put $D_i=d|A_i|$ in Lemma~\ref{lem:degree_identity}.  Non-negativity follows from
+$d\,(a+b-c)=2L_{ab}\ge0$, and the entries differ by even numbers.
 \end{proof}
-
-\begin{remark}
-The formula requires $d$ to be even or the $s_i$ to conspire so that
-$\tfrac{d}{2}s_i$ is an integer; this is automatic when $n$ and $d$ are
-both even, or when all $s_i$ are even.  The Petersen graph ($n=10$,
-$d=3$) requires same-parity triples summing to $10$; all-even gives
-minimum max $=4$ (e.g.\ $(4,4,2)$), so $\gamma=\tfrac{3}{2}\cdot 4=6$.
-\end{remark}
-
-% ─────────────────────────────────────────────────────────────────────────────
-\section{The Symmetric Combination $m(G,H)$}
-\label{sec:metric}
-% ─────────────────────────────────────────────────────────────────────────────
-
-\begin{definition}
-\label{def:m}
-$m(G,H) = \max\bigl(|G,H|,\,|H,G|\bigr)$.
-\end{definition}
-
-The function $m$ is clearly non-negative, satisfies $m(G,G)=0$ (since
-$G\to G$), and is symmetric by definition.  The following characterises when
-$m=0$.
-
-\begin{proposition}
-\label{prop:m_zero}
-$m(G,H)=0$ if and only if $G$ and $H$ are homomorphically equivalent
-(i.e.\ $G\leftrightarrow H$), which holds if and only if $\operatorname{core}(G)
-\cong\operatorname{core}(H)$.
-\end{proposition}
-
-\begin{proof}
-$m(G,H)=0$ means $|G,H|=0$ and $|H,G|=0$, i.e.\ $G\to H$ and $H\to G$.
-This is precisely homomorphic equivalence, and two graphs are homomorphically
-equivalent iff they have isomorphic cores.
-\end{proof}
-
-\begin{theorem}
-\label{thm:no_triangle}
-$m$ does \emph{not} satisfy the triangle inequality in general.
-\end{theorem}
-
-\begin{proof}
-By Theorem~\ref{thm:KnKm} and the fact that $K_n\to K_m$ for all $n\le m$:
-\begin{align*}
-  m(K_7,K_3) &= \max(|K_7,K_3|,\,|K_3,K_7|) = \max(5,0) = 5,\\
-  m(K_7,K_5) &= \max(|K_7,K_5|,\,|K_5,K_7|) = \max(2,0) = 2,\\
-  m(K_5,K_3) &= \max(|K_5,K_3|,\,|K_3,K_5|) = \max(2,0) = 2.
-\end{align*}
-The triangle inequality would require
-$m(K_7,K_3)\le m(K_7,K_5)+m(K_5,K_3)$, i.e.\ $5\le 4$.
-This fails.
-\end{proof}
-
-\begin{remark}
-Khoshkha~\cite{khoshkha2005} claims $m$ is a pseudo-metric.
-Theorem~\ref{thm:no_triangle} shows this is incorrect under
-Definition~\ref{def:nhf}.  A modified definition allowing edge additions as
-well as deletions, or using a different minimisation, might restore the
-triangle inequality; we leave this as an open question
-(Section~\ref{sec:open}, Question~\ref{q:metric}).
-\end{remark}
-
-% ─────────────────────────────────────────────────────────────────────────────
-\section{Computational Results}
-\label{sec:computation}
-% ─────────────────────────────────────────────────────────────────────────────
-
-We computed $|G,H|$ and $\gamma(G,H)$ using algorithms implemented in C++,
-Rust, and Python (source at \url{https://github.com/rostam/NonHomomorphism}):
-\begin{itemize}
-  \item \textbf{Homomorphism search:} backtracking DFS with early constraint
-        pruning (Rust, C++, and Python/NetworkX).
-  \item \textbf{Non-homomorphism factor:} for $k=0,1,2,\ldots$ test all
-        $\binom{|E(G)|}{k}$ edge-removal subsets (C++ and Python).
-  \item \textbf{Concentration parameter:} enumerate \emph{all} homomorphisms
-        and compute $\gamma=\min_f\mu(f)$ (C++ and Python).
-  \item \textbf{Extended experiments (Section~\ref{sec:extended}):}
-        irregular source graphs, non-complete targets, and Kneser graphs
-        (Python/NetworkX).
-\end{itemize}
-
-\subsection{Cycles to $K_3$}
-
-\begin{table}[ht]
-\centering
-\caption{Non-homomorphism factor and concentration parameter for $C_n\to K_3$.
-         The column $\lceil n/3\rceil$ is the pigeonhole lower bound
-         (Proposition~\ref{prop:pigeonhole}); starred entries achieve it.
-         Theorem~\ref{thm:cycle_gamma} (verified by DP for $n\le 50$)
-         gives the exact values in column $\gamma$.}
-\label{tab:CnK3}
-\begin{tabular}{crrrc}
-\toprule
-$C_n$ & $|E|$ & $|C_n,K_3|$ & $\gamma(C_n,K_3)$ & $\lceil n/3\rceil$ \\
-\midrule
-$C_3$   &  3 & 0 & $1^*$ & 1 \\
-$C_4$   &  4 & 0 & $2^*$ & 2 \\
-$C_5$   &  5 & 0 & 3     & 2 \\
-$C_6$   &  6 & 0 & $2^*$ & 2 \\
-$C_7$   &  7 & 0 & $3^*$ & 3 \\
-$C_8$   &  8 & 0 & 4     & 3 \\
-$C_9$   &  9 & 0 & $3^*$ & 3 \\
-$C_{10}$& 10 & 0 & $4^*$ & 4 \\
-$C_{11}$& 11 & 0 & 5     & 4 \\
-\bottomrule
-\end{tabular}
-\end{table}
-
-The data is consistent with the following exact formula, which holds for
-all $n\ge 3$ and is verified computationally for $n\le 50$.
 
 \begin{theorem}
 \label{thm:cycle_gamma}
-For all $n\ge 3$,
+For all $n\ge3$,
 \[
   \gamma(C_n, K_3) =
   \begin{cases}
@@ -526,481 +489,210 @@ For all $n\ge 3$,
     \lceil n/3 \rceil + 1 & \text{if } n \equiv 2 \pmod{3}.
   \end{cases}
 \]
+In particular $\gamma(C_n,K_3)$ attains the pigeonhole bound if and only if
+$n\not\equiv2\pmod 3$.
 \end{theorem}
 
 \begin{proof}
-We apply Theorem~\ref{thm:d_regular} with $d=2$ (cycles are $2$-regular).
-Write $n=3q+r$ with $r\in\{0,1,2\}$.  The parameter $M$ is the minimum
-max of a same-parity non-negative triple summing to $n$.
+Apply Theorem~\ref{thm:d_regular} with $d=2$ and write $n=3q+r$.  A same-parity
+triple summing to $n$ has maximum at least $\lceil n/3\rceil$.  For $r=2$ the
+only triple with maximum $q+1$ is $(q+1,q+1,q)$, which has mixed parity, so the
+maximum is at least $q+2$.
 
-\textbf{Case $n\equiv 0\pmod 3$} ($r=0$, $n=3q$).
-The triple $(q,q,q)$ sums to $3q$ and all have the same parity.
-Its max is $q=n/3$; no smaller max is possible since the average is $q$.
-Hence $M=q$ and $\gamma=1\cdot q=n/3=\lceil n/3\rceil$.
-
-\textbf{Case $n\equiv 1\pmod 3$} ($r=1$, $n=3q+1$).
-The triple $(q+1,q+1,q-1)$ has the same parity and sums to $3q+1$;
-its max is $q+1$.  Any triple with max $\le q$ sums to at most $3q<n$,
-so $M=q+1=\lceil n/3\rceil$.  Hence $\gamma=q+1=\lceil n/3\rceil$.
-
-\textbf{Case $n\equiv 2\pmod 3$} ($r=2$, $n=3q+2$).
-Suppose there exists a same-parity triple summing to $n$ with max $\le q+1$.
-Then all three values are $\le q+1$ and the sum is at most $3(q+1)=3q+3$.
-But the sum must equal $3q+2$, so at least one value equals $q$.
-A triple with values in $\{q,q+1\}$ and sum $3q+2$ must have two values
-equal to $q+1$ and one to $q$.  But $q$ and $q+1$ have different parities,
-contradicting same-parity.  Hence $M\ge q+2$.  The triple $(q+2,q,q)$
-achieves this (same parity: $q$ and $q+2$ are congruent mod $2$), so
-$M=q+2=\lceil n/3\rceil+1$.  Hence $\gamma=q+2=\lceil n/3\rceil+1$.
+To see that these bounds are attained, colour vertex $i<3q$ by $i\bmod3$.  If
+$r=1$, give the last vertex colour~$1$.  If $r=2$, give the last two vertices
+colours $0$ and $1$.  The class sizes are $(q,q,q)$, $(q,q+1,q)$ and
+$(q+1,q+1,q)$, with maxima $q$, $q+1$ and $q+2$.
 \end{proof}
-
-\begin{remark}
-Theorem~\ref{thm:cycle_gamma} follows from Theorem~\ref{thm:d_regular} by
-setting $d=2$.  The formula is \emph{not} merely the pigeonhole bound
-$\lceil n/3\rceil$: for $n\equiv 2\pmod 3$ the parity obstruction raises
-$\gamma$ by one above the pigeonhole value.  Lemma~\ref{lem:gamma_mono}
-(monotonicity) is also consistent with Table~\ref{tab:CnK3}: since
-$K_2\subset K_3$, any homomorphism $C_n\to K_2$ (for even $n$) lifts to
-$K_3$ with no worse concentration.
-\end{remark}
-
-\subsection{Complete Bipartite Graphs to $K_3$}
-
-\begin{table}[ht]
-\centering
-\caption{Non-homomorphism factor and $\gamma$ for $K_{n,n}\to K_3$.}
-\label{tab:KnnK3}
-\begin{tabular}{crrc}
-\toprule
-$G$ & $|E(G)|$ & $|G,K_3|$ & $\gamma(G,K_3)$ \\
-\midrule
-$K_{1,1}$ &  1 & 0 & 1 \\
-$K_{2,2}$ &  4 & 0 & 2 \\
-$K_{3,3}$ &  9 & 0 & 6 \\
-$K_{4,4}$ & 16 & 0 & 8 \\
-\bottomrule
-\end{tabular}
-\end{table}
 
 \begin{theorem}
 \label{thm:Knn}
-$\gamma(K_{n,n}, K_3) = n\cdot\lceil n/2\rceil$.
+$|K_{n,n},K_3|=0$ and $\gamma(K_{n,n},K_3)=n\lceil n/2\rceil$.
 \end{theorem}
 
 \begin{proof}
-Since $K_{n,n}$ is bipartite, $K_{n,n}\to K_2\subset K_3$, so
-$|K_{n,n},K_3|=0$.
-
-Let $L$ and $R$ be the two parts.  In any homomorphism $f\colon K_{n,n}\to
-K_3$, the colour sets $f(L)$ and $f(R)$ must be disjoint: every vertex of
-$L$ is adjacent to every vertex of $R$, and $K_3$ has no self-loops, so
-$f(\ell)\ne f(r)$ for all $\ell\in L$, $r\in R$.  Since $|V(K_3)|=3$, by the
-pigeonhole principle one part uses at most one colour and the other at most
-two.
-
-Without loss of generality (by symmetry of $K_{n,n}$), suppose $f(R)\subseteq
-\{c\}$ and $f(L)\subseteq\{a,b\}$ with $\{a,b,c\}=V(K_3)$.  If $k$ vertices
-of $L$ map to $a$ and $(n-k)$ map to $b$, then the loads on $\{a,c\}$ and
-$\{b,c\}$ are $nk$ and $n(n-k)$ respectively (each $R$-vertex contributes
-one edge to each $L$-vertex), and the load on $\{a,b\}$ is zero.  The maximum
-is minimised at $k=\lfloor n/2\rfloor$, giving
-$\max(n\lceil n/2\rceil, n\lfloor n/2\rfloor)=n\lceil n/2\rceil$.
-Hence $\gamma(K_{n,n},K_3)=n\lceil n/2\rceil$.
+Let $f\colon K_{n,n}\to K_3$.  The colour sets of the two sides are disjoint, so
+one side is monochromatic in a colour that the other side does not use.  That
+colour class has exactly $n$ vertices.  With $d=n$ and class sizes
+$(x,n-x,n)$, Theorem~\ref{thm:d_regular} gives $\mu(f)=n\max(x,n-x)\ge
+n\lceil n/2\rceil$.  Splitting one side as evenly as possible attains this.
 \end{proof}
 
-For $n=1,2,3,4$ this gives $1,2,6,8$, matching Table~\ref{tab:KnnK3}.
+For $n=1,2,3,4$ this gives $1,2,6,8$.
 
-\subsection{The Petersen Graph}
+\begin{theorem}
+\label{thm:petersen_gamma}
+$\gamma(P,K_3)=6$ and $\gamma(P,K_5)=2$.
+\end{theorem}
 
-\begin{table}[ht]
-\centering
-\caption{Non-homomorphism factor and $\gamma$ from the Petersen graph $P$ to
-         complete graphs.  The pigeonhole bound is $\lceil 15/|E(H)|\rceil$.}
-\label{tab:Petersen}
-\begin{tabular}{crrrc}
-\toprule
-$H$ & $|E(H)|$ & $|P,H|$ & $\gamma(P,H)$ & pigeonhole lb \\
-\midrule
-$K_2$ &  1 & 3       & $+\infty$ & --- \\
-$K_3$ &  3 & 0       & 6         & 5   \\
-$K_4$ &  6 & 0       & 4         & 3   \\
-$K_5$ & 10 & 0       & 2         & 2   \\
-\bottomrule
-\end{tabular}
-\end{table}
+\begin{proof}
+For $K_3$ take $d=3$ and $n=10$.  Same-parity triples summing to $10$ are all
+even, so their maximum is at least $4$, and $\gamma(P,K_3)\ge6$.  Equality holds
+because $P$ has a proper $3$-colouring with class sizes $(3,4,3)$, whose triple is
+$(4,2,4)$.  For $K_5$, the pigeonhole bound $\lceil15/10\rceil=2$ is attained by
+an explicit $5$-colouring.
+\end{proof}
 
-Observation~\ref{obs:PK2} gives $|P,K_2|=3$.  Since $\chi(P)=3$, $|P,K_m|=0$
-for all $m\ge 3$.
+So $\gamma(P,K_3)=6$ exceeds the pigeonhole bound $5$ because of parity.  In
+contrast $\gamma(P,K_5)$ attains it.
 
-\begin{observation}
-\label{obs:petersen_mono}
-$\gamma(P,K_3)=6>\gamma(P,K_4)=4>\gamma(P,K_5)=2$.  This is consistent with
-Lemma~\ref{lem:gamma_mono}: since $K_3\subset K_4\subset K_5$, each inclusion
-is edge-injective and monotonicity gives
-$\gamma(P,K_3)\ge\gamma(P,K_4)\ge\gamma(P,K_5)$.
-\end{observation}
+\subsection{Irregular source graphs}
 
-\begin{observation}
-\label{obs:petersen_exceed}
-$\gamma(P,K_3)=6$ strictly exceeds the pigeonhole lower bound
-$\lceil 15/3\rceil=5$.  Theorem~\ref{thm:d_regular} explains this:
-with $n=10$, $d=3$, the optimal same-parity triple summing to $10$
-has minimum max $M=4$ (e.g.\ $(4,4,2)$; all-odd is impossible since
-$10$ is even), giving $\gamma=\tfrac{3}{2}\cdot 4=6$.  The parity
-obstruction prevents $M=3$ (which would require $(3,4,3)$, mixed parity).
-\end{observation}
+The \emph{book} $B_k$ is $k$ triangles sharing one edge (the spine).  The
+\emph{friendship graph} $F_k$ is $k$ triangles sharing one vertex.  The
+\emph{wheel} $W_n$ is a vertex (the hub) joined to every vertex of $C_{n-1}$.
 
-\begin{observation}
-\label{obs:gamma_K5}
-The value $\gamma(P,K_5)=2$ meets the pigeonhole bound $\lceil 15/10\rceil=2$.
-By Lemma~\ref{lem:gamma_mult} applied to $K_3\to K_4\to K_5$:
-$\gamma(P,K_5)\le\gamma(P,K_3)\cdot\gamma(K_3,K_5)=6\cdot 1=6$
-and $\gamma(P,K_4)\le\gamma(P,K_3)\cdot\gamma(K_3,K_4)=6\cdot 1=6$.
-Both are consistent with (but do not imply) the computed values.
-\end{observation}
+\begin{theorem}
+\label{thm:families}
+\begin{enumerate}
+  \item For $k\ge1$: $\gamma(B_k,K_3)=k$ and $|B_k,K_2|=1$.
+  \item For $k\ge0$: $\gamma(F_k,K_3)=k$ and $|F_k,K_2|=k$.
+  \item For odd $n\ge5$: $\gamma(W_n,K_3)=n-1$.
+  \item For $p,q,r\ge1$: $\gamma(K_{p,q,r},K_3)=\max(pq,pr,qr)$.
+\end{enumerate}
+\end{theorem}
 
-\subsection{Lemma Verification}
+\begin{proof}
+All four use Lemma~\ref{lem:degree_identity}.
 
-\medskip\noindent
-\textbf{Proposition~\ref{prop:monotone}(\ref{it:mon1}):}
-$K_3\to K_4$, so $|P,K_3|\ge|P,K_4|$: $0\ge 0$.~\checkmark
+(1) The two spine vertices get distinct colours $a,b$, and every page vertex gets
+the third colour $c$.  So $D_a=D_b=k+1$ and $D_c=2k$, giving $L_{ab}=1$ and
+$L_{ac}=L_{bc}=k$.  Deleting the spine leaves a bipartite graph, and $B_k$
+contains a triangle, so $|B_k,K_2|=1$.
 
-\medskip\noindent
-\textbf{Theorem~\ref{thm:KnKm} ($|K_{n+1},K_n|=1$):}
-Verified computationally for $n=2,3,4$.~\checkmark
+(2) The hub gets some colour $c$.  Each triangle puts one vertex in each of the
+other two classes, so $D_0=D_1=D_2=2k$ and every load equals $k$, for every
+homomorphism.  The $k$ triangles are edge-disjoint, so $|F_k,K_2|\ge k$.
+Deleting the $k$ edges opposite the hub leaves a star.
 
-\medskip\noindent
-\textbf{Lemma~\ref{lem:gamma_mult}:}
-$\gamma(P,K_4)=4\le\gamma(P,K_3)\cdot\gamma(K_3,K_4)=6\cdot 1=6$.~\checkmark
+(3) The hub, of colour $c$, is alone in its class, so $D_c=n-1$.  The total degree
+is $4(n-1)$, so $D_a+D_b=3(n-1)$ and $L_{ab}=n-1$.  Alternating two colours on
+the even rim attains this.
 
-\medskip\noindent
-\textbf{Lemma~\ref{lem:nhf_bound}:}
-$|P,K_2|=3\le\gamma(P,K_3)\cdot|K_3,K_2|=6\cdot 1=6$.~\checkmark
+(4) If all parts are non-empty, each part is monochromatic and the three parts
+get distinct colours.  Otherwise some vertex would see three colours among its
+neighbours.  The class of part $i$ has $D=s_i(N-s_i)$, where $N=p+q+r$, so
+$2L=s_i(N-s_i)+s_j(N-s_j)-s_k(N-s_k)=2s_is_j$.
+\end{proof}
 
-\medskip\noindent
-\textbf{Theorem~\ref{thm:no_triangle} ($m$ fails triangle inequality):}
-$m(K_7,K_3)=5>4=m(K_7,K_5)+m(K_5,K_3)$.~\checkmark
+In particular $\gamma(F_k,K_3)$ attains the pigeonhole bound $k$.  On the other
+hand $\gamma(W_n,K_3)=n-1$ exceeds it for $n\ge5$, and so do
+$\gamma(K_{1,2,3},K_3)=6>4$ and $\gamma(K_{2,3,4},K_3)=12>9$.  The book graphs
+separate the two parameters: $|B_k,K_2|=1$ for every $k$, while
+$\gamma(B_k,K_3)=k$ grows without bound.
+
+\subsection{Cycles into odd cycles}
+
+\begin{theorem}
+\label{thm:cycle_hom}
+Let $m\ge3$ be odd and $n\ge3$.  Then $C_n\to C_m$ if and only if $n$ is even or
+$n\ge m$.
+\end{theorem}
+
+\begin{proof}
+An even cycle maps onto an edge.  If $n\ge m$ are both odd, wind once around
+$C_m$ and then oscillate on an edge for the remaining even number of steps.
+Conversely, let $n<m$ with $n$ odd and $f\colon C_n\to C_m$.  Then $f$ misses some
+vertex $w$, and $C_m-w$ is a path.  So $C_n$ would be bipartite, a contradiction.
+\end{proof}
+
+When $5\nmid n$ the pigeonhole bound $\lceil n/5\rceil$ can still be attained.
+For example $\gamma(C_6,C_5)=2$, via $0,1,2,3,2,1$.  Similarly
+$\gamma(C_8,C_7)=\gamma(C_{10},C_7)=\gamma(C_{12},C_7)=2$ and
+$\gamma(C_{15},C_7)=3$ all equal $\lceil n/7\rceil$.
 
 % ─────────────────────────────────────────────────────────────────────────────
-\section{Extended Computational Results}
-\label{sec:extended}
+\section{The Symmetric Combination $m(G,H)$}
+\label{sec:metric}
 % ─────────────────────────────────────────────────────────────────────────────
 
-The preceding sections focused on regular source graphs (cycles, the Petersen
-graph) and complete target graphs.  We now extend the computational scope to
-\emph{irregular} source graphs, \emph{non-complete} targets, and
-\emph{Kneser graphs}.
+Let $m(G,H)=\max(|G,H|,|H,G|)$.  It is non-negative and symmetric, and
+$m(G,G)=0$.
 
-\subsection{Irregular Source Graphs}
-\label{sec:irregular}
+\begin{proposition}
+\label{prop:m_zero}
+$m(G,H)=0$ if and only if $G\leftrightarrow H$.
+\end{proposition}
 
-The $d$-regularity theorem (Theorem~\ref{thm:d_regular}) applies only to
-regular graphs.  To understand $\gamma$ beyond this setting, we computed
-exact values for three families of irregular graphs, all with
-$\chi(G)=3$.
+\begin{theorem}
+\label{thm:no_triangle}
+$m$ does not satisfy the triangle inequality, and so is not a pseudo-metric.
+\end{theorem}
 
-\begin{definition}
-The \emph{wheel graph} $W_n$ has $n$ vertices: a hub vertex adjacent to
-every vertex of a cycle $C_{n-1}$.  It has $2(n-1)$ edges and
-$\chi(W_n)=3$ when $n$ is odd (even-length outer cycle), $\chi(W_n)=4$ when
-$n$ is even.
-The \emph{friendship graph} $F_k$ consists of $k$ triangles sharing a
-common hub vertex ($2k+1$ vertices, $3k$ edges, $\chi=3$).
-The \emph{book graph} $B_k$ consists of $k$ triangles sharing a common
-edge ($k+2$ vertices, $2k+1$ edges, $\chi=3$).
-\end{definition}
+\begin{proof}
+By Theorem~\ref{thm:KnKm}, and since $K_n\to K_m$ for $n\le m$,
+\[
+  m(K_7,K_3)=5,\qquad m(K_7,K_5)=2,\qquad m(K_5,K_3)=2,
+\]
+and $5>2+2$.
+\end{proof}
 
-All three families are irregular: $W_n$ has one vertex of degree $n-1$ and
-$n-1$ vertices of degree $3$; $F_k$ has hub degree $2k$ and leaf degree $2$;
-$B_k$ has two spine vertices of degree $k+1$ and $k$ page vertices of degree~$2$.
+\begin{remark}
+Khoshkha~\cite{khoshkha2005} claims that $m$ is a pseudo-metric.
+Theorem~\ref{thm:no_triangle} shows that this is false under
+Definition~\ref{def:nhf}.
+\end{remark}
+
+% ─────────────────────────────────────────────────────────────────────────────
+\section{Formal Verification}
+\label{sec:formal}
+% ─────────────────────────────────────────────────────────────────────────────
+
+The Lean~4 development in \texttt{lean/NonHom} uses Lean and Mathlib version
+4.35.0.  It consists of 17 files and about 3\,300 lines.  It defines $|G,H|$ as
+the infimum, in $\mathbb N\cup\{\infty\}$, of $|S|$ over finite edge sets $S$ such
+that $G-S\to H$.  It defines $\gamma(G,H)$ as the infimum of $\mu(f)$ over all
+homomorphisms, which is $\infty$ when there are none.
+
+There is no \lean{sorry} and no \lean{native\_decide}.  Every theorem depends only
+on Lean's standard axioms (\lean{propext}, \lean{Classical.choice},
+\lean{Quot.sound}).  Finite checks, such as the facts about the $5$-cycles and
+perfect matchings of $P$ and the explicit colourings, are done with
+\lean{decide~+kernel}, which the Lean kernel checks.  Tur\'an's theorem and
+Mantel's theorem are taken from Mathlib.  Table~\ref{tab:lean} lists the Lean
+name of each result.
 
 \begin{table}[ht]
 \centering
-\caption{Non-homomorphism factor and $\gamma$ for wheel graphs to complete
-         graphs.  Wheels with $\chi=4$ (even $n$) cannot map to $K_3$.}
-\label{tab:wheel}
-\begin{tabular}{crrrccrrc}
+\caption{Lean names of the results.}
+\label{tab:lean}
+\small
+\begin{tabular}{ll}
 \toprule
-$G$ & $|V|$ & $|E|$ & $\chi$ & $H$ & $|G,H|$ & $\gamma(G,H)$
-    & $\lceil|E|/|E(H)|\rceil$ \\
+Result & Lean theorem \\
 \midrule
-$W_5$  & 5 &  8 & 3 & $K_3$ & 0 & 4        & 3 \\
-$W_5$  & 5 &  8 & 3 & $K_4$ & 0 & 2        & 2 \\
-$W_6$  & 6 & 10 & 4 & $K_3$ & 1 & $+\infty$& --- \\
-$W_6$  & 6 & 10 & 4 & $K_4$ & 0 & 3        & 2 \\
-$W_7$  & 7 & 12 & 3 & $K_3$ & 0 & 6        & 4 \\
-$W_7$  & 7 & 12 & 3 & $K_4$ & 0 & 2        & 2 \\
-$W_8$  & 8 & 14 & 4 & $K_3$ & 1 & $+\infty$& --- \\
-$W_8$  & 8 & 14 & 4 & $K_4$ & 0 & 3        & 3 \\
-$W_9$  & 9 & 16 & 3 & $K_3$ & 0 & 8        & 6 \\
-$W_9$  & 9 & 16 & 3 & $K_4$ & 0 & 4        & 3 \\
+Props.~\ref{prop:chi_mono}, \ref{prop:hom_contracts} & \lean{chromaticNumber\_le\_of\_hom}, \lean{edist\_map\_le} \\
+Prop.~\ref{prop:monotone} & \lean{nhf\_le\_of\_hom\_target}, \lean{nhf\_eq\_of\_hom\_equiv}, \lean{nhf\_le\_of\_edge\_injective} \\
+Thm.~\ref{thm:KnKm}, Table~\ref{tab:KnKm} & \lean{nhf\_top\_top\_formula}, \lean{nhf\_top\_succ\_top}, \lean{table\_KnKm} \\
+Thm.~\ref{thm:lower_bound} & \lean{lower\_bound} \\
+Thm.~\ref{thm:Kn_trianglefree} & \lean{nhf\_top\_triangleFree} \\
+$|C_n,K_3|$, $|C_n,K_2|$ & \lean{nhf\_cycle\_K3}, \lean{nhf\_cycle\_K2\_even}, \lean{nhf\_cycle\_K2\_odd} \\
+Thm.~\ref{thm:PK2} & \lean{nhf\_petersen\_K2} \\
+Thm.~\ref{thm:line} & \lean{line\_lower'}, \lean{line\_eq}, \lean{line\_cubic\_pm} \\
+Thm.~\ref{thm:square_cycle} & \lean{sq\_lower} \\
+Thms.~\ref{thm:hedetniemi}, \ref{thm:CpCq} & \lean{hedetniemi\_bound}, \lean{nhf\_tensor\_cycles} \\
+Thm.~\ref{thm:jaeger} & \lean{jaeger\_lower} \\
+Prop.~\ref{prop:pigeonhole}, Lemma~\ref{lem:gamma_basic} & \lean{ceil\_div\_le\_gamma}, \lean{one\_le\_gamma}, \lean{gamma\_self} \\
+Lemmas~\ref{lem:gamma_mult}, \ref{lem:nhf_bound}, \ref{lem:gamma_mono} & \lean{gamma\_comp\_le}, \lean{nhf\_le\_gamma\_mul}, \lean{gamma\_le\_of\_injective\_hom} \\
+Cor.~\ref{cor:two_sided}, Prop.~\ref{prop:gamma_Kn} & \lean{two\_sided}, \lean{gamma\_top\_top\_eq\_one}, \lean{gamma\_top\_top\_eq\_top} \\
+Lemma~\ref{lem:degree_identity} & \lean{two\_load\_eq}, \lean{two\_mu\_eq\_deg} \\
+Thm.~\ref{thm:d_regular} & \lean{two\_mu\_eq}, \lean{gamma\_K3\_lower}, \lean{gamma\_K3\_upper} \\
+Thms.~\ref{thm:cycle_gamma}, \ref{thm:Knn} & \lean{gamma\_cycle}, \lean{gamma\_knn}, \lean{nhf\_knn\_K3} \\
+Thm.~\ref{thm:petersen_gamma} & \lean{gamma\_petersen\_K3}, \lean{gamma\_petersen\_K5} \\
+Thm.~\ref{thm:families} & \lean{gamma\_book}, \lean{nhf\_book\_K2}, \lean{gamma\_friendship}, \\
+ & \lean{nhf\_friendship\_K2}, \lean{gamma\_wheel}, \lean{gamma\_tri} \\
+Thm.~\ref{thm:cycle_hom} and examples & \lean{cycle\_hom\_iff}, \lean{gamma\_C6\_C5}, \lean{gamma\_C15\_C7}, \dots \\
+Prop.~\ref{prop:m_zero}, Thm.~\ref{thm:no_triangle} & \lean{msym\_eq\_zero\_iff}, \lean{no\_triangle}, \lean{msym\_not\_triangle} \\
 \bottomrule
 \end{tabular}
 \end{table}
 
-\begin{table}[ht]
-\centering
-\caption{Concentration parameter for friendship graphs $F_k$ and book
-         graphs $B_k$ to $K_3$.  All have $\chi=3$ and $|G,K_3|=0$.
-         The column $\lceil|E|/3\rceil$ is the pigeonhole lower bound.}
-\label{tab:friendship_book}
-\begin{tabular}{crrccc}
-\toprule
-$G$ & $|V|$ & $|E|$ & $|G,K_2|$ & $\gamma(G,K_3)$
-    & $\lceil|E|/3\rceil$ \\
-\midrule
-$F_2$ &  5 &  6 & 2 & 2 & 2 \\
-$F_3$ &  7 &  9 & 3 & 3 & 3 \\
-$F_4$ &  9 & 12 & 4 & 4 & 4 \\
-$F_5$ & 11 & 15 & 5 & 5 & 5 \\
-$F_6$ & 13 & 18 & 6 & 6 & 6 \\
-$F_7$ & 15 & 21 & 7 & 7 & 7 \\
-\midrule
-$B_2$ &  4 &  5 & 1 & 2 & 2 \\
-$B_3$ &  5 &  7 & 1 & 3 & 3 \\
-$B_4$ &  6 &  9 & 1 & 4 & 3 \\
-$B_5$ &  7 & 11 & 1 & 5 & 4 \\
-$B_6$ &  8 & 13 & 1 & 6 & 5 \\
-$B_7$ &  9 & 15 & 1 & 7 & 5 \\
-\bottomrule
-\end{tabular}
-\end{table}
-
-Tables~\ref{tab:wheel}--\ref{tab:friendship_book} reveal several phenomena.
-
-\begin{observation}
-\label{obs:friendship_exact}
-$\gamma(F_k, K_3) = k$ and $|F_k, K_2| = k$ for all $k\ge 2$.
-The pigeonhole bound $\lceil 3k/3 \rceil = k$ is achieved exactly.
-This is because the hub vertex is adjacent to all $2k$ leaves; in any
-proper $3$-colouring, the hub receives one colour and each triangle forces
-two distinct colours on its remaining pair.  The optimal colouring assigns
-exactly one edge to each $K_3$-edge per triangle, so $\gamma = k$.
-\end{observation}
-
-\begin{observation}
-\label{obs:book}
-$\gamma(B_k, K_3) = k$ for all $k\ge 2$, but $|B_k, K_2| = 1$ for all $k$.
-The non-homomorphism factor is $1$ because removing the spine edge $\{0,1\}$
-disconnects $B_k$ into a star (bipartite), giving $B_k - \{0,1\} \to K_2$.
-By contrast, $\gamma$ grows linearly: any homomorphism to $K_3$ must map
-each page vertex to the third colour, piling all $k$ page-edges onto a
-single $K_3$-edge.
-This demonstrates that $\gamma$ and $|G,H|$ capture fundamentally different
-structural properties: $|G,H|$ measures global fragility (one removal
-suffices) while $\gamma$ measures unavoidable local congestion.
-\end{observation}
-
-\begin{observation}
-\label{obs:wheel_gamma}
-For odd-$n$ wheels $W_n$ (with $\chi(W_n)=3$),
-$\gamma(W_n, K_3) = 2(n-1)/3$ when $n\equiv 1\pmod{3}$ and exceeds
-the pigeonhole bound otherwise.  For example, $\gamma(W_7, K_3)=6$
-whereas $\lceil 12/3\rceil=4$; the hub vertex creates a high-degree
-bottleneck that forces edge concentration.
-\end{observation}
-
-\begin{table}[ht]
-\centering
-\caption{$\gamma$ for unbalanced complete multipartite graphs to $K_3$.
-         These graphs are irregular and $3$-chromatic.}
-\label{tab:multipartite}
-\begin{tabular}{crrccc}
-\toprule
-$G$ & $|V|$ & $|E|$ & $\gamma(G,K_3)$ & $\gamma(G,K_4)$
-    & $\lceil|E|/3\rceil$ \\
-\midrule
-$K_{1,2,3}$ &  6 & 11 & 6  & 3 & 4 \\
-$K_{2,2,3}$ &  7 & 16 & 6  & 4 & 6 \\
-$K_{2,3,4}$ &  9 & 26 & 12 & 6 & 9 \\
-\bottomrule
-\end{tabular}
-\end{table}
-
-\begin{observation}
-\label{obs:multipartite_gamma}
-For complete multipartite graphs $K_{a,b,c}$ ($a\le b\le c$),
-the concentration $\gamma(K_{a,b,c}, K_3)$ is determined by the
-``most loaded'' $K_3$-edge, which corresponds to the two largest
-parts.  For $K_{2,3,4}$: the optimal $3$-colouring assigns each
-part to a distinct colour, and the most loaded edge connects the
-parts of size $3$ and $4$, giving $\gamma = 3 \times 4 = 12$.
-More generally, $\gamma(K_{a,b,c}, K_3) = \max(ab, ac, bc)$.
-\end{observation}
-
-\subsection{Non-Complete Target Graphs}
-\label{sec:noncomplete}
-
-All results above use complete graphs $K_m$ as targets.  We now consider
-$\gamma(G,H)$ where $H$ is an odd cycle or the Petersen graph.
-
-\begin{table}[ht]
-\centering
-\caption{$\gamma(C_n, C_5)$ for cycles mapping to the $5$-cycle.
-         $C_5$ has $5$ edges.  Starred entries achieve the pigeonhole
-         lower bound $\lceil n/5\rceil$.
-         Note: $C_3\not\to C_5$ (since $\chi(C_3)=3$ but $C_5$ has
-         odd girth $5$ and cannot receive a triangle homomorphically).}
-\label{tab:CnC5}
-\begin{tabular}{crrc}
-\toprule
-$C_n$ & $\gamma(C_n, C_5)$ & $\lceil n/5\rceil$ & achieves bound? \\
-\midrule
-$C_3$   & $+\infty$ & --- & --- \\
-$C_4$   & 2         & 1   & no  \\
-$C_5$   & $1^*$     & 1   & yes \\
-$C_6$   & $2^*$     & 2   & yes \\
-$C_7$   & 3         & 2   & no  \\
-$C_8$   & $2^*$     & 2   & yes \\
-$C_9$   & 3         & 2   & no  \\
-$C_{10}$& $2^*$     & 2   & yes \\
-$C_{11}$& $3^*$     & 3   & yes \\
-$C_{12}$& 4         & 3   & no  \\
-$C_{13}$& $3^*$     & 3   & yes \\
-$C_{14}$& 4         & 3   & no  \\
-$C_{15}$& $3^*$     & 3   & yes \\
-\bottomrule
-\end{tabular}
-\end{table}
-
-\begin{observation}
-\label{obs:CnC5_pattern}
-Table~\ref{tab:CnC5} reveals that $C_n\to C_5$ if and only if $n$ is even
-or $n$ is an odd multiple of $5$.  More precisely, $C_n\to C_m$ (for odd $m$)
-if and only if $n$ is even, or $m$ divides $n$.  The concentration
-$\gamma(C_n, C_5)$ achieves the pigeonhole bound $\lceil n/5\rceil$ when
-$5 \mid n$, and exceeds it (typically by $1$) otherwise --- analogous to
-the parity obstruction seen for $\gamma(C_n, K_3)$ but arising from the
-circular structure of $C_5$.
-\end{observation}
-
-\begin{table}[ht]
-\centering
-\caption{$\gamma(C_n, C_7)$ for cycles mapping to the $7$-cycle.
-         $C_n\to C_7$ iff $n$ is even or $7\mid n$.}
-\label{tab:CnC7}
-\begin{tabular}{crrc}
-\toprule
-$C_n$ & $\gamma(C_n, C_7)$ & $\lceil n/7\rceil$ & achieves bound? \\
-\midrule
-$C_3$   & $+\infty$ & --- & --- \\
-$C_4$   & 2         & 1   & no  \\
-$C_5$   & $+\infty$ & --- & --- \\
-$C_6$   & 2         & 1   & no  \\
-$C_7$   & $1^*$     & 1   & yes \\
-$C_8$   & 2         & 2   & no  \\
-$C_9$   & 3         & 2   & no  \\
-$C_{10}$& 2         & 2   & no  \\
-$C_{11}$& 3         & 2   & no  \\
-$C_{12}$& 2         & 2   & no  \\
-$C_{13}$& 3         & 2   & no  \\
-$C_{14}$& $2^*$     & 2   & yes \\
-$C_{15}$& 3         & 3   & no  \\
-\bottomrule
-\end{tabular}
-\end{table}
-
-\begin{table}[ht]
-\centering
-\caption{$\gamma(C_n, P)$ for cycles mapping to the Petersen graph ($15$
-         edges).  Every $C_n$ with $n\ge 4$ maps to $P$ since $P$
-         contains even cycles (as a non-bipartite graph with girth $5$)
-         and $5$-cycles, but $C_3\not\to P$ since $P$ is triangle-free.}
-\label{tab:CnP}
-\begin{tabular}{crrc}
-\toprule
-$C_n$ & $\gamma(C_n, P)$ & $\lceil n/15\rceil$ & achieves bound? \\
-\midrule
-$C_3$   & $+\infty$ & --- & --- \\
-$C_4$   & 2         & 1   & no  \\
-$C_5$   & $1^*$     & 1   & yes \\
-$C_6$   & $1^*$     & 1   & yes \\
-$C_7$   & 2         & 1   & no  \\
-$C_8$   & $1^*$     & 1   & yes \\
-$C_9$   & $1^*$     & 1   & yes \\
-$C_{10}$& 2         & 1   & no  \\
-$C_{11}$& 2         & 1   & no  \\
-$C_{12}$& 2         & 1   & no  \\
-\bottomrule
-\end{tabular}
-\end{table}
-
-\begin{observation}
-\label{obs:Petersen_target}
-When the target $H$ is the Petersen graph (which has $15$ edges and girth $5$),
-the concentration values are remarkably low --- often $\gamma(C_n, P) = 1$.
-This reflects the Petersen graph's high symmetry (vertex- and edge-transitive)
-and large number of edges, which allow homomorphisms to distribute edge loads
-nearly uniformly.  Note that $C_3\not\to P$ because the Petersen graph is
-triangle-free ($\operatorname{girth}(P) = 5$).
-\end{observation}
-
-\subsection{Kneser Graphs}
-\label{sec:kneser}
-
-Kneser graphs form a central family in homomorphism theory.
-The Kneser graph $K(n,r)$ has vertices corresponding to the $r$-element
-subsets of $\{1,\ldots,n\}$, with two vertices adjacent iff the subsets are
-disjoint.  Its chromatic number is $\chi(K(n,r)) = n - 2r + 2$
-(Lov\'asz~\cite{hell2004}).
-
-\begin{table}[ht]
-\centering
-\caption{Kneser graphs: $\gamma$ and $|G,H|$ values.  $K(5,2)$ is the
-         Petersen graph.  $K(6,2)$ has $\chi=4$ and is the smallest Kneser
-         graph requiring more than $3$ colours.}
-\label{tab:kneser}
-\begin{tabular}{crrcrrr}
-\toprule
-$G$ & $|V|$ & $|E|$ & $\chi$ & $H$ & $|G,H|$ & $\gamma(G,H)$ \\
-\midrule
-$K(5,2)$ & 10 & 15 & 3 & $K_3$ & 0 & 6 \\
-$K(5,2)$ & 10 & 15 & 3 & $K_4$ & 0 & 4 \\
-$K(5,2)$ & 10 & 15 & 3 & $K_5$ & 0 & 2 \\
-\midrule
-$K(6,2)$ & 15 & 45 & 4 & $K_3$ & 3 & $+\infty$ \\
-$K(6,2)$ & 15 & 45 & 4 & $K_4$ & 0 & 9 \\
-\bottomrule
-\end{tabular}
-\end{table}
-
-\begin{observation}
-\label{obs:kneser62}
-The Kneser graph $K(6,2)$ has $15$ vertices, $45$ edges, and
-$\chi(K(6,2))=4$.  Since $\chi(K(6,2))>3$, we have
-$|K(6,2),K_3|>0$; the computed value $|K(6,2),K_3|=3$ shows that three
-edge removals suffice to make $K(6,2)$ $3$-colourable.  The value
-$\gamma(K(6,2),K_4)=9$ exceeds the pigeonhole bound
-$\lceil 45/6\rceil = 8$, indicating that even $K_4$ with $6$ target edges
-cannot achieve a perfectly balanced load distribution.
-\end{observation}
-
-\subsection{Extended Lemma Verification}
-
-All extended results are consistent with the theoretical framework.
-
-\medskip\noindent
-\textbf{Multiplicativity (Lemma~\ref{lem:gamma_mult}):}
-$\gamma(F_4,K_4)=3\le\gamma(F_4,K_3)\cdot\gamma(K_3,K_4)=4\cdot 1=4$.~\checkmark \\
-$\gamma(W_7,K_4)=2\le\gamma(W_7,K_3)\cdot\gamma(K_3,K_4)=6\cdot 1=6$.~\checkmark
-
-\medskip\noindent
-\textbf{NHF Bound (Lemma~\ref{lem:nhf_bound}):}
-$|F_4,K_2|=4\le\gamma(F_4,K_3)\cdot|K_3,K_2|=4\cdot 1=4$.~\checkmark \\
-$|W_7,K_2|=3\le\gamma(W_7,K_3)\cdot|K_3,K_2|=6\cdot 1=6$.~\checkmark
-
-\medskip\noindent
-\textbf{Monotonicity (Lemma~\ref{lem:gamma_mono}):}
-$\gamma(F_4,K_4)=3\le\gamma(F_4,K_3)=4$.~\checkmark \\
-$\gamma(W_7,K_4)=2\le\gamma(W_7,K_3)=6$.~\checkmark \\
-$\gamma(B_5,K_4)=3\le\gamma(B_5,K_3)=5$.~\checkmark
-
-\medskip\noindent
-\textbf{Pigeonhole (Proposition~\ref{prop:pigeonhole}):}
-The bound $\gamma(G,H)\ge\lceil|E(G)|/|E(H)|\rceil$ is tight for $F_k\to K_3$
-(all $k$) and for $C_n\to C_5$ when $5\mid n$, but is \emph{not} achieved
-for $W_7\to K_3$ ($6>4$), $K_{2,3,4}\to K_3$ ($12>9$), or
-$K(6,2)\to K_4$ ($9>8$).
+Two parts of the paper are outside the formal development.  Theorem~\ref{thm:jaeger}
+is formalized for arbitrary disjoint families of sets, each left by exactly one
+edge; that leaf blocks form such a family is not formalized.  In
+Theorem~\ref{thm:line} the equality is formalized given a balanced colouring,
+and in particular for cubic graphs with a perfect matching.  The classical
+existence results of Remark~\ref{rem:balanced} are not formalized.
 
 % ─────────────────────────────────────────────────────────────────────────────
 \section{Open Questions}
@@ -1008,66 +700,35 @@ $K(6,2)\to K_4$ ($9>8$).
 % ─────────────────────────────────────────────────────────────────────────────
 
 \begin{enumerate}
+\item \textbf{General targets.}  Lemma~\ref{lem:degree_identity} determines
+$\mu(f)$ for $f\colon G\to K_3$ from the degree sums of the colour classes.  Is
+there an analogous identity for targets $H$ other than $K_3$?
 
-\item\label{q:regularity_general}
-\textbf{Extend the $d$-regularity formula to general $H$.}
-Theorem~\ref{thm:d_regular} gives $\gamma(G,K_3)$ exactly for $d$-regular
-$G$ with $\chi(G)=3$.  Is there an analogous formula for $\gamma(G,H)$
-when $H$ is an arbitrary $k$-chromatic graph?  The argument uses the fact
-that $K_3$ has a unique edge type (all $3$ edges are equivalent under
-automorphisms); for $H$ with multiple edge orbits the formula would need
-to track the load on each orbit separately.
+\item \textbf{When is the pigeonhole bound attained?}  For cycles into $K_3$ it
+is attained exactly when $n\not\equiv2\pmod3$ (Theorem~\ref{thm:cycle_gamma}).
+For $d$-regular $G$, Theorem~\ref{thm:d_regular} turns the question into one about
+realisable colour-class sizes.  Characterise the pairs $(G,H)$ for which
+$\gamma(G,H)=\lceil|E(G)|/|E(H)|\rceil$.
 
-\item\label{q:edge_trans}
-\textbf{When does $\gamma(G,H)$ meet the ratio $|E(G)|/|E(H)|$?}
-For $d$-regular $G$ with $\chi(G)=3$, Theorem~\ref{thm:d_regular} shows
-that $\gamma(G,K_3)$ meets the pigeonhole bound $\lceil|E(G)|/|E(K_3)|\rceil$
-exactly when $n\equiv 0\pmod 3$ (equal class sizes achievable), and
-exceeds it by $d/2$ when $n\equiv 2\pmod 3$ (parity obstruction).
-For the Petersen graph ($n=10$, $d=3$, $n\equiv 1\pmod 3$) we get
-$\gamma(P,K_3)=6>5=\lceil 15/3\rceil$.
-Does $\gamma(G,H)$ always equal the ratio $|E(G)|/|E(H)|$ when $H$ is
-``large enough'' relative to $G$?  (Computations show $\gamma(P,K_5)=2$
-meets the pigeonhole bound $\lceil 15/10\rceil=2$.)
+\item \textbf{Repairing $m$.}  Does the edge-edit distance to a graph mapping to
+$H$, or $m$ restricted to graphs with the same number of vertices, satisfy the
+triangle inequality?
 
-\item\label{q:metric}
-\textbf{Can $m$ be repaired into a metric?}
-Theorem~\ref{thm:no_triangle} shows $m(G,H)=\max(|G,H|,|H,G|)$ does not
-satisfy the triangle inequality.  Two variants worth investigating are:
-(a) $d(G,H)=\min\{k : \exists\,G'\text{ with }|E(G)\triangle E(G')|=k
-    \text{ and }G'\to H\}$ (edge-edit distance to a subgraph mapping to $H$);
-(b) $m'(G,H)=\max(|G,H|,|H,G|)$ restricted to graphs with the same vertex
-    count.  Do either of these satisfy a triangle inequality?
+\item \textbf{Petersen colourings.}  Is $|L(G),L(P)|$ equal to the number of leaf
+blocks of the bridge-block tree for every cubic $G$?  The case of bridgeless $G$
+is Jaeger's conjecture.
 
-\item\label{q:gamma_frac}
-\textbf{$\gamma$ and the fractional chromatic number.}
-For vertex-transitive $G$, $\chi_f(G)=|V(G)|/\alpha(G)$.  The Petersen graph
-has $\chi_f(P)=5/2$.  Is $\gamma(G,K_m)$ related to $\chi_f(G)$?  For
-example, does $\gamma(G,K_m)\ge|E(G)|/(m\lfloor|V(G)|/m\rfloor)$ hold for
-vertex-transitive $G$?  For $P$ and $m=3$: $15/(3\cdot 3)=5/3$, which gives
-$\lceil 5/3\rceil=2$, weaker than the actual value $6$.  A tighter bound using
-$\chi_f$ may explain why $\gamma(P,K_3)=6$ instead of $5$.
-
-\item\label{q:subadditivity}
-\textbf{Characterise when $|G,K|\le|G,H|+|H,K|$.}
-The triangle inequality fails for $m$, but the sub-additivity of $|G,\cdot|$
-might hold under additional conditions.  For complete graphs,
-$|K_n,K_m|+|K_m,K_\ell|=|K_n,K_\ell|$ when $n,m,\ell$ are in arithmetic
-progression (e.g.\ $K_4,K_3,K_2$: $1+1=2$\checkmark), but fails when the
-gap grows faster (e.g.\ $K_7,K_5,K_3$: $2+2<5$).
-A systematic search finds 108 triples $(K_a,K_b,K_c)$ with $a,b,c\le 10$
-where $m(K_a,K_c)>m(K_a,K_b)+m(K_b,K_c)$; the excess is largest when
-$b\approx\sqrt{ac}$ (the ``geometric middle''), which maximises the Tur\'an
-discrepancy $t(a,b)-t(a,c)>|K_b,K_c|$.  What characterises the
-triples $(G,H,K)$ for which sub-additivity holds?
-
+\item \textbf{Tightness of Theorem~\ref{thm:hedetniemi}.}  For which $G$, $H$ is
+the bound tight for $K=K_2$ or $K=K_3$?  Theorem~\ref{thm:CpCq} gives an
+infinite tight family for $K_2$.  For large targets the bound fails to be tight,
+by~\cite{shitov2019}.
 \end{enumerate}
 
 % ─────────────────────────────────────────────────────────────────────────────
 \section*{References}
 % ─────────────────────────────────────────────────────────────────────────────
 
-\begin{thebibliography}{9}
+\begin{thebibliography}{99}
 
 \bibitem{khoshkha2005}
 K.~Khoshkha,
@@ -1080,22 +741,51 @@ A.~Daneshgar and H.~Hajiabolhassan,
 \textit{European Journal of Combinatorics},
 vol.~28, no.~6, pp.~1843--1853, 2007.
 
-\bibitem{daneshgar2003}
-A.~Daneshgar and H.~Hajiabolhassan,
-``Graph homomorphisms through random walks,''
-\textit{Journal of Graph Theory},
-vol.~44, pp.~15--38, 2003.
-
 \bibitem{hell2004}
 P.~Hell and J.~Ne\v{s}et\v{r}il,
 \textit{Graphs and Homomorphisms},
 Oxford University Press, 2004.
+
+\bibitem{foucaud2019}
+F.~Foucaud, H.~Hocquard, D.~Lajou, V.~Mitsou and T.~Pierron,
+``Parameterized complexity of edge-coloured and signed graph homomorphism
+problems,''
+in \textit{14th International Symposium on Parameterized and Exact
+Computation (IPEC 2019)}, LIPIcs vol.~148, pp.~15:1--15:16, 2019.
 
 \bibitem{shitov2019}
 Y.~Shitov,
 ``Counterexamples to Hedetniemi's conjecture,''
 \textit{Annals of Mathematics},
 vol.~190, no.~2, pp.~663--667, 2019.
+
+\bibitem{petersen1891}
+J.~Petersen,
+``Die Theorie der regul\"aren graphs,''
+\textit{Acta Mathematica}, vol.~15, pp.~193--220, 1891.
+
+\bibitem{konig1916}
+D.~K\H{o}nig,
+``\"Uber Graphen und ihre Anwendung auf Determinantentheorie und
+Mengenlehre,''
+\textit{Mathematische Annalen}, vol.~77, pp.~453--465, 1916.
+
+\bibitem{jaeger1988}
+F.~Jaeger,
+``Nowhere-zero flow problems,''
+in \textit{Selected Topics in Graph Theory 3}, Academic Press,
+pp.~71--95, 1988.
+
+\bibitem{lean4}
+L.~de Moura and S.~Ullrich,
+``The Lean 4 theorem prover and programming language,''
+in \textit{Automated Deduction -- CADE 28}, LNCS vol.~12699, pp.~625--635, 2021.
+
+\bibitem{mathlib}
+The mathlib Community,
+``The Lean mathematical library,''
+in \textit{Proceedings of the 9th ACM SIGPLAN International Conference on
+Certified Programs and Proofs (CPP 2020)}, pp.~367--381, 2020.
 
 \end{thebibliography}
 
