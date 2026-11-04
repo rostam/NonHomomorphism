@@ -34,23 +34,44 @@ $H$.  The \emph{concentration parameter} $\gamma(G,H)$ is the minimum, over all
 homomorphisms $f\colon G\to H$, of the largest number of edges of $G$ that $f$
 sends onto a single edge of $H$.
 
-For $|G,H|$ we prove $|K_n,K_m|=\binom n2-t(n,m)$ and
-$|K_n,H|=\binom n2-\lfloor n^2/4\rfloor$ for every triangle-free $H$ with an
-edge.  For a $d$-regular graph $G$ on $n$ vertices and triangle-free $H$ we prove
-$|L(G),H|\ge n\lfloor (d-1)^2/4\rfloor$, with equality when $G$ has a balanced
-$2$-edge-colouring.  We prove the quantitative Hedetniemi bound
+For $|G,H|$ we prove that, for the Hamming graph $H(d,n)=K_n^{\,\square d}$,
+\[|H(d,n),H|=d\,n^{d-1}\Bigl(\binom n2-t\bigl(n,\omega(H)\bigr)\Bigr).\]
+So on complete graphs, rook's graphs and all Hamming graphs only the clique
+number of the target matters.  For every edge-transitive
+$G$ and every $F$ with $F\to G$ and $F\not\to H$ we prove
+$|G,H|\ge|E(G)|/|E(F)|$.  An averaging argument gives the general upper bound
+$|V(H)|^2\,|G,H|\le|E(G)|\,(|V(H)|^2-2|E(H)|)$.  For a $d$-regular graph $G$ on $n$
+vertices and $K_{r+1}$-free $H$ we prove $|L(G),H|\ge n\bigl(\binom d2-t(d,r)\bigr)$,
+with equality for every $H$ of clique number $r$ when $G$ has a proper
+$d$-edge-colouring.  This gives exact ground-state energies on the kagome,
+checkerboard and pyrochlore lattices for every target.  We determine the max-$r$-cut of the triangular graphs $J(n,2)$ for all $n$ and
+$r$; a parity obstruction costs exactly $r/2$ edges when $n$ is odd and $n-1$ is an
+odd multiple of $r$, and $J(n,2)$ with $n\equiv3\pmod4$ has semidefinite
+integrality gap exactly one.  For odd $n$ the folded
+cube satisfies $|FQ_n,H|=2^{n-2}$ for every $H$ with an edge into which $C_n$ does
+not map.
+For $r=2$ equality holds when $G$ has a balanced $2$-edge-colouring.  We prove the quantitative Hedetniemi bound
 \[|G\times H,K|\le\min(2|E(H)|\,|G,K|,\,2|E(G)|\,|H,K|)\]
-and the exact value
-$|C_p\times C_q,K_2|=2p$ for odd $p\le q$.  For cubic $G$ we show that
+and the exact value $|C_p\times C_q,H|=2p$ for odd $p\le q$ and every target
+$H$ with an edge into which $C_q$ does not map, for instance every odd cycle $C_m$
+with $m>q$.  For cubic $G$ we show that
 $|L(G),L(P)|$, where $P$ is the Petersen graph, is at least the number of leaf
 blocks of the bridge-block tree of $G$.
 
 For $\gamma$ we prove multiplicativity, monotonicity, and the transfer bound
 $|G,K|\le\gamma(G,H)\,|H,K|$.  We find an exact identity for the loads of a
-homomorphism to $K_3$ in terms of the degree sums of its colour classes.  It
-gives exact values of $\gamma(\cdot,K_3)$ for cycles, complete bipartite graphs,
-the Petersen graph, books, friendship graphs, wheels and complete tripartite
-graphs.  We also show that $\max(|G,H|,|H,G|)$ is not a pseudo-metric.
+homomorphism to $K_3$ in terms of the degree sums of its colour classes.  From it,
+every $d$-regular graph on $n$ vertices with an equitable $3$-colouring has
+$\gamma(G,K_3)=\frac d2\bigl(\lceil n/3\rceil+[n\equiv2\ (3)]\bigr)$.  With the
+Chen--Lih--Wu theorem this gives $\gamma(G,K_3)=3\lceil|V(G)|/6\rceil$ for every
+connected cubic graph other than $K_4$ and $K_{3,3}$: prisms, M\"obius ladders,
+generalized Petersen graphs and the Petersen graph itself.  For hypercubes,
+$\gamma(Q_d,K_3)=d(2^d+2)/6$ for even $d$ and $d(2^d+4)/6$ for odd $d$.  For odd cycles as targets we show that every $d$-regular
+$G$ satisfies $\gamma(G,C_m)\ge\frac d2M_m(n)$, where $M_m(n)$ is the least
+$M\equiv n\pmod 2$ with $mM\ge n$; this is exact for cycles and tori.  We also
+determine $\gamma(\cdot,K_3)$ for complete bipartite graphs, books, friendship
+graphs, wheels and complete tripartite graphs.  For odd $m$ we determine
+$\gamma(C_n,C_m)$ exactly: it is the least $M\equiv n\pmod 2$ with $mM\ge n$.  We also show that $\max(|G,H|,|H,G|)$ is not a pseudo-metric.
 
 Every result in this paper is formally verified in the Lean~4 proof assistant
 with the Mathlib library.
@@ -90,9 +111,26 @@ $f(u)$ to $f(v)$.
 \paragraph{Formal verification.}
 Every theorem, lemma, proposition and corollary in this paper has been proved in
 Lean~4~\cite{lean4} using Mathlib~\cite{mathlib}.  The only exceptions are the
-two classical results quoted in Remark~\ref{rem:balanced}.  The development is in
+classical results quoted in Remark~\ref{rem:balanced}, the Chen--Lih--Wu
+theorem used in Corollary~\ref{cor:cubic}, K\H{o}nig's theorem in
+Corollary~\ref{cor:lattices}, and the computer searches, which are marked as such.  The development is in
 the \texttt{lean/NonHom} directory of the repository.
 Section~\ref{sec:formal} describes it and lists the Lean name of each result.
+
+\paragraph{Related work.}
+The quantity $|E(G)|-|G,H|$ is the optimum of the \emph{maximum $H$-colourable
+subgraph} problem (Max $H$-Col), a restriction of Max CSP studied by Jonsson,
+F\"arnqvist, Thapper and others~\cite{fjt2009,efjt2009}.  For $H=K_k$ it is the
+max-$k$-cut.  F\"arnqvist, Jonsson and Thapper introduced the parameter
+$s(H,G)$, which for edge-transitive $G$ equals the largest $H$-colourable
+fraction of $E(G)$; our Theorem~\ref{thm:edge_transitive} is the corresponding
+averaging bound and should be read as a reformulation of their argument.
+Eigenvalue and semidefinite bounds for the max-$k$-cut go back to Mohar and
+Poljak~\cite{mohar1990}; van Dam and Sotirov~\cite{vandam2016} proved them tight
+for some graphs of the Hamming scheme with $k=q$.  We found no exact max-$k$-cut
+values in the literature for the Cartesian Hamming graphs with $k<q$, for the
+triangular graphs $J(n,2)$, or for tensor products of odd cycles, and no
+treatment of the concentration parameter $\gamma$.
 
 % ─────────────────────────────────────────────────────────────────────────────
 \section{Non-Homomorphism Factors}
@@ -182,18 +220,74 @@ If $G'\subseteq G$ and $G'\to H$ then $\chi(G')\le\chi(H)$, so $G'$ is
 $K_{\chi(H)+1}$-free and has at most $t(|V(G)|,\chi(H))$ edges.
 \end{proof}
 
-Triangle-free targets all give the same answer for complete graphs.
+For complete sources, the target matters only through its clique number.
 
 \begin{theorem}
-\label{thm:Kn_trianglefree}
-If $H$ is triangle-free and has at least one edge, then
-$|K_n,H|=\binom n2-\lfloor n^2/4\rfloor$.
+\label{thm:Kn_clique}
+Let $H$ have clique number $r\ge1$.  Then $|K_n,H|=\binom n2-t(n,r)$.  In
+particular $|K_n,H|=\binom n2-\lfloor n^2/4\rfloor$ for every triangle-free $H$
+with an edge.
 \end{theorem}
 
 \begin{proof}
-If $G'\to H$ then $G'$ is triangle-free, because a homomorphism maps a triangle
-onto a triangle.  So by Mantel's theorem $|E(G')|\le\lfloor n^2/4\rfloor$.
-Conversely $K_n-E(\overline{T(n,2)})=T(n,2)\to K_2\to H$.
+A homomorphism maps a clique injectively onto a clique.  So if $G'\to H$ then
+$G'$ is $K_{r+1}$-free, and by Tur\'an's theorem $|E(G')|\le t(n,r)$.
+Conversely $T(n,r)\to K_r\to H$.
+\end{proof}
+
+Theorem~\ref{thm:KnKm} is the case $H=K_m$.  For example $|K_n,C_{2k+1}|$ and
+$|K_n,P|$ do not depend on $k$ or on the Petersen structure.  They all equal
+$|K_n,K_2|$, while $|K_n,K_3|$ is strictly smaller for $n\ge3$.
+
+The same holds for every Hamming graph.  The \emph{Hamming graph} $H(d,n)$ has
+vertex set $\{0,\dots,n-1\}^d$, two words being adjacent if they differ in exactly
+one coordinate.  So $H(1,n)=K_n$, $H(2,n)=K_n\square K_n$ is the $n\times n$
+rook's graph, and $H(d,2)=Q_d$ is the hypercube.
+
+\begin{theorem}
+\label{thm:hamming}
+Let $H$ have clique number $r\ge1$.  Then
+\[
+  |H(d,n),H| = d\,n^{d-1}\left(\binom n2-t(n,r)\right).
+\]
+\end{theorem}
+
+\begin{proof}
+A \emph{line} is the set of $n$ words that agree outside one fixed coordinate.
+Every line induces $K_n$, and every edge lies on exactly one line, so $E(H(d,n))$
+is partitioned into the edge sets of $d\,n^{d-1}$ copies of $K_n$.  If
+$H(d,n)-S\to H$, the kept part of each line is $K_{r+1}$-free.  By Tur\'an's
+theorem each line therefore loses at least $\binom n2-t(n,r)$ edges.
+
+For the upper bound, colour a word $x$ by $\bigl(\sum_i x_i\bmod n\bigr)\bmod r$.
+This is a homomorphism to $K_r$, hence to $H$, after deleting the monochromatic
+edges.  Along a line the value $\sum_i x_i\bmod n$ runs through all residues
+exactly once.  So the colouring of each line is a relabelled Tur\'an graph
+$T(n,r)$, and exactly $\binom n2-t(n,r)$ of its edges are monochromatic.
+\end{proof}
+
+For example, the $n\times n$ rook's graph has $|K_n\square K_n,K_2|=2n\bigl(\binom
+n2-\lfloor n^2/4\rfloor\bigr)$.  Every triangle-free target with an edge, such as
+$C_5$ or $P$, gives the same value, while $|K_n\square K_n,K_3|=2n\bigl(\binom n2-t(n,3)\bigr)$.
+Theorem~\ref{thm:Kn_clique} is the case $d=1$.
+
+The density bound of Theorem~\ref{thm:lower_bound} has a matching upper bound.
+It comes from a uniformly random map.
+
+\begin{theorem}[Averaging bound]
+\label{thm:average}
+For all graphs $G$ and every graph $H$ with at least one vertex,
+\[
+  |V(H)|^2\,|G,H|\;\le\;|E(G)|\,\bigl(|V(H)|^2-2|E(H)|\bigr).
+\]
+In particular $|G,K_m|\le|E(G)|/m$.
+\end{theorem}
+
+\begin{proof}
+For a map $f\colon V(G)\to V(H)$, delete the edges whose image is not an edge.  An
+edge $uv$ of $G$ survives for exactly $2|E(H)|\cdot|V(H)|^{|V(G)|-2}$ maps $f$.
+So the average number of deleted edges is $|E(G)|(1-2|E(H)|/|V(H)|^2)$, and some
+map does at least this well.
 \end{proof}
 
 \subsection{Cycles and the Petersen graph}
@@ -222,26 +316,87 @@ with sides $\{u_0,u_1,u_3,v_2,v_3,v_4\}$ and $\{u_2,u_4,v_0,v_1\}$.
 Theorem~\ref{thm:lower_bound} only gives $|P,K_2|\ge15-t(10,2)<0$ here, so the
 odd-cycle structure, not edge density, is what forces the deletions.
 
+\subsection{Edge-transitive graphs}
+
+A graph $G$ is \emph{edge-transitive} if its automorphism group acts
+transitively on $E(G)$.
+
+\begin{theorem}
+\label{thm:edge_transitive}
+Let $G$ be edge-transitive.  Let $F$ be a graph with at least one edge such that
+$F\to G$ and $F\not\to H$.  Then
+\[
+  |G,H|\;\ge\;\frac{|E(G)|}{|E(F)|}.
+\]
+\end{theorem}
+
+\begin{proof}
+Fix $\varphi\colon F\to G$ and let $\Gamma=\operatorname{Aut}(G)$.  For an edge $e$
+of $G$, put $c(e)=\sum_{\sigma\in\Gamma}\mu(\sigma\circ\varphi,e)$.  Reindexing
+by $\sigma\mapsto\tau^{-1}\sigma$ gives $c(\tau e)=c(e)$.  So by
+edge-transitivity $c$ is a constant $c_0$, and summing over all edges gives
+$|E(G)|\,c_0=|\Gamma|\,|E(F)|$.
+
+Now let $G-S\to H$.  Since $F\not\to H$, each $\sigma\circ\varphi$ maps some edge
+of $F$ into $S$, so $|\Gamma|\le\sum_{e\in S}c(e)=|S|\,c_0$.  Hence
+$|E(G)|\le|E(F)|\,|S|$.
+\end{proof}
+
+With $F$ an odd cycle and $H=K_2$, this recovers $|P,K_2|\ge15/5=3$
+(Theorem~\ref{thm:PK2}).  It also recovers $|C_p\times C_q,K_2|\ge2pq/q=2p$
+(Theorem~\ref{thm:CpCq}), since $C_p\times C_q$ is edge-transitive and contains
+closed odd walks of length $q$.  Similarly, for an edge-transitive $G$ containing
+$K_{r+1}$ and a $K_{r+1}$-free $H$, the theorem gives
+$|G,H|\ge|E(G)|/\binom{r+1}2$.  Together with Theorem~\ref{thm:average}, the
+parameter $|G,H|$ of an edge-transitive graph is pinned between two linear
+functions of $|E(G)|$.
+
+The bound is sharp on the folded cubes.  The \emph{folded cube} $FQ_n$ has vertex
+set $\{0,1\}^{n-1}$, two words being adjacent if they differ in exactly one
+coordinate or in all coordinates.  It is the quotient of $Q_n$ by antipodal
+pairs, has $2^{n-1}$ vertices and $n2^{n-2}$ edges, and for odd $n$ its shortest
+odd cycle has length $n$.
+
+\begin{theorem}
+\label{thm:folded}
+Let $n\ge3$ be odd, and let $H$ have an edge with $C_n\not\to H$.  Then
+\[
+  |FQ_n,H| = 2^{n-2}.
+\]
+In particular $|FQ_n,K_2|=2^{n-2}$ and $|FQ_n,C_m|=2^{n-2}$ for every odd $m>n$.
+\end{theorem}
+
+\begin{proof}
+For each vertex $x$, flip the coordinates $1,\dots,n-1$ one at a time and then
+complement.  This is a closed walk of length $n$, so a homomorphism
+$C_n\to FQ_n$, and it must use a deleted edge.  An edge determines the step at
+which a walk uses it, by the set of coordinates its ends differ in, and then $x$
+up to the choice of endpoint.  So each edge lies on at most two of the $2^{n-1}$
+walks, and $|S|\ge2^{n-2}$.  Conversely, deleting the $2^{n-2}$ antipodal edges
+leaves $Q_{n-1}$, which is bipartite, and $K_2\to H$.
+\end{proof}
+
 \subsection{Line graphs of regular graphs}
 
 \begin{theorem}
 \label{thm:line}
-Let $G$ be $d$-regular on $n$ vertices and let $H$ be triangle-free.  Then
+Let $G$ be $d$-regular on $n$ vertices and let $H$ be $K_{r+1}$-free.  Then
 \[
-  |L(G),H|\;\ge\; n\left(\binom d2-\left\lfloor\frac{d^2}{4}\right\rfloor\right)
-  \;=\; n\left\lfloor\frac{(d-1)^2}{4}\right\rfloor .
+  |L(G),H|\;\ge\; n\left(\binom d2-t(d,r)\right).
 \]
-Suppose moreover that $H$ has an edge and that $E(G)$ has a $2$-colouring that
-is \emph{balanced}, meaning that at every vertex the two colours occur
-$\lfloor d/2\rfloor$ and $\lceil d/2\rceil$ times.  Then equality holds.
+For $r=2$ this reads $|L(G),H|\ge n\lfloor(d-1)^2/4\rfloor$.  Suppose moreover
+that $H$ has an edge and that $E(G)$ has a $2$-colouring that is
+\emph{balanced}, meaning that at every vertex the two colours occur
+$\lfloor d/2\rfloor$ and $\lceil d/2\rceil$ times.  Then equality holds for
+every triangle-free $H$.
 \end{theorem}
 
 \begin{proof}
 The $d$ edges at a vertex $v$ form a clique $Q_v\cong K_d$ in $L(G)$.  Distinct
 cliques share no edge of $L(G)$, since two distinct edges of $G$ share at most one
-vertex.  If $L(G)-S\to H$ then $L(G)-S$ is triangle-free.  By Mantel's theorem
-it keeps at most $\lfloor d^2/4\rfloor$ of the $\binom d2$ edges of each $Q_v$.
-Summing over $v$ gives the lower bound.
+vertex.  If $L(G)-S\to H$ then $L(G)-S$ is $K_{r+1}$-free.  By Tur\'an's theorem
+it keeps at most $t(d,r)$ of the $\binom d2$ edges of each $Q_v$.  Summing over
+$v$ gives the lower bound.
 
 For the upper bound, colour the vertices of $L(G)$ by the given edge colouring,
 and delete the edges of $L(G)$ whose ends have the same colour.  What remains maps
@@ -268,6 +423,51 @@ These two classical theorems are not formalized.  The Lean proof establishes the
 cubic case for every cubic graph that has a perfect matching.
 \end{remark}
 
+For graphs with a proper $d$-edge-colouring the lower bound of
+Theorem~\ref{thm:line} is exact for every target, not only for $r=2$.
+
+\begin{theorem}
+\label{thm:line_exact}
+Let $G$ be $d$-regular on $n$ vertices with a proper $d$-edge-colouring, and let $H$
+have clique number $r\ge1$.  Then
+\[
+  |L(G),H| = n\left(\binom d2-t(d,r)\right).
+\]
+\end{theorem}
+
+\begin{proof}
+The lower bound is Theorem~\ref{thm:line}.  For the upper bound, give each edge of
+$G$ its colour modulo $r$ and map $L(G)$ to $K_r\subseteq H$, deleting the
+monochromatic pairs.  At a vertex $v$ the $d$ incident edges carry the $d$
+colours once each, so the induced colouring of the clique $Q_v$ is a relabelled
+Tur\'an graph $T(d,r)$, and exactly $\binom d2-t(d,r)$ pairs at $v$ are deleted.
+\end{proof}
+
+By K\H{o}nig's theorem~\cite{konig1916} every bipartite regular graph has such a
+colouring.  This gives exact ground-state energies of the antiferromagnetic
+$q$-state Potts model, and of every constrained spin model with target $H$, on
+the corner-sharing lattices.
+
+\begin{corollary}
+\label{cor:lattices}
+Let $G$ be a finite bipartite $d$-regular graph on $n$ vertices, for example a
+honeycomb, square or diamond lattice on a torus with even periods.  For every
+$H$ with clique number $r$,
+\[
+  |L(G),H| = n\left(\binom d2-t(d,r)\right).
+\]
+For the kagome lattice $L(\text{honeycomb})$ this is $1$ unsatisfied bond per
+triangle for $r=2$ and $0$ for $r\ge3$.  For the pyrochlore lattice
+$L(\text{diamond})$ and the checkerboard lattice $L(\text{square})$ it is $2$ per
+tetrahedron, respectively crossed square, for $r=2$, $1$ for $r=3$ and $0$ for
+$r\ge4$.
+\end{corollary}
+
+The Ising values are the classical counts of one frustrated bond per kagome
+triangle and of the ice rule on pyrochlore.  What is new is the exact value for
+every target at once.  In particular the $3$-state Potts antiferromagnet on
+pyrochlore has exactly one unsatisfied bond per tetrahedron.
+
 \begin{theorem}
 \label{thm:square_cycle}
 Let $C_n^2$ ($n\ge5$) be the circulant graph on $\mathbb Z_n$ with jumps $1$ and
@@ -280,6 +480,161 @@ $\{i,i+1\}$ lies only in the triangles starting at $i-1$ and at $i$, and an edge
 $\{i,i+2\}$ lies only in the triangle starting at $i$.  So each deleted edge
 destroys at most two of these triangles.
 \end{proof}
+
+\subsection{Triangular graphs}
+
+The triangular graph $L(K_n)$ is $(2n-4)$-regular, and Theorem~\ref{thm:line} gives
+$|L(K_n),K_2|\ge n\lfloor(n-2)^2/4\rfloor$.  Parity decides when this is exact.
+
+\begin{theorem}
+\label{thm:triangular}
+For $n\ge2$,
+\[
+  |L(K_n),K_2| = n\left\lfloor\frac{(n-2)^2}{4}\right\rfloor + [\,n\equiv3\pmod 4\,].
+\]
+\end{theorem}
+
+\begin{proof}
+A map $L(K_n)-S\to K_2$ is a $2$-colouring of $E(K_n)$.  If vertex $v$ has $a_v$
+edges of colour $0$, then $S$ must contain the
+$\binom{n-1}2-a_v(n-1-a_v)\ge\lfloor(n-2)^2/4\rfloor$ monochromatic pairs at $v$.
+Conversely, deleting exactly the monochromatic pairs suffices.  Equality at $v$
+needs $a_v$ to be balanced.  For $n\equiv3\pmod4$ this means $a_v=(n-1)/2$, which is
+odd, at an odd number $n$ of vertices.  That contradicts the handshake lemma,
+so some vertex costs at least one more.
+
+For the upper bounds: if $n$ is even, colour $uw$ by the parity of $u+w$.  If
+$n=2m+1$, give colour $0$ to the pairs at circular distance at most
+$\lceil m/2\rceil$.  When $m$ is odd, remove the near-perfect matching
+$\{0,1\},\{2,3\},\dots,\{2m-2,2m-1\}$ from colour~$0$.  Then every vertex is
+balanced except the vertex $2m$.
+\end{proof}
+
+So $|L(K_n),K_2|=1,4,10,24,43,72,108$ for $n=3,\dots,9$.  For $n=7$ an
+exhaustive search shows that no triangle-free target at all reaches the
+line-graph bound $42$.  Every $K_{3,3}$-balanced choice of kept edges at the
+seven vertices contains a triangle.  Hence $|L(K_7),H|=43$ for every triangle-free
+$H$ with an edge; this search is not formalized.
+
+A SAT computation extends this to $n=11$.  Call a vertex $u$ of a triple $T$ a
+separator if the local bipartition at $u$ splits the other two vertices of $T$.
+Kept edges reaching the bound form a triangle-free graph exactly when no triple has
+three separators.  For balanced local bipartitions, a parity argument shows that
+having no triple with one or three separators is impossible when
+$n\equiv3\pmod4$; this is the handshake argument above.  The solver CaDiCaL
+shows that, for odd $n\le13$, no triple with three separators forces no triple
+with one separator.  For $n=11$ this takes $0.2$ seconds, and two other solvers
+agree.  Hence $|L(K_{11}),H|=|L(K_{11}),K_2|=221$ for every triangle-free $H$
+with an edge.  Simulated annealing never found fewer than one fully separated
+triple for $n=15$, $19$ and $23$.
+
+For $r\ge3$ the excess is a property of the target $K_r$, not of clique number
+$r$.
+
+\begin{theorem}
+\label{thm:triangular_general}
+Let $n\ge1$ and $r\ge3$.  Then there is a graph $K$ of clique number $r$ with
+\[
+  |L(K_n),K| = n\left(\binom{n-1}2-t(n-1,r)\right).
+\]
+So the minimum of $|L(K_n),H|$ over all $H$ of clique number $r$ is the Turán
+value, also in the exceptional case of Theorem~\ref{thm:triangular_r}.
+\end{theorem}
+
+\begin{proof}
+At every vertex $v$ of $K_n$ choose an equitable $r$-colouring $c_v$ of the other
+$n-1$ vertices.  Let $K$ be the graph on $E(K_n)$ in which $vu\sim vw$ when
+$c_v(u)\ne c_v(w)$.  The identity map sends $L(K_n)$ minus the monochromatic pairs
+to $K$, and there are $n\bigl(\binom{n-1}2-t(n-1,r)\bigr)$ such pairs.  Four or
+more edges of $K_n$ that pairwise meet form a star, so every clique of $K$ with
+more than three vertices lies in one star, where $K$ is complete $r$-partite.
+Since $r\ge3$, $K$ has clique number $r$.  The lower bound is
+Theorem~\ref{thm:line}.
+\end{proof}
+
+The same parity phenomenon governs every number of colours.
+
+\begin{theorem}
+\label{thm:triangular_r}
+Let $n\ge3$, $r\ge2$, and write $n-1=qr+s$ with $0\le s<r$.  Then
+\[
+  |L(K_n),K_r| = n\left(\binom{n-1}2-t(n-1,r)\right) + \frac r2\,
+  \bigl[\,n \text{ odd},\ s=0,\ q \text{ odd}\,\bigr].
+\]
+Equivalently, the max-$r$-cut of the triangular graph $J(n,2)$ is
+$n\,t(n-1,r)$, minus $r/2$ in the exceptional case.  For even $n$ the value
+$n\bigl(\binom{n-1}2-t(n-1,r)\bigr)$ holds for every target of clique number $r$.
+Outside the exceptional case the same is true for odd $n$.
+\end{theorem}
+
+\begin{proof}
+A map $L(K_n)-S\to K_r$ is an $r$-colouring of $E(K_n)$, and $S$ contains all
+monochromatic pairs at each vertex: $\sum_c\binom{d_c(v)}2$ of them at $v$, where
+$d_c(v)$ is the number of edges of colour $c$ at $v$.  This is at least
+$\binom{n-1}2-t(n-1,r)$, with equality exactly when the $d_c(v)$ are
+equitable.
+
+In the exceptional case every $d_c(v)$ would have to equal $q$, but then colour
+class $c$ would have odd degree sum $nq$.  Writing $x_c(v)=d_c(v)-q$, the excess at
+$v$ is $\frac12\sum_cx_c(v)^2$, and every colour $c$ needs some $v$ with
+$x_c(v)$ odd.  So the total excess is at least $r/2$.
+
+For the constructions:
+\begin{itemize}
+\item If $n$ is even, colour a $1$-factorization of $K_n$ modulo $r$ and apply
+Theorem~\ref{thm:line_exact}.
+\item If $r\nmid n-1$, write $n-1=kr+s$ with $0<s<r$, put $B=\{0,\dots,kr-1\}$ and
+$A=\{kr,\dots,n-1\}$, and let $\theta(x)=\lfloor x/2\rfloor+(x\bmod2)\lceil r/2\rceil$,
+a permutation of $\mathbb Z_r$ with $2\theta(x)\in\{x,x-1\}$.  Colour $uw$ by
+$\theta(u)+\theta(w)\bmod r$ inside $B$, by $(w-kr)+u-1\bmod r$ for $u\in B$,
+$w\in A$, and by $(u-kr)+(w-kr)\bmod(s+1)$ inside $A$.  Every colour then occurs
+$k$ or $k+1$ times at every vertex.  This explicit colouring replaces the
+existence theorem of Hilton and de Werra~\cite{hiltondewerra1994}.
+\item If $n=2m+1$ is odd and $s=0$, use the centre classes: the edges $uw$ with
+$u+w\equiv2h\pmod n$ form a near-perfect matching missing $h$.  Give each colour
+$q$ of the classes $h\ne0$, choosing the colours of $h$ and $-h$ equal for as
+many $h$ as possible, and colour an edge $\{u,-u\}$ of class $0$ like the class
+of its smaller endpoint.  A vertex then sees every colour $q$ times, except
+that a pair $h,-h$ of differently coloured classes costs one unit.  If $q$ is
+even no such pair is needed.  If $q$ is odd, exactly $r/2$ pairs are needed.
+This replaces the Walecki decomposition~\cite{lucas1892}.
+\end{itemize}
+\end{proof}
+
+For $r=2$ this is Theorem~\ref{thm:triangular}.  For $r=n-1$ and odd $n$ it gives
+$|L(K_n),K_{n-1}|=(n-1)/2$, so $K_n$ falls short of an $(n-1)$-edge-colouring by
+exactly $(n-1)/2$ monochromatic pairs.
+
+\begin{corollary}
+\label{cor:spectral}
+The Mohar--Poljak eigenvalue bound $\frac14|V|\lambda_{\max}(L)$ on the max-cut
+of $J(n,2)$ equals $\frac14n(n-1)^2$.  It is attained exactly when
+$n\equiv1\pmod4$, it exceeds the max-cut by $1$ when $n\equiv3\pmod4$, and by
+$n/4$ when $n$ is even.  For the Hamming graph $H(d,q)$ the eigenvalue bound
+$\frac{k-1}{2k}|V|\lambda_{\max}(L)$ on the max-$k$-cut is attained exactly when
+$k\mid q$, and otherwise exceeds it by $d\,q^{d-1}e(k-e)/(2k)$, where
+$e=q\bmod k$.
+\end{corollary}
+
+\begin{proof}
+For a $k$-colouring $c$ with indicator vectors $x_1,\dots,x_k$, the cut size is
+$\frac12\sum_ix_i^{\mathsf T}Lx_i$.  If $x^{\mathsf T}Lx\le\lambda\|x\|^2$ for all
+$x$, applying this to $x_i-\frac1k\mathbf 1$ gives the bound
+$\frac{k-1}{2k}\lambda|V|$.  A cover of the edges by cliques $C_j$, each vertex in
+$\rho$ cliques of size $s$, gives $x^{\mathsf T}Lx=\rho s\|x\|^2-\sum_j(\sum_{C_j}x)^2
+\le\rho s\|x\|^2$.  The stars of $K_n$ cover $J(n,2)$ with $\rho=2$, $s=n-1$; the
+lines cover $H(d,q)$ with $\rho=d$, $s=q$.  So $\lambda=2n-2$ and $\lambda=dq$
+are valid.  A vector supported on a $4$-cycle, or on two coordinates, shows that no
+smaller $\lambda$ is valid.  Compare with Theorems~\ref{thm:triangular}
+and~\ref{thm:hamming}, using $t(q,k)\le\frac{k-1}{2k}q^2$ with equality iff
+$k\mid q$.
+\end{proof}
+
+Both graphs are walk-regular, so for $k=2$ the eigenvalue bound coincides with the
+Goemans--Williamson semidefinite bound~\cite{vandam2016}.  So $J(n,2)$ with
+$n\equiv3\pmod4$ is an explicit family whose semidefinite integrality gap is
+exactly one edge.  The proof above uses no eigenvalue theory, and it is formalized
+as stated.
 
 \subsection{Tensor products}
 
@@ -305,22 +660,33 @@ The hypothesis on $K$ is needed.  If $K$ has no vertices and $H$ has no edges,
 the right-hand side is $0$ but the left-hand side is infinite.  By
 Shitov's counterexample to Hedetniemi's conjecture~\cite{shitov2019}, the bound
 can be far from tight for large targets: the left-hand side can be $0$ while
-neither factor is $k$-colourable.  For $K=K_2$ and two odd cycles it is tight.
+neither factor is $k$-colourable.  For two odd cycles it is tight, and not only
+for $K=K_2$.
 
 \begin{theorem}
 \label{thm:CpCq}
-For odd $3\le p\le q$, $|C_p\times C_q,K_2|=2p$.
+Let $3\le p\le q$ be odd and let $H$ have an edge.  Then
+\[
+  |C_p\times C_q,H|=\begin{cases}2p & \text{if } C_q\not\to H,\\
+  0 & \text{if } C_q\to H.\end{cases}
+\]
+In particular $|C_p\times C_q,C_m|=2p$ for every odd $m>q$.
 \end{theorem}
 
 \begin{proof}
-The upper bound is Theorem~\ref{thm:hedetniemi}, since $|C_q,K_2|=1$.
+If $C_q\to H$, compose with the projection $C_p\times C_q\to C_q$.  Otherwise
+$|C_p\times C_q,H|\le|C_p\times C_q,K_2|$ by Proposition~\ref{prop:monotone}, since
+$K_2\to H$.  The right-hand side is at most $2p$ by Theorem~\ref{thm:hedetniemi},
+since $|C_q,K_2|=1$.
 
 For the lower bound, let $\varepsilon_i=+1$ for $0\le i<(q+p)/2$ and
 $\varepsilon_i=-1$ for $(q+p)/2\le i<q$, and let $g_i=\sum_{j<i}\varepsilon_j$.
 Then $g_q=p\equiv0\pmod p$.  For $a\in\mathbb Z_p$, $h\in\mathbb Z_q$ and
 $\sigma\in\{\pm1\}$, the walk $i\mapsto(a+\sigma g_i,\,h+i)$, $0\le i\le q$, is a
-closed walk of odd length $q$ in $C_p\times C_q$.  So each of these $2pq$ walks
-must contain a deleted edge.
+closed walk of length $q$ in $C_p\times C_q$, that is, a homomorphism
+$C_q\to C_p\times C_q$.  If one of these $2pq$ walks avoided the deletion set $S$,
+composing with $C_p\times C_q-S\to H$ would give $C_q\to H$.  So each walk
+contains a deleted edge.
 
 Fix a step index $i$ and an edge $e$.  The second coordinate increases by $1$
 along every step, so it determines which end of $e$ the step leaves from.  The
@@ -536,7 +902,123 @@ an explicit $5$-colouring.
 So $\gamma(P,K_3)=6$ exceeds the pigeonhole bound $5$ because of parity.  In
 contrast $\gamma(P,K_5)$ attains it.
 
+\subsection{Equitable colourings and regular graphs}
+
+A proper colouring is \emph{equitable} if its class sizes differ pairwise by at
+most one.  Write $M(n)=\lceil n/3\rceil+[n\equiv2\pmod 3]$.  This is the least
+maximum of a same-parity triple of non-negative integers summing to $n$, and it is
+the value found in Theorem~\ref{thm:cycle_gamma}.
+
+\begin{theorem}
+\label{thm:equitable}
+Let $G$ be $d$-regular on $n$ vertices, $d\ge1$, with an equitable proper
+$3$-colouring.  Then
+\[
+  \gamma(G,K_3)=\frac d2\,M(n),
+\]
+and every equitable $3$-colouring is optimal.
+\end{theorem}
+
+\begin{proof}
+The lower bound is Theorem~\ref{thm:d_regular} with $M=M(n)$.  If the class sizes
+differ by at most one, the triple $(a+b-c,a+c-b,b+c-a)$ is $(q,q,q)$,
+$(q+1,q+1,q-1)$ or $(q+2,q,q)$ for $n=3q$, $3q+1$, $3q+2$.  Its maximum is
+$M(n)$, so the identity of Theorem~\ref{thm:d_regular} gives
+$2\mu(f)=d\,M(n)$.
+\end{proof}
+
+Chen, Lih and Wu~\cite{chenlihwu1994} proved, as a case of their equitable
+$\Delta$-colouring theorem, that every connected cubic graph other than $K_4$ and
+$K_{3,3}$ has an equitable $3$-colouring.
+
+\begin{corollary}
+\label{cor:cubic}
+Every connected cubic graph $G$ other than $K_4$ and $K_{3,3}$ satisfies
+\[
+  \gamma(G,K_3)=3\left\lceil\frac{|V(G)|}{6}\right\rceil .
+\]
+Moreover $\gamma(K_{3,3},K_3)=6$ and $\gamma(K_4,K_3)=\infty$.
+\end{corollary}
+
+\begin{proof}
+For $n=|V(G)|$ even, $\frac32M(n)=3\lceil n/6\rceil$.  Apply
+Theorem~\ref{thm:equitable}.  The value for $K_{3,3}$ is Theorem~\ref{thm:Knn}.
+\end{proof}
+
+In particular every prism $C_k\square K_2$ ($k\ge3$), every M\"obius ladder on
+$2k\ge8$ vertices, every generalized Petersen graph and the Petersen graph have
+$\gamma(G,K_3)=3\lceil|V(G)|/6\rceil$.  By contrast, the pigeonhole bound is only
+$|V(G)|/2$.  A computer check of all $45\,982$ connected cubic graphs on at most
+$18$ vertices confirms that $K_4$ and $K_{3,3}$ are the only exceptions.
+
+\begin{theorem}
+\label{thm:cube}
+For $d\ge1$,
+\[
+  \gamma(Q_d,K_3)=\begin{cases} d\,(2^d+2)/6 & d \text{ even},\\
+  d\,(2^d+4)/6 & d\text{ odd}.\end{cases}
+\]
+\end{theorem}
+
+\begin{proof}
+Colour $x\in\{0,1\}^d$ by its weight mod $3$.  Adjacent words differ in weight by
+one, so this is proper.  Let $N_c(d)$ count the words of weight $\equiv c$.  These
+counts satisfy $N_c(d+1)=N_c(d)+N_{c-1}(d)$, so
+$N_c(d+1)-N_{c+1}(d+1)=N_{c-1}(d)-N_{c+1}(d)$, and by induction the three counts
+differ pairwise by at most one.  Apply Theorem~\ref{thm:equitable} with
+$n=2^d$, using $2^d\equiv1$ or $2\pmod 3$ according as $d$ is even or odd.
+\end{proof}
+
+This gives $2,6,12,30$ for $d=2,3,4,5$.  Tori behave the same way: for
+example, colouring $(i,j)\mapsto i+j\bmod 3$ shows that
+$\gamma(C_{3a}\square C_{3b},K_3)=6ab$ attains the pigeonhole bound.
+
+\subsection{Joins with an independent set}
+
+The \emph{join} $G_1+\overline{K_k}$ is obtained from $G_1$ by adding $k$
+pairwise non-adjacent vertices, each joined to every vertex of $G_1$.  For a
+bipartite $G_1$, let $\beta(G_1)$ be the least possible size of the larger class
+of a proper $2$-colouring of $G_1$.  Put $\beta(G_1)=\infty$ if $G_1$ is not
+bipartite.
+
+\begin{theorem}
+\label{thm:join}
+Let $G_1$ have at least one edge and let $k\ge1$.  Then
+\[
+  \gamma(G_1+\overline{K_k},K_3)=\max\bigl(|E(G_1)|,\;k\,\beta(G_1)\bigr).
+\]
+\end{theorem}
+
+\begin{proof}
+Let $f\colon G_1+\overline{K_k}\to K_3$, and let $c$ be the colour of one new
+vertex.  No vertex of $G_1$ has colour $c$.  If another new vertex had a colour
+$c'\ne c$, the two ends of an edge of $G_1$ would need two distinct colours
+outside $\{c,c'\}$, which is impossible.  So all new vertices have colour $c$, and
+$f$ restricts to a $2$-colouring of $G_1$ with classes $A$ and $B$ in the other
+colours $a,b$.  Every edge of $G_1$ maps onto $ab$, and the edges at the new
+vertices give loads $k|A|$ on $ac$ and $k|B|$ on $bc$.  Hence
+$\mu(f)=\max(|E(G_1)|,k|A|,k|B|)$.  Minimising over $2$-colourings of $G_1$ gives
+the formula.
+\end{proof}
+
+\begin{corollary}
+\label{cor:join}
+$\gamma(B_k,K_3)=k$, $\gamma(F_k,K_3)=k$ and $\gamma(W_n,K_3)=n-1$ for odd
+$n\ge5$.  Also $\gamma(K_{p,q,r},K_3)=\max(pq,r\max(p,q))$ for $p,q,r\ge1$, which
+equals $\max(pq,pr,qr)$.  For the fan $P_t+K_1$ with $t\ge3$,
+$\gamma=t-1$.
+\end{corollary}
+
+\begin{proof}
+Take $G_1=K_2$ and $k$ new vertices for $B_k$.  Take $G_1=kK_2$ or $C_{n-1}$ with
+one new vertex for $F_k$ and $W_n$.  Take $G_1=K_{p,q}$ for $K_{p,q,r}$, and
+$G_1=P_t$ for the fan.
+\end{proof}
+
 \subsection{Irregular source graphs}
+
+Theorem~\ref{thm:families} gives a direct proof of the first four cases of
+Corollary~\ref{cor:join}, with the values of $|\cdot,K_2|$ as well.
 
 The \emph{book} $B_k$ is $k$ triangles sharing one edge (the spine).  The
 \emph{friendship graph} $F_k$ is $k$ triangles sharing one vertex.  The
@@ -584,6 +1066,65 @@ $\gamma(B_k,K_3)=k$ grows without bound.
 \subsection{Cycles into odd cycles}
 
 \begin{theorem}
+\label{thm:cycle_cycle}
+Let $m\ge3$ be odd and $n\ge3$, and suppose $C_n\to C_m$.  Then $\gamma(C_n,C_m)$
+is the least integer $M$ such that $M\equiv n\pmod 2$ and $mM\ge n$.  Thus it is
+$\lceil n/m\rceil$ or $\lceil n/m\rceil+1$, whichever has the parity of $n$.
+\end{theorem}
+
+\begin{proof}
+Fix an edge $e=\{x,x+1\}$ of $C_m$.  Number the vertices of the path $C_m-e$ from
+$x+1$ to $x$ as $0,1,\dots,m-1$.  Along the closed walk $f(0),f(1),\dots$ the
+position changes parity at every step except a step across $e$, where it goes
+between $0$ and the even number $m-1$.  A closed walk changes parity an even
+number of times, so $n-\mu(f,e)$ is even.  Hence every load, and in particular
+$\mu(f)$, has the parity of $n$.  The pigeonhole bound gives $m\mu(f)\ge n$.
+
+For the upper bound write $n=wm+2s$ with $w\in\{0,1\}$ the parity of $n$.  Walk
+once around $C_m$ if $w=1$.  Then walk $s$ steps forward and $s$ steps back.  Each
+edge is used at most $w+2\lceil s/m\rceil\le M$ times.
+\end{proof}
+
+For $m=3$, where $C_3=K_3$, this is Theorem~\ref{thm:cycle_gamma}.  The smallest
+$M$ of the parity of $n$ with $3M\ge n$ is $\lceil n/3\rceil$, except that it is
+$\lceil n/3\rceil+1$ when $n\equiv2\pmod 3$.  For $m=5$ and $m=7$ it gives, for
+example, $\gamma(C_6,C_5)=2$, $\gamma(C_{12},C_5)=4$, $\gamma(C_9,C_7)=3$ and
+$\gamma(C_{15},C_7)=3$.  So the pigeonhole bound $\lceil n/m\rceil$ is attained
+exactly when $\lceil n/m\rceil\equiv n\pmod 2$.
+
+The parity phenomenon extends from cycles to all regular graphs.
+
+\begin{theorem}
+\label{thm:regular_oddcycle}
+Let $G$ be $d$-regular on $n$ vertices, $d\ge1$, and let $m\ge3$ be odd.  For
+$f\colon G\to C_m$ put $n_c=|f^{-1}(c)|$ and
+$s_c=\sum_{t=0}^{m-1}(-1)^t\,n_{c-t}$.  Then the load of the edge $\{c,c+1\}$ is
+$\frac d2\,s_c$.  Consequently
+\[
+  \gamma(G,C_m)\;\ge\;\frac d2\,M_m(n),
+\]
+where $M_m(n)$ is the least $M\equiv n\pmod 2$ with $mM\ge n$.  Equality holds
+whenever some $f$ has $s_c\le M_m(n)$ for all $c$.
+\end{theorem}
+
+\begin{proof}
+Write $L_c$ for the load of $\{c,c+1\}$.  Every edge at a vertex of colour $c$
+goes to colour $c\pm1$, so $d\,n_c=L_{c-1}+L_c$.  Telescoping this relation
+once around the odd cycle gives $2L_c=\sum_t(-1)^t d\,n_{c-t}=d\,s_c$.  Hence
+$s_c\ge0$, $s_c+s_{c-1}=2n_c$, so all $s_c$ have the same parity, and
+$\sum_cs_c=\frac2d|E(G)|=n$.  The largest $s_c$ therefore satisfies
+$s_c\equiv n\pmod 2$ and $m\,s_c\ge n$, so it is at least $M_m(n)$.
+\end{proof}
+
+For $m=3$ this is Theorem~\ref{thm:d_regular}, since $s_c$ is then
+$a+b-c$ in the notation used there.  For $d=2$ it is the lower bound of
+Theorem~\ref{thm:cycle_cycle}.  A computer search finds the bound exact for the
+tori $C_5\square C_5$, $C_5\square C_7$ and $C_7\square C_7$ into $C_5$ and
+$C_7\square C_7$ into $C_7$.  It is also exact for $412$ of the $465$ triangle-free
+connected cubic graphs on $10$ to $16$ vertices that map to $C_5$; the other $53$ exceed it
+by exactly $3$.
+
+\begin{theorem}
 \label{thm:cycle_hom}
 Let $m\ge3$ be odd and $n\ge3$.  Then $C_n\to C_m$ if and only if $n$ is even or
 $n\ge m$.
@@ -596,10 +1137,7 @@ Conversely, let $n<m$ with $n$ odd and $f\colon C_n\to C_m$.  Then $f$ misses so
 vertex $w$, and $C_m-w$ is a path.  So $C_n$ would be bipartite, a contradiction.
 \end{proof}
 
-When $5\nmid n$ the pigeonhole bound $\lceil n/5\rceil$ can still be attained.
-For example $\gamma(C_6,C_5)=2$, via $0,1,2,3,2,1$.  Similarly
-$\gamma(C_8,C_7)=\gamma(C_{10},C_7)=\gamma(C_{12},C_7)=2$ and
-$\gamma(C_{15},C_7)=3$ all equal $\lceil n/7\rceil$.
+
 
 % ─────────────────────────────────────────────────────────────────────────────
 \section{The Symmetric Combination $m(G,H)$}
@@ -634,12 +1172,70 @@ Definition~\ref{def:nhf}.
 \end{remark}
 
 % ─────────────────────────────────────────────────────────────────────────────
+\section{Applications}
+\label{sec:applications}
+% ─────────────────────────────────────────────────────────────────────────────
+
+The exact values in this paper rarely beat the obvious designs by much.  Their
+main use is as \emph{certified ground truth}: optima at any size, proved in Lean
+for families of graphs and targets that people actually use.
+
+\paragraph{Benchmarks for exact and heuristic solvers.}
+Max-$k$-Cut, minimum-violation $H$-colouring, QUBO and Ising solvers, including
+quantum annealers, are usually evaluated against best-known values or planted
+solutions.  The families above give instances with proved optima, and one
+instance serves every target with the same clique number.  The informative ones
+are those where any relaxation or averaging argument stops short of the optimum,
+so that a solver has to find a global proof:
+
+\begin{center}
+\begin{tabular}{lrr}
+\toprule
+Instance & optimum & naive bound \\
+\midrule
+$|L(K_7),K_2|$ & $43$ & $42$ \\
+$\gamma(Q_{10},K_3)$ & $1710$ & $1707$ \\
+$\gamma(Q_{11},K_3)$ & $3762$ & $3755$ \\
+$\gamma(C_7\square C_7,C_5)$ & $22$ & $20$ \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+Corollary~\ref{cor:cubic} adds an unlimited supply of irregular instances:
+every random connected cubic graph other than $K_4$ and $K_{3,3}$ has
+$\gamma(G,K_3)=3\lceil|V(G)|/6\rceil$.  This rests on the cited Chen--Lih--Wu
+theorem.
+
+\paragraph{Frustrated magnets.}
+Corollary~\ref{cor:lattices} gives exact ground-state energies on kagome,
+checkerboard and pyrochlore tori for every target.  The products
+$C_p\times C_q$ with $p\le q$ odd carry a forced seam of exactly $2p$ unsatisfied
+bonds for every target into which $C_q$ does not map (Theorem~\ref{thm:CpCq}).
+These are natural test lattices for annealing and Monte Carlo methods.  The
+theorems say nothing about ground-state degeneracy or entropy.
+
+\paragraph{Placement across failure domains.}
+Spreading the switches of a network over $m$ failure domains, so that as few
+links as possible stay inside a domain, is exactly the problem $|G,K_m|$.  On
+HyperX and flattened-butterfly fabrics, which are Hamming graphs,
+Theorem~\ref{thm:hamming} gives the optimum.  For example $H(3,8)$ split into four
+domains keeps exactly $768$ of its $5376$ links inside domains.  For folded cubes
+the optimum $2^{n-2}$ of Theorem~\ref{thm:folded} is attained by removing the
+antipodal links.  In a $d$-regular network whose links must all cross domains,
+Theorem~\ref{thm:d_regular} shows that the load between two domains depends only on
+the domain sizes.
+
+These applications do not cover locality-preserving partitioning, which minimises
+the links between domains rather than inside them, or access patterns such as
+strides and diagonals in memory-bank layouts.
+
+% ─────────────────────────────────────────────────────────────────────────────
 \section{Formal Verification}
 \label{sec:formal}
 % ─────────────────────────────────────────────────────────────────────────────
 
 The Lean~4 development in \texttt{lean/NonHom} uses Lean and Mathlib version
-4.35.0.  It consists of 17 files and about 3\,300 lines.  It defines $|G,H|$ as
+4.35.0.  It consists of 33 files and about 8\,000 lines.  It defines $|G,H|$ as
 the infimum, in $\mathbb N\cup\{\infty\}$, of $|S|$ over finite edge sets $S$ such
 that $G-S\to H$.  It defines $\gamma(G,H)$ as the infimum of $\mu(f)$ over all
 homomorphisms, which is $\infty$ when there are none.
@@ -665,12 +1261,17 @@ Props.~\ref{prop:chi_mono}, \ref{prop:hom_contracts} & \lean{chromaticNumber\_le
 Prop.~\ref{prop:monotone} & \lean{nhf\_le\_of\_hom\_target}, \lean{nhf\_eq\_of\_hom\_equiv}, \lean{nhf\_le\_of\_edge\_injective} \\
 Thm.~\ref{thm:KnKm}, Table~\ref{tab:KnKm} & \lean{nhf\_top\_top\_formula}, \lean{nhf\_top\_succ\_top}, \lean{table\_KnKm} \\
 Thm.~\ref{thm:lower_bound} & \lean{lower\_bound} \\
-Thm.~\ref{thm:Kn_trianglefree} & \lean{nhf\_top\_triangleFree} \\
+Thm.~\ref{thm:Kn_clique} & \lean{nhf\_top\_clique}, \lean{nhf\_top\_triangleFree} \\
+Thm.~\ref{thm:average} & \lean{nhf\_average} \\
+Thm.~\ref{thm:edge_transitive} & \lean{nhf\_edge\_transitive} \\
+Thm.~\ref{thm:folded} & \lean{nhf\_folded}, \lean{nhf\_folded\_K2}, \lean{nhf\_folded\_cycle} \\
 $|C_n,K_3|$, $|C_n,K_2|$ & \lean{nhf\_cycle\_K3}, \lean{nhf\_cycle\_K2\_even}, \lean{nhf\_cycle\_K2\_odd} \\
 Thm.~\ref{thm:PK2} & \lean{nhf\_petersen\_K2} \\
-Thm.~\ref{thm:line} & \lean{line\_lower'}, \lean{line\_eq}, \lean{line\_cubic\_pm} \\
+Thm.~\ref{thm:line} & \lean{line\_lower\_clique}, \lean{line\_eq}, \lean{line\_cubic\_pm} \\
+Thm.~\ref{thm:line_exact} & \lean{nhf\_line\_class1} \\
 Thm.~\ref{thm:square_cycle} & \lean{sq\_lower} \\
-Thms.~\ref{thm:hedetniemi}, \ref{thm:CpCq} & \lean{hedetniemi\_bound}, \lean{nhf\_tensor\_cycles} \\
+Thms.~\ref{thm:hedetniemi}, \ref{thm:CpCq} & \lean{hedetniemi\_bound}, \lean{nhf\_tensor\_cycles\_target}, \\
+ & \lean{nhf\_tensor\_cycles\_zero}, \lean{nhf\_tensor\_cycles\_cycle} \\
 Thm.~\ref{thm:jaeger} & \lean{jaeger\_lower} \\
 Prop.~\ref{prop:pigeonhole}, Lemma~\ref{lem:gamma_basic} & \lean{ceil\_div\_le\_gamma}, \lean{one\_le\_gamma}, \lean{gamma\_self} \\
 Lemmas~\ref{lem:gamma_mult}, \ref{lem:nhf_bound}, \ref{lem:gamma_mono} & \lean{gamma\_comp\_le}, \lean{nhf\_le\_gamma\_mul}, \lean{gamma\_le\_of\_injective\_hom} \\
@@ -679,6 +1280,18 @@ Lemma~\ref{lem:degree_identity} & \lean{two\_load\_eq}, \lean{two\_mu\_eq\_deg} 
 Thm.~\ref{thm:d_regular} & \lean{two\_mu\_eq}, \lean{gamma\_K3\_lower}, \lean{gamma\_K3\_upper} \\
 Thms.~\ref{thm:cycle_gamma}, \ref{thm:Knn} & \lean{gamma\_cycle}, \lean{gamma\_knn}, \lean{nhf\_knn\_K3} \\
 Thm.~\ref{thm:petersen_gamma} & \lean{gamma\_petersen\_K3}, \lean{gamma\_petersen\_K5} \\
+Thm.~\ref{thm:hamming} & \lean{nhf\_ham} \\
+Thm.~\ref{thm:triangular} & \lean{nhf\_triangular} \\
+Thm.~\ref{thm:triangular_r} & \lean{tri\_lower\_parity}, \lean{nhf\_triangular\_even}, \lean{nhf\_triangular\_equitable}, \\
+ & \lean{nhf\_triangular\_odd\_div\_even}, \lean{nhf\_triangular\_odd\_div\_odd} \\
+Thm.~\ref{thm:triangular_general} & \lean{nhf\_triangular\_general\_target} \\
+Cor.~\ref{cor:spectral} & \lean{cutSize\_le\_of\_lapForm\_le}, \lean{isLeast\_triangular}, \lean{isLeast\_ham}, \\
+ & \lean{exists\_cutSize\_triangular\_eq\_iff}, \lean{exists\_cutSize\_ham\_eq\_iff} \\
+Thm.~\ref{thm:equitable} & \lean{gamma\_K3\_equitable} \\
+Thm.~\ref{thm:cube} & \lean{gamma\_cube}, \lean{Mtri\_two\_pow} \\
+Thm.~\ref{thm:join} & \lean{gamma\_join} \\
+Thm.~\ref{thm:cycle_cycle} & \lean{gamma\_cycle\_cycle} \\
+Thm.~\ref{thm:regular_oddcycle} & \lean{two\_Lc}, \lean{gamma\_oddcycle\_lower}, \lean{gamma\_oddcycle\_upper} \\
 Thm.~\ref{thm:families} & \lean{gamma\_book}, \lean{nhf\_book\_K2}, \lean{gamma\_friendship}, \\
  & \lean{nhf\_friendship\_K2}, \lean{gamma\_wheel}, \lean{gamma\_tri} \\
 Thm.~\ref{thm:cycle_hom} and examples & \lean{cycle\_hom\_iff}, \lean{gamma\_C6\_C5}, \lean{gamma\_C15\_C7}, \dots \\
@@ -692,7 +1305,13 @@ is formalized for arbitrary disjoint families of sets, each left by exactly one
 edge; that leaf blocks form such a family is not formalized.  In
 Theorem~\ref{thm:line} the equality is formalized given a balanced colouring,
 and in particular for cubic graphs with a perfect matching.  The classical
-existence results of Remark~\ref{rem:balanced} are not formalized.
+existence results of Remark~\ref{rem:balanced} are not formalized.  Corollary~\ref{cor:cubic}
+combines the formalized Theorem~\ref{thm:equitable} with the Chen--Lih--Wu
+theorem, which is not formalized.  Corollary~\ref{cor:lattices} combines
+Theorem~\ref{thm:line_exact} with K\H{o}nig's theorem, which is not formalized.  The computer searches after
+Theorem~\ref{thm:regular_oddcycle} are not formalized.  The exhaustive search for $L(K_7)$ and the SAT computation for $L(K_{11})$ after
+Theorem~\ref{thm:triangular} are not formalized.  The torus example after
+Theorem~\ref{thm:cube} is an unformalized remark.
 
 % ─────────────────────────────────────────────────────────────────────────────
 \section{Open Questions}
@@ -709,6 +1328,21 @@ is attained exactly when $n\not\equiv2\pmod3$ (Theorem~\ref{thm:cycle_gamma}).
 For $d$-regular $G$, Theorem~\ref{thm:d_regular} turns the question into one about
 realisable colour-class sizes.  Characterise the pairs $(G,H)$ for which
 $\gamma(G,H)=\lceil|E(G)|/|E(H)|\rceil$.
+
+\item \textbf{Tightness of the transitive bound.}  Theorem~\ref{thm:edge_transitive}
+is tight for the Petersen graph and for $C_p\times C_q$.  For which
+edge-transitive $G$ is $|G,K_2|$ equal to $|E(G)|$ divided by the odd girth?
+
+\item \textbf{Joins with other targets.}  Is there a formula analogous to
+Theorem~\ref{thm:join} for $\gamma(G_1+\overline{K_k},K_m)$ with $m\ge4$, or for
+general joins $G_1+G_2$?
+
+\item \textbf{Triangular graphs.}  Is $|L(K_n),H|=|L(K_n),K_2|$ for every
+triangle-free $H$ with an edge?  By Theorem~\ref{thm:line} this holds for
+$n\not\equiv3\pmod4$, and the computations after Theorem~\ref{thm:triangular}
+confirm it for $n=7$ and $n=11$.  It would follow from this statement: for balanced
+local bipartitions of $K_n$, if no triple has three separators then no triple has
+one.  For $r\ge3$ the answer is negative by Theorem~\ref{thm:triangular_general}.
 
 \item \textbf{Repairing $m$.}  Does the edge-edit distance to a graph mapping to
 $H$, or $m$ restricted to graphs with the same number of vertices, satisfy the
@@ -780,6 +1414,42 @@ pp.~71--95, 1988.
 L.~de Moura and S.~Ullrich,
 ``The Lean 4 theorem prover and programming language,''
 in \textit{Automated Deduction -- CADE 28}, LNCS vol.~12699, pp.~625--635, 2021.
+
+\bibitem{chenlihwu1994}
+B.-L.~Chen, K.-W.~Lih and P.-L.~Wu,
+``Equitable coloring and the maximum degree,''
+\textit{European Journal of Combinatorics}, vol.~15, pp.~443--447, 1994.
+
+\bibitem{fjt2009}
+T.~F\"arnqvist, P.~Jonsson and J.~Thapper,
+``Approximability distance in the space of $H$-colourability problems,''
+in \textit{Computer Science -- Theory and Applications (CSR 2009)}, 2009.
+arXiv:0802.0423.
+
+\bibitem{efjt2009}
+R.~Engstr\"om, T.~F\"arnqvist, P.~Jonsson and J.~Thapper,
+``Graph homomorphisms, circular colouring, and fractional covering by
+$H$-cuts,'' arXiv:0904.4600, 2009.
+
+\bibitem{mohar1990}
+B.~Mohar and S.~Poljak,
+``Eigenvalues and the max-cut problem,''
+\textit{Czechoslovak Mathematical Journal}, vol.~40, pp.~343--352, 1990.
+
+\bibitem{vandam2016}
+E.~R.~van Dam and R.~Sotirov,
+``New bounds for the max-$k$-cut and chromatic number of a graph,''
+\textit{Linear Algebra and its Applications}, vol.~488, pp.~216--234, 2016.
+
+\bibitem{hiltondewerra1994}
+A.~J.~W.~Hilton and D.~de Werra,
+``A sufficient condition for equitable edge-colourings of simple graphs,''
+\textit{Discrete Mathematics}, vol.~128, 1994.
+
+\bibitem{lucas1892}
+\'E.~Lucas,
+\textit{R\'ecr\'eations math\'ematiques}, vol.~2, Gauthier-Villars, 1892
+(Walecki's construction).
 
 \bibitem{mathlib}
 The mathlib Community,

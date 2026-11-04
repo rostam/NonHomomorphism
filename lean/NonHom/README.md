@@ -47,6 +47,30 @@ Finite checks use `decide +kernel`, which is verified by the Lean kernel.
 | Obs `obs:CnC5_pattern` (general ⇔) | `cycle_hom_iff` | OddCycles |
 | Tables `tab:CnC5`, `tab:CnC7` (selected rows) | `gamma_C6_C5`, `gamma_C8_C7`, `gamma_C10_C7`, `gamma_C12_C7`, `gamma_C15_C7` | OddCycles |
 
+## Generalizations (added later)
+
+| Statement | Lean | File |
+|---|---|---|
+| `|K_n,H| = C(n,2) - t(n,ω(H))` | `nhf_top_clique` | Generalize |
+| `|L(G),H| ≥ n(C(d,2) - t(d,r))` for `K_{r+1}`-free `H` | `line_lower_clique` | Generalize |
+| Edge-transitive `G`, `F → G`, `F ↛ H`: `|E(G)| ≤ |E(F)|·|G,H|` | `nhf_edge_transitive` | Generalize |
+| Averaging bound `|V(H)|²|G,H| ≤ |E(G)|(|V(H)|² - 2|E(H)|)` | `nhf_average` | Average |
+| `γ(C_n,C_m)` for odd `m` = least `M ≡ n (mod 2)` with `mM ≥ n` | `gamma_cycle_cycle` | CycleCycle |
+| `γ(G₁ + \bar K_k, K₃) = max(|E(G₁)|, k·β(G₁))` | `gamma_join` | Join |
+| `|H(d,n),H| = d·n^{d-1}(C(n,2) - t(n,ω(H)))` (Hamming graphs) | `nhf_ham` | Hamming |
+| `d`-regular with an equitable 3-colouring: `2γ(G,K₃) = d·M(n)` | `gamma_K3_equitable` | Equitable |
+| Hypercubes `2γ(Q_d,K₃) = d·M(2^d)`, closed form | `gamma_cube`, `Mtri_two_pow` | Equitable |
+| `|C_p×C_q,H| = 2p` for every `H` with an edge and `C_q ↛ H` (0 if `C_q → H`) | `nhf_tensor_cycles_target`, `nhf_tensor_cycles_zero`, `nhf_tensor_cycles_cycle` | TensorTarget |
+| `d`-regular into odd `C_m`: `2L_c = d·s_c`, `2γ(G,C_m) ≥ d·M_m(n)`, equality criterion | `two_Lc`, `gamma_oddcycle_lower`, `gamma_oddcycle_upper` | OddTarget |
+| Line graphs exact for every target given a proper `d`-edge-colouring | `nhf_line_class1` | LineExact |
+| Folded cubes `|FQ_n,H| = 2^{n-2}` (odd `n`, `C_n ↛ H`) | `nhf_folded`, `nhf_folded_K2`, `nhf_folded_cycle` | FoldedCube |
+| Triangular graphs into `K_r`: parity excess `r/2` (odd `n`, `n-1 = qr`, `q` odd); even `n` exact for every target | `tri_lower_parity`, `nhf_triangular_even` | TriangularR |
+| Triangular graphs, odd `n`, `r ∣ n-1`: exact value with and without the `r/2` excess (explicit centre-class colouring, replaces Walecki) | `nhf_triangular_odd_div_even`, `nhf_triangular_odd_div_odd` | TriOddDiv |
+| Triangular graphs, `r ∤ n-1`, any `n`: exact for every target of clique number `r` (explicit equitable colouring, replaces Hilton–de Werra) | `nhf_triangular_equitable` | TriEquitable |
+| Triangular graphs, `r ≥ 3`: some target of clique number `r` reaches the Turán value for every `n` (parity excess is specific to `K_r`) | `nhf_triangular_general_target`, `nhf_triangular_general_target_edges` | TriGeneral |
+| Spectral (Mohar–Poljak) bound in certificate form; `2n-2` and `dq` optimal; tight iff `n ≡ 1 mod 4` (J(n,2)), iff `k ∣ q` (Hamming) | `cutSize_le_of_lapForm_le`, `isLeast_triangular`, `exists_cutSize_triangular_eq_iff`, `isLeast_ham`, `exists_cutSize_ham_eq_iff` | Spectral |
+| Triangular graphs `|L(K_n),K₂| = n⌊(n-2)²/4⌋ + [n ≡ 3 (mod 4)]` | `nhf_triangular` | Triangular |
+
 ## open_problems/
 
 | Statement | Lean | File |
