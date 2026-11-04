@@ -2,7 +2,7 @@
 
 **Author:** Mohammad Ali Rostami
 
-This repository contains the paper, source code, and computational experiments for studying two measures associated with graph homomorphisms: the *non-homomorphism factor* $|G,H|$ and the *concentration parameter* $\gamma(G,H)$.
+This repository contains the paper, a Lean 4 formalization of its theorems, source code, and computational experiments for studying two measures associated with graph homomorphisms: the *non-homomorphism factor* $|G,H|$ and the *concentration parameter* $\gamma(G,H)$.
 
 ---
 
@@ -73,7 +73,7 @@ We introduce the **concentration parameter** $\gamma(G,H)$, which measures the u
 **d-Regularity formula.** For a $d$-regular graph $G$ on $n$ vertices with $\chi(G)=3$:
 $$\gamma(G,K_3) = \frac{d}{2} \cdot M, \quad M = \min\left\lbrace\max(s_1,s_2,s_3) : s_1+s_2+s_3=n,\quad s_i\ge 0,\quad s_1\equiv s_2\equiv s_3\pmod{2}\right\rbrace$$
 
-**Exact cycle formula** (verified computationally for $n\le 50$):
+**Exact cycle formula** (proved in Lean):
 $$\gamma(C_n, K_3) = \begin{cases} \lceil n/3 \rceil & \text{if } n \not\equiv 2 \pmod{3} \\\\ \lceil n/3 \rceil + 1 & \text{if } n \equiv 2 \pmod{3} \end{cases}$$
 
 | $C_n$ | $\|E\|$ | $\|C_n,K_3\|$ | $\gamma(C_n,K_3)$ | Pigeonhole |
@@ -118,17 +118,46 @@ A systematic search found **108 counterexample triples** among complete graphs w
 - **Wheel graphs** $W_n$: $\gamma$ strictly exceeds the pigeonhole bound due to the high-degree hub vertex (e.g., $\gamma(W_7, K_3) = 6$ vs. pigeonhole of 4).
 - **Complete multipartite graphs:** $\gamma(K_{a,b,c}, K_3) = \max(ab, ac, bc)$.
 
-**Non-complete targets:** Experiments with odd cycles ($C_5$, $C_7$) and the Petersen graph as targets show that $\gamma(C_n, C_5)$ achieves the pigeonhole bound when $5\mid n$ and exceeds it otherwise, and $\gamma(C_n, P)$ is remarkably low (often 1) due to the Petersen graph's high symmetry.
+**Odd-cycle targets:** for odd $m$ and $C_n\to C_m$, $\gamma(C_n,C_m)$ is the least $M\equiv n \pmod 2$ with $mM\ge n$. So $\gamma(C_6,C_5)=2$ even though $5\nmid 6$. More generally, for $d$-regular $G$ and $f\colon G\to C_m$ the load of the edge $\{c,c+1\}$ is $\tfrac d2 s_c$, where $s_c$ is an alternating sum of class sizes; hence $\gamma(G,C_m)\ge\tfrac d2 M_m(n)$.
+
+### Named Graph Families
+
+These hold for **every** target $H$ of the stated clique number $r$, not only for $K_2$ or $K_r$. All are proved in Lean. Here $t(n,r)$ is the Turán number.
+
+| Source graph | Result |
+|:---|:---|
+| Complete graph $K_n$ | $\|K_n,H\|=\binom n2-t(n,r)$ |
+| Hamming graph $H(d,n)$ (HyperX, rook's graphs) | $\|H(d,n),H\|=d\,n^{d-1}\bigl(\binom n2-t(n,r)\bigr)$ |
+| Line graph $L(G)$, $G$ $d$-regular with a proper $d$-edge-colouring | $\|L(G),H\|=n\bigl(\binom d2-t(d,r)\bigr)$; kagome, checkerboard and pyrochlore lattices via König's theorem |
+| Triangular graph $J(n,2)=L(K_n)$, $n-1=qr+s$ | $\|L(K_n),K_r\|=n\bigl(\binom{n-1}2-t(n-1,r)\bigr)+\tfrac r2[n\text{ odd}, s=0, q\text{ odd}]$ |
+| Folded cube $FQ_n$, $n\ge3$ odd | $\|FQ_n,H\|=2^{n-2}$ whenever $C_n\not\to H$ |
+| Tensor product $C_p\times C_q$, $3\le p\le q$ odd | $\|C_p\times C_q,H\|=2p$ if $C_q\not\to H$, else $0$ |
+
+**The parity excess of triangular graphs.** The extra $r/2$ is a property of the target $K_r$, not of clique number $r$. For every $r\ge3$ some graph of clique number $r$ reaches the Turán value for all $n$. For $r=2$ no triangle-free target beats $K_2$ on $L(K_7)$ (exhaustive search) or $L(K_{11})$ (SAT solver); whether this holds for all $n\equiv3\pmod4$ is open.
+
+**Concentration into $K_3$.** If $G$ is $d$-regular on $n$ vertices with an equitable proper 3-colouring, then $\gamma(G,K_3)=\tfrac d2 M(n)$ and every equitable colouring is optimal. Consequences:
+- every connected cubic graph other than $K_4$ and $K_{3,3}$ has $\gamma(G,K_3)=3\lceil n/6\rceil$ (via the Chen–Lih–Wu theorem; checked on all 45,982 connected cubic graphs with up to 18 vertices);
+- hypercubes: $\gamma(Q_d,K_3)=d(2^d+2)/6$ for even $d$ and $d(2^d+4)/6$ for odd $d$.
+
+**Spectral gaps.** The Mohar–Poljak eigenvalue bound on max-cut of $J(n,2)$ is attained exactly when $n\equiv1\pmod4$, and misses by exactly one edge when $n\equiv3\pmod4$. For the Hamming graph $H(d,q)$ the max-$k$-cut eigenvalue bound is attained exactly when $k\mid q$. Both are proved in Lean without eigenvalues, by explicit quadratic-form certificates.
+
+**Other results.** A quantitative Hedetniemi bound $|G\times H,K|\le\min(2|E(H)|\,|G,K|,\,2|E(G)|\,|H,K|)$, and a Jaeger-type bound $|L(G),L(P)|\ge$ number of leaf blocks for cubic $G$. See the paper for applications as certified solver benchmarks, frustrated magnets and network placement.
+
+### Formal Verification
+
+Every theorem, lemma, proposition and corollary of the paper is proved in Lean 4 with Mathlib in [`lean/NonHom`](lean/NonHom), with no `sorry` and no `native_decide`. The exceptions are cited classical theorems (Chen–Lih–Wu, König and the balanced-colouring existence results) and the marked computer searches. [`lean/NonHom/README.md`](lean/NonHom/README.md) maps each paper label to its Lean name. Checking the theorems in Lean also found errors in an earlier version of the paper, which have been removed.
 
 **Kneser graphs:** $K(5,2)$ (the Petersen graph) yields $\gamma(K(5,2),K_3)=6$. $K(6,2)$ has $\chi=4$, giving $|K(6,2),K_3|=3$ and $\gamma(K(6,2),K_4)=9$ (exceeding the pigeonhole bound of 8).
 
 ## Open Questions
 
-1. **Extend the $d$-regularity formula to general $H$.** Can the formula be generalised when $H$ has multiple edge orbits?
-2. **When does $\gamma(G,H)$ meet the pigeonhole bound?** The parity obstruction raises $\gamma$ for certain congruence classes — is this the only obstruction?
-3. **Can $m$ be repaired into a metric?** Can an edge-edit distance variant or other modification restore the triangle inequality?
-4. **$\gamma$ and the fractional chromatic number.** Is $\gamma(G,K_m)$ related to $\chi_f(G)$ for vertex-transitive $G$?
-5. **Characterise sub-additivity triples.** Which triples $(G,H,K)$ satisfy $|G,K| \le |G,H| + |H,K|$?
+1. **General targets.** Is there an analogue of the $K_3$ degree identity for other targets $H$?
+2. **When is the pigeonhole bound attained?** Characterise the pairs $(G,H)$ with $\gamma(G,H)=\lceil|E(G)|/|E(H)|\rceil$.
+3. **Tightness of the edge-transitive bound.** For which edge-transitive $G$ is $|G,K_2|=|E(G)|/\text{odd girth}$?
+4. **Triangular graphs.** Is $|L(K_n),H|=|L(K_n),K_2|$ for every triangle-free $H$ with an edge? Known for $n\not\equiv3\pmod4$, and for $n=7$ and $n=11$ by computer.
+5. **Repairing $m$.** Does an edge-edit variant of $m$ satisfy the triangle inequality?
+6. **Petersen colourings.** Is $|L(G),L(P)|$ the number of leaf blocks for every cubic $G$? The bridgeless case is Jaeger's conjecture.
+7. **Tightness of the Hedetniemi bound** for $K=K_2$ or $K_3$.
 
 ## Repository Structure
 
@@ -136,6 +165,10 @@ A systematic search found **108 counterexample triples** among complete graphs w
 ├── Paper/
 │   ├── paper.tex              # LaTeX source of the paper
 │   └── paper.pdf              # Compiled paper
+├── lean/NonHom/               # Lean 4 + Mathlib formalization of the paper (33 files)
+│   ├── NonHom.lean            # Root file importing every module
+│   ├── NonHom/*.lean          # Definitions, Turán, Hamming, triangular, spectral, ...
+│   └── README.md              # Paper label -> Lean theorem name
 ├── SourceCode/
 │   ├── FindHomomorphisms.py   # Core homomorphism finder (partition-based, Python/NetworkX)
 │   ├── homomorphism.py        # Homomorphism utilities
@@ -154,9 +187,29 @@ A systematic search found **108 counterexample triples** among complete graphs w
 │   └── RustFiles/
 │       └── homomorphism/
 │           └── src/main.rs    # Rust homomorphism finder (petgraph, backtracking)
+├── parameter_fast_check/      # Fast |G,H|_0 engine (bitmask + branch-and-bound + rayon)
+│   └── src/
+│       ├── lib.rs             # Graph type, graph builders/catalogue, solver, graph6 reader
+│       ├── main.rs            # CLI experiment runner
+│       └── bin/table.rs       # Generates the |G,H|_0 table above
+└── nonhom_gui/                # Desktop GUI front-end (egui/eframe)
+    └── src/
+        ├── main.rs            # Window setup
+        ├── app.rs             # Explore and Table tabs
+        ├── view.rs            # Graph + layout state per canvas
+        ├── draw.rs            # Canvas rendering and mouse editing
+        └── job.rs             # Background search & batch jobs
 ```
 
 ## Build & Run
+
+### Lean
+```bash
+cd lean/NonHom
+lake exe cache get   # download prebuilt Mathlib
+lake build
+```
+Requires [elan](https://github.com/leanprover/elan); the toolchain (Lean 4.35.0) is pinned in `lean-toolchain`.
 
 ### Python
 ```bash
@@ -182,6 +235,44 @@ Requires C++26 (GCC 13+/Clang 17+) and CMake 3.31+.
 cd SourceCode/RustFiles/homomorphism
 cargo run --release
 ```
+
+### $|G,H|_0$ engine (Rust)
+```bash
+cd parameter_fast_check
+cargo run --release                 # CLI experiment suite
+cargo run --release --bin table     # regenerate the table above
+cargo test --release                # 84 unit tests
+```
+The engine lives in `src/lib.rs` and is shared by the CLI, the table generator
+and the GUI: bitmask adjacency (≤ 64 vertices), branch-and-bound over all
+mappings $f\colon V(G)\to V(H)$, parallelised with rayon.
+
+### Desktop GUI (Rust)
+```bash
+cd nonhom_gui
+cargo run --release
+```
+
+An interactive explorer for $|G,H|_0$:
+
+- **Explore tab.** Pick $G$ and $H$ from the graph catalogue (complete, cycle,
+  Petersen $+k$ edges, generalized Petersen, grid, complete bipartite,
+  circulant, Mycielski, Kneser, octahedron, icosahedron, dodecahedron, Heawood,
+  Möbius–Kantor, Pappus, Paley), or paste a line of a `.g6` file. Computing
+  $|G,H|_0$ colours each $G$-vertex by its image in $H$ — so a homomorphism
+  shows up as a proper colouring — and draws the edges that must be removed as
+  dashed red. Edges of $H$ are drawn heavier the more $G$-edges land on them,
+  and the busiest one is reported: for a genuine homomorphism that value is an
+  upper bound for the concentration $\gamma(G,H)$.
+- **Editing.** Click one vertex then another to add or remove that edge, drag
+  vertices to rearrange, add or delete vertices. This is the quickest way to
+  reproduce experiments like "Petersen $+k$ edges".
+- **Table tab.** Builds a whole $|G,H|_0$ matrix in the background with a
+  per-cell time limit; cells cut short are shown as $\le$ bound. Results copy
+  out as Markdown or CSV.
+
+Searches run on a worker thread with a live best-so-far readout and a cancel
+button, so a long run never freezes the window.
 
 ## References
 
